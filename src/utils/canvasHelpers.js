@@ -14,15 +14,17 @@ export const mouseUpListener = (event, canvas, correctOrder) => {
     }
 
     target.set({ scaleX: 1, scaleY: 1 })
+    target.setCoords()
+    canvas.renderAll()
     canvas.discardActiveObject()
   }
 }
 
 export const mouseDownListener = (event) => {
-    console.log('running')
   const target = event.target
   if (target) {
     target.set({ scaleX: 0.7, scaleY: 0.7 })
+    target.setCoords()
   }
 }
 

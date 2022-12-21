@@ -5,15 +5,22 @@ export const tileIsContained = (innerTile, outerTile) => {
 
   if (outerTile === innerTile) return
   if (innerTile.intersectsWithObject(outerTile)) {
-    const neighbourTop = outerTile.top * 2 - outerTile.height
-    const neighbourBottom = outerTile.top * 2
-    const neighbourLeft = outerTile.left * 2 - outerTile.width
-    const neighbourRight = outerTile.left * 2
 
-    const targetTop = innerTile.top * 2 - innerTile.height * 0.7
-    const targetBottom = innerTile.top * 2 * 0.7
-    const targetLeft = innerTile.left * 2 - innerTile.width * 0.7
-    const targetRight = innerTile.left * 2 * 0.7
+    // easier to calculate when using top-left as origin
+    const outerTileTop = outerTile.getPointByOrigin('left', 'top').y
+    const outerTileLeft = outerTile.getPointByOrigin('left', 'top').x
+    const innerTileTop = innerTile.getPointByOrigin('left', 'top').y
+    const innerTileLeft = innerTile.getPointByOrigin('left', 'top').x
+
+    const neighbourTop = outerTileTop
+    const neighbourBottom = outerTileTop + outerTile.height
+    const neighbourLeft = outerTileLeft
+    const neighbourRight = outerTileLeft + outerTile.width
+
+    const targetTop = innerTileTop
+    const targetBottom = innerTileTop + innerTile.height * 0.7
+    const targetLeft = innerTileLeft
+    const targetRight = innerTileLeft + innerTile.width * 0.7
 
     if (
       targetTop > neighbourTop &&

@@ -4,7 +4,6 @@ import styles from '../styles/Home.module.css'
 import { Button, Grid } from '@mui/material'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { fabric } from 'fabric'
-import { swapTiles, tileIsContained } from '../src/utils/tileHelpers'
 import { mouseDownListener, mouseUpListener, objectMovingListener } from '../src/utils/canvasHelpers'
 
 export default function Home() {
@@ -13,8 +12,7 @@ export default function Home() {
   const [hasContainedTile, setHasContainedTile] = useState(false)
 
   useEffect(() => {
-    // canvas is getting added twice for some reason, checking here to prevent that
-    setCanvas(new fabric.Canvas('canvas'))
+    setCanvas(new fabric.Canvas('canvas'), { selection: false})
   }, [])
 
 
@@ -72,8 +70,6 @@ export default function Home() {
             padding,
             index,
           })
-
-          console.log('TILE', img)
   
           canvas.add(img)
           index++
