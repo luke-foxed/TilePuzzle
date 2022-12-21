@@ -2,7 +2,7 @@ import Head from 'next/head'
 import { Inter } from '@next/font/google'
 import styles from '../styles/Home.module.css'
 import { Button, Grid } from '@mui/material'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { fabric } from 'fabric'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -10,22 +10,55 @@ const inter = Inter({ subsets: ['latin'] })
 export default function Home() {
   const [canvas, setCanvas] = useState(null)
 
-  useEffect(() => {
-    setCanvas(new fabric.Canvas('canvas'))
+  useLayoutEffect(() => {
+    // canvas is getting added twice for some reason, checking here to prevent that
+    const canvasEl = Array.from(document.getElementsByClassName('canvas-container'))
+    if (canvasEl.length === 0) {
+      setCanvas(new fabric.Canvas('canvas'))
+    }
   }, [])
 
-  const handleImageSelect = async(e) => {
+  const handleImageSelect = async (e) => {
     if (canvas) {
       const ctx = canvas.getContext('2d')
       let img = new Image()
       img.src = URL.createObjectURL(e.target.files[0])
       img.onload = () => {
-       canvas.setWidth(img.width)
-       canvas.setHeight(img.height)
-       canvas.renderAll()
-        ctx.drawImage(img, 0, 0)
+        const fabricImage = new fabric.Image(img)
+        canvas.setWidth(img.width)
+        canvas.setHeight(img.height)
+        canvas.setBackgroundImage(fabricImage, canvas.renderAll.bind(canvas), {
+          originX: 'left',
+          originY: 'top',
+        })
       }
     }
+  }
+
+  const handleGenerateTiles = () => {
+    const padding = 5
+    const tileWidth = canvas.getWidth() / 4
+    const tileHeight = canvas.getHeight() / 4
+    for (let y = 0; y < 4; y++) {
+      for (let x = 0; x < 4; x++) {
+        const ctx = canvas.getContext('2d')
+        const imageTileData = ctx.getImageData(x * tileWidth, y * tileHeight, tileWidth, tileHeight)
+        const mockCanvas = document.createElement('canvas')
+        const mockCanvasCtx = mockCanvas.getContext('2d')
+        mockCanvas.width = tileWidth
+        mockCanvas.height = tileHeight
+
+        mockCanvasCtx.putImageData(imageTileData, 0, 0)
+
+        fabric.Image.fromURL(mockCanvas.toDataURL('image/png'), (img) => {
+          img.set({ left: (x * tileWidth) + (padding * x), top: (y * tileHeight) + (padding * y),  padding })
+          canvas.add(img)
+        })
+      }
+    }
+    // clear the background image after we've added some tiles
+    const image = new fabric.Image('')
+    canvas.setBackgroundImage(image, canvas.renderAll.bind(canvas))
   }
 
   return (
@@ -42,6 +75,7 @@ export default function Home() {
             Upload Button
             <input hidden type="file" onChange={handleImageSelect} />
           </Button>
+          <Button onClick={handleGenerateTiles}>Start</Button>
         </Grid>
         <div>
           <canvas id="canvas" />
