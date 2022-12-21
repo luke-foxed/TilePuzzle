@@ -4,21 +4,68 @@ import styles from '../styles/Home.module.css'
 import { Button, Grid } from '@mui/material'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { fabric } from 'fabric'
-
-const inter = Inter({ subsets: ['latin'] })
+import { swapTiles, tileIsContained } from '../src/utils/tileHelpers'
 
 export default function Home() {
   const [canvas, setCanvas] = useState(null)
+  const [correctOrder, setCorrectOrder] = useState([])
+  const [hasContainedTile, setHasContainedTile] = useState(false)
 
-  useLayoutEffect(() => {
+  let activeObject = null
+
+
+  useEffect(() => {
     // canvas is getting added twice for some reason, checking here to prevent that
-    const canvasEl = Array.from(document.getElementsByClassName('canvas-container'))
-    if (canvasEl.length === 0) {
-      setCanvas(new fabric.Canvas('canvas'))
-    }
+    setCanvas(new fabric.Canvas('canvas'))
   }, [])
 
-  const handleImageSelect = async (e) => {
+
+  const handleMouseUp1 = (event) => {
+    const target = event.target
+    const initialPos = { x: event.transform.original.left, y: event.transform.original.top }
+
+    console.log('MOUSE UP')
+
+    if (target) {
+      const containedTile = canvas.getObjects().filter((obj) => tileIsContained(target, obj))
+
+      if (containedTile.length !== 0) {
+        swapTiles(target, initialPos, containedTile[0], correctOrder)
+        return
+      } else {
+        target.setPositionByOrigin(initialPos, 'center', 'center')
+      }
+
+      target.set({ scaleX: 1, scaleY: 1 })
+    }
+  }
+
+  if (canvas) {
+    canvas.on('mouse:up', handleMouseUp1)
+
+    canvas.on('mouse:down', (event) => {
+      const target = event.target
+      if (target) {
+        target.set({ scaleX: 0.7, scaleY: 0.7 })
+      }
+    })
+
+    canvas.on('object:moving', (event) => {
+      const target = event.target
+
+      canvas.forEachObject((obj) => {
+        if (tileIsContained(target, obj)) {
+          obj.set({ opacity: 0.5 })
+        } else {
+          obj.set({ opacity: 1 })
+        }
+      })
+    })
+  }
+
+
+
+  const handleImageSelect = (e) => {
     if (canvas) {
       const ctx = canvas.getContext('2d')
       let img = new Image()
@@ -39,23 +86,40 @@ export default function Home() {
     const padding = 5
     const tileWidth = canvas.getWidth() / 4
     const tileHeight = canvas.getHeight() / 4
+        let index = 0
     for (let y = 0; y < 4; y++) {
       for (let x = 0; x < 4; x++) {
         const ctx = canvas.getContext('2d')
         const imageTileData = ctx.getImageData(x * tileWidth, y * tileHeight, tileWidth, tileHeight)
         const mockCanvas = document.createElement('canvas')
         const mockCanvasCtx = mockCanvas.getContext('2d')
+
         mockCanvas.width = tileWidth
         mockCanvas.height = tileHeight
-
         mockCanvasCtx.putImageData(imageTileData, 0, 0)
 
         fabric.Image.fromURL(mockCanvas.toDataURL('image/png'), (img) => {
-          img.set({ left: (x * tileWidth) + (padding * x), top: (y * tileHeight) + (padding * y),  padding })
+          img.set({
+            left: (x * tileWidth + (padding * x)) + tileWidth / 2,
+            top: (y * tileHeight + (padding * y)) + tileHeight / 2,
+            originX: 'center',
+            originY: 'center',
+            hasControls: false,
+            padding,
+            index,
+          })
+
+          console.log('TILE', img)
+  
           canvas.add(img)
+          index++
         })
+  
       }
     }
+    // set the correct order of tiles (it is hardcoded to 16 for now)
+    setCorrectOrder([...Array(16).keys()])
+
     // clear the background image after we've added some tiles
     const image = new fabric.Image('')
     canvas.setBackgroundImage(image, canvas.renderAll.bind(canvas))
