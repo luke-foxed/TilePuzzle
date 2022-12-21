@@ -5,14 +5,12 @@ import { Button, Grid } from '@mui/material'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { fabric } from 'fabric'
 import { swapTiles, tileIsContained } from '../src/utils/tileHelpers'
+import { mouseDownListener, mouseUpListener, objectMovingListener } from '../src/utils/canvasHelpers'
 
 export default function Home() {
   const [canvas, setCanvas] = useState(null)
   const [correctOrder, setCorrectOrder] = useState([])
   const [hasContainedTile, setHasContainedTile] = useState(false)
-
-  let activeObject = null
-
 
   useEffect(() => {
     // canvas is getting added twice for some reason, checking here to prevent that
@@ -20,50 +18,16 @@ export default function Home() {
   }, [])
 
 
-  const handleMouseUp1 = (event) => {
-    const target = event.target
-    const initialPos = { x: event.transform.original.left, y: event.transform.original.top }
-
-    console.log('MOUSE UP')
-
-    if (target) {
-      const containedTile = canvas.getObjects().filter((obj) => tileIsContained(target, obj))
-
-      if (containedTile.length !== 0) {
-        swapTiles(target, initialPos, containedTile[0], correctOrder)
-        return
-      } else {
-        target.setPositionByOrigin(initialPos, 'center', 'center')
-      }
-
-      target.set({ scaleX: 1, scaleY: 1 })
+  if (canvas) {
+    // bit hacky, but fabric is attaching multiple instances of the same event listeners
+    // need to limit this to just a single event listener to prevent duplicate events firing
+    const listeners = canvas.__eventListeners
+    if (listeners === undefined) {
+      canvas.on('mouse:up', (event) => mouseUpListener(event, canvas, correctOrder))
+      canvas.on('mouse:down', (event) => mouseDownListener(event))
+      canvas.on('object:moving', (event) => objectMovingListener(event, canvas))
     }
   }
-
-  if (canvas) {
-    canvas.on('mouse:up', handleMouseUp1)
-
-    canvas.on('mouse:down', (event) => {
-      const target = event.target
-      if (target) {
-        target.set({ scaleX: 0.7, scaleY: 0.7 })
-      }
-    })
-
-    canvas.on('object:moving', (event) => {
-      const target = event.target
-
-      canvas.forEachObject((obj) => {
-        if (tileIsContained(target, obj)) {
-          obj.set({ opacity: 0.5 })
-        } else {
-          obj.set({ opacity: 1 })
-        }
-      })
-    })
-  }
-
-
 
   const handleImageSelect = (e) => {
     if (canvas) {
