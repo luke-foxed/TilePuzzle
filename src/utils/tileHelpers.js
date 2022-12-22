@@ -47,14 +47,10 @@ export const swapTiles = (tile1, tile1OldPosition, tile2, order) => {
     tile1.setCoords()
     tile2.setCoords()
 
-
     order[tile1.index] = tile2.index
     order[tile2.index] = tile1.index
 
     tile1.set({ index: tile2.index })
     tile2.set({ index: tile1.index })
-
-
-    return tile2
 
 }
