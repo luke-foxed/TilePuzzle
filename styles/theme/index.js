@@ -11,6 +11,9 @@ const theme = createTheme({
     background: {
       default: '#171F40',
     },
+    error: {
+      main: '#F75590',
+    },
   },
   typography: {
     body: {

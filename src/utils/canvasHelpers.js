@@ -1,7 +1,8 @@
 import { swapTiles, tileIsContained } from './tileHelpers'
 
-export const mouseUpListener = (event, canvas) => {
+export const mouseUpListener = (event) => {
   const target = event.target
+  const canvas = target.canvas
   const initialPos = { x: event.transform.original.left, y: event.transform.original.top }
 
   if (target) {
@@ -28,8 +29,9 @@ export const mouseDownListener = (event) => {
   }
 }
 
-export const objectMovingListener = (event, canvas) => {
+export const objectMovingListener = (event) => {
   const target = event.target
+    const canvas = target.canvas
 
   canvas.forEachObject((obj) => {
     if (tileIsContained(target, obj)) {

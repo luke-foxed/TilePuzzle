@@ -1,3 +1,12 @@
+// https://stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array/6274381#6274381
+const shuffleArray = (a) => {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
+
 export const generateTiles = (padding, rows, columns, canvas) => {
   const tileWidth = canvas.getWidth() / rows
   const tileHeight = canvas.getHeight() / columns
@@ -24,13 +33,23 @@ export const generateTiles = (padding, rows, columns, canvas) => {
           index,
         })
 
-        console.log('GENERATING TILE', img.index)
-
         canvas.add(img)
         index++
       })
     }
   }
+}
+
+export const jumbleTiles = (correctOrder, canvas) => {
+  const jumbledOrder = shuffleArray(correctOrder)
+
+  canvas.forEachObject((obj, index) => {
+    const randomIndex = jumbledOrder[index]
+    const randomTile = canvas.getObjects().find((tile) => tile.index === randomIndex)
+
+    swapTiles(randomTile, obj)
+  })
+  canvas.renderAll()
 }
 
 export const tileIsContained = (innerTile, outerTile) => {

@@ -4,14 +4,15 @@ import { Button, Grid } from '@mui/material'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { fabric } from 'fabric'
 import { mouseDownListener, mouseUpListener, objectMovingListener } from '../../utils/canvasHelpers'
-import { generateTiles, swapTiles } from '../../utils/tileHelpers'
+import { generateTiles, jumbleTiles, swapTiles } from '../../utils/tileHelpers'
 
 export default function Canvas({ imageStuff, gameStarted, onGameStart }) {
   const [canvas, setCanvas] = useState(null)
   const [correctOrder, setCorrectOrder] = useState([])
+  const [currentOrder, setCurrentOrder] = useState([])
 
   useEffect(() => {
-    setCanvas(new fabric.Canvas('canvas'), { selection: false })
+    setCanvas(new fabric.Canvas('canvas', { selection: false }))
   }, [])
 
   useEffect(() => {
@@ -32,6 +33,7 @@ export default function Canvas({ imageStuff, gameStarted, onGameStart }) {
   }, [canvas, imageStuff])
 
   const handleStartClick = () => {
+    const order = [...Array(9).keys()]
     generateTiles(1, 3, 3, canvas)
 
     // clear the background image after we've added some tiles
@@ -41,7 +43,12 @@ export default function Canvas({ imageStuff, gameStarted, onGameStart }) {
     onGameStart()
 
     // set the correct order of tiles (it is hardcoded to 16 for now)
-    setCorrectOrder([...Array(9).keys()])
+    setCorrectOrder(order)
+
+    // wait a second before beginning shuffle
+    setTimeout(() => {
+      jumbleTiles(order, canvas)
+    }, 2000)
   }
 
   const handleRestartClick = () => {
@@ -55,14 +62,25 @@ export default function Canvas({ imageStuff, gameStarted, onGameStart }) {
     })
   }
 
+  const updateCurrentOrder = () => {
+    const order = canvas.getObjects().map((obj) => obj.index)
+    setCurrentOrder(order)
+  }
+
+  const checkWinner = () => {
+    const currentOrder = canvas.getObjects().map((obj) => obj.index)
+    const hasWon = currentOrder === correctOrder
+    console.log('WINNER', hasWon)
+  }
+
   if (canvas) {
     // bit hacky, but fabric is attaching multiple instances of the same event listeners
     // need to limit this to just a single event listener to prevent duplicate events firing
     const listeners = canvas.__eventListeners
     if (listeners === undefined) {
-      canvas.on('mouse:up', (event) => mouseUpListener(event, canvas))
-      canvas.on('mouse:down', (event) => mouseDownListener(event))
-      canvas.on('object:moving', (event) => objectMovingListener(event, canvas))
+      canvas.on('mouse:up', mouseUpListener)
+      canvas.on('mouse:down', mouseDownListener)
+      canvas.on('object:moving', objectMovingListener)
     }
   }
 
