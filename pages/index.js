@@ -15,10 +15,6 @@ export default function Home() {
     setImage(e.target.files[0])
   }
 
-  const handleStartClick = () => {
-    setGameStarted(true)
-  }
-
   return (
     <>
       <Head>
@@ -44,14 +40,7 @@ export default function Home() {
         <div>
           {image && (
             <Grid direction="column" container justifyContent="center" alignItems="center">
-              <Canvas imageStuff={image} gameStarted={gameStarted} />
-              {gameStarted ? (
-                <Button color="secondary">Restart</Button>
-              ) : (
-                <Button color="secondary" onClick={handleStartClick} style={{ width: '200px' }} size="large">
-                  Start
-                </Button>
-              )}
+              <Canvas imageStuff={image} gameStarted={gameStarted} onGameStart={() => setGameStarted(true)} />
             </Grid>
           )}
         </div>
