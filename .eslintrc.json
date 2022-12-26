@@ -1,3 +1,13 @@
 {
-  "extends": "next/core-web-vitals"
+  "extends": ["next/core-web-vitals", "eslint-config-airbnb"],
+  "rules": {
+    "@next/next/no-img-element": "off",
+    "semi": "off",
+    "object-curly-newline": "off",
+    "react/react-in-jsx-scope": "off",
+    "react/no-unescaped-entities": "off",
+    "react/jsx-filename-extension": "off",
+    "react/prop-types": "off", // forgive me
+    "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }]
+  }
 }

@@ -1,10 +1,6 @@
 import Head from 'next/head'
-import { Inter } from '@next/font/google'
-import styles from '../styles/Home.module.css'
-import { Button, Grid, Typography } from '@mui/material'
-import { Fragment, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { fabric } from 'fabric'
-import { mouseDownListener, mouseUpListener, objectMovingListener } from '../src/utils/canvasHelpers'
+import { Button, Grid } from '@mui/material'
+import { Fragment, useState } from 'react'
 import Canvas from '../src/components/canvas'
 
 export default function Home() {
@@ -24,7 +20,12 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <Grid container justifyContent="center" style={{ width: '85%', margin: 'auto' }} spacing={4}>
+        <Grid
+          container
+          justifyContent="center"
+          style={{ width: '85%', margin: 'auto' }}
+          spacing={4}
+        >
           <Grid item>
             <Button component="label" variant="contained" style={{ width: '240px' }} size="large">
               Upload Image
@@ -40,7 +41,11 @@ export default function Home() {
         <div>
           {image && (
             <Grid direction="row" container justifyContent="center" alignItems="center">
-              <Canvas imageInput={image} gameStarted={gameStarted} onGameToggle={(toggle) => setGameStarted(toggle)} />
+              <Canvas
+                imageInput={image}
+                gameStarted={gameStarted}
+                onGameToggle={(toggle) => setGameStarted(toggle)}
+              />
             </Grid>
           )}
         </div>

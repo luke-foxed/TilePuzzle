@@ -1,10 +1,8 @@
-import Head from 'next/head'
-import { Inter } from '@next/font/google'
 import { Button, Grid, Slider } from '@mui/material'
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { fabric } from 'fabric'
 import { mouseDownListener, mouseUpListener, objectMovingListener } from '../../utils/canvasHelpers'
-import { generateTiles, jumbleTiles, swapTiles } from '../../utils/tileHelpers'
+import { generateTiles, swapTiles } from '../../utils/tileHelpers'
 
 const DIFFICULTIES = [
   {
@@ -68,8 +66,7 @@ export default function Canvas({ imageInput, gameStarted, onGameToggle }) {
 
   useEffect(() => {
     if (canvas) {
-      const ctx = canvas.getContext('2d')
-      let img = new Image()
+      const img = new Image()
       img.src = URL.createObjectURL(imageInput)
       img.onload = () => {
         const fabricImage = new fabric.Image(img)
@@ -106,11 +103,6 @@ export default function Canvas({ imageInput, gameStarted, onGameToggle }) {
     })
 
     // onGameToggle(false)
-  }
-
-  const updateCurrentOrder = () => {
-    const order = canvas.getObjects().map((obj) => obj.index)
-    setCurrentOrder(order)
   }
 
   return (

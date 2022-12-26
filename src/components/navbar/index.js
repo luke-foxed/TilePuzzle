@@ -7,10 +7,10 @@ const StyledTopBar = styled(AppBar)({
   boxShadow: 'none',
 })
 
-const Navbar = ({}) => {
+function Navbar() {
   return (
     <StyledTopBar position="static">
-      <Grid container alignItems="center" style={{ height: '100%', width: '85%', margin: 'auto'}}>
+      <Grid container alignItems="center" style={{ height: '100%', width: '85%', margin: 'auto' }}>
         <Grid item xs="auto" md={8}>
           <Typography variant="h1">Tiled</Typography>
         </Grid>
