@@ -40,7 +40,7 @@ export default function Home() {
         <div>
           {image && (
             <Grid direction="row" container justifyContent="center" alignItems="center">
-              <Canvas imageStuff={image} gameStarted={gameStarted} onGameToggle={(toggle) => setGameStarted(toggle)} />
+              <Canvas imageInput={image} gameStarted={gameStarted} onGameToggle={(toggle) => setGameStarted(toggle)} />
             </Grid>
           )}
         </div>

@@ -7,12 +7,25 @@ const shuffleArray = (a) => {
   return a
 }
 
-export const generateTiles = (padding, rows, columns, canvas) => {
-  const tileWidth = canvas.getWidth() / rows
-  const tileHeight = canvas.getHeight() / columns
+const shuffleTiles = (correctOrder, canvas) => {
+  const jumbledOrder = shuffleArray(correctOrder)
+
+  canvas.forEachObject((obj, index) => {
+    const randomIndex = jumbledOrder[index]
+    const randomTile = canvas.getObjects().find((tile) => tile.index === randomIndex)
+
+    swapTiles(randomTile, obj)
+  })
+
+  canvas.renderAll()
+}
+
+export const generateTiles = (padding, tileCount, canvas) => {
+  const tileWidth = canvas.getWidth() / tileCount
+  const tileHeight = canvas.getHeight() / tileCount
   let index = 0
-  for (let row = 0; row < rows; row++) {
-    for (let column = 0; column < columns; column++) {
+  for (let row = 0; row < tileCount; row++) {
+    for (let column = 0; column < tileCount; column++) {
       const ctx = canvas.getContext('2d', { willReadFrequently: true })
       const imageTileData = ctx.getImageData(column * tileWidth, row * tileHeight, tileWidth, tileHeight)
       const mockCanvas = document.createElement('canvas')
@@ -38,18 +51,11 @@ export const generateTiles = (padding, rows, columns, canvas) => {
       })
     }
   }
-}
 
-export const jumbleTiles = (correctOrder, canvas) => {
-  const jumbledOrder = shuffleArray(correctOrder)
-
-  canvas.forEachObject((obj, index) => {
-    const randomIndex = jumbledOrder[index]
-    const randomTile = canvas.getObjects().find((tile) => tile.index === randomIndex)
-
-    swapTiles(randomTile, obj)
-  })
-  canvas.renderAll()
+  // adding small delay so tiles are on canvas before attempting shuffle
+  setTimeout(() => {
+    shuffleTiles([...Array(tileCount * tileCount).keys()], canvas)
+  }, 100)
 }
 
 export const tileIsContained = (innerTile, outerTile) => {
