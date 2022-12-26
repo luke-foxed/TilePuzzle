@@ -110,7 +110,7 @@ export default function Canvas({ imageInput, gameStarted, onGameToggle }) {
       <Grid container style={{ width: 'min-content', margin: 'auto' }}>
         <canvas ref={canvasRef} id="canvas" style={{ padding: '20px' }} />
         <Slider
-          defaultValue={tileCount}
+          value={tileCount}
           step={2}
           marks={DIFFICULTIES}
           min={2}

@@ -1,20 +1,21 @@
 import { swapTiles, tileIsContained } from './tileHelpers'
 
 export const mouseUpListener = (event) => {
-  const target = event.target
-  const canvas = target.canvas
+  const { target } = event
+  const { canvas } = target
   const initialPos = { x: event.transform.original.left, y: event.transform.original.top }
 
   if (target) {
-    const containedTile = canvas.getObjects().filter((obj) => tileIsContained(target, obj))
+    const containedTile = canvas.getObjects().find((obj) => tileIsContained(target, obj))
 
-    if (containedTile.length !== 0) {
-      swapTiles(target, containedTile[0], initialPos)
+    if (containedTile !== undefined) {
+      swapTiles(target, containedTile, initialPos)
+      containedTile.set({ opacity: 1 })
     } else {
       target.setPositionByOrigin(initialPos, 'center', 'center')
     }
 
-    target.set({ scaleX: 1, scaleY: 1 })
+    target.set({ scaleX: 1, scaleY: 1, opacity: 1 })
     target.setCoords()
     canvas.renderAll()
     canvas.discardActiveObject()
@@ -22,7 +23,7 @@ export const mouseUpListener = (event) => {
 }
 
 export const mouseDownListener = (event) => {
-  const target = event.target
+  const { target } = event
   if (target) {
     target.set({ scaleX: 0.7, scaleY: 0.7 })
     target.setCoords()
@@ -30,8 +31,8 @@ export const mouseDownListener = (event) => {
 }
 
 export const objectMovingListener = (event) => {
-  const target = event.target
-    const canvas = target.canvas
+  const { target } = event
+  const { canvas } = target
 
   canvas.forEachObject((obj) => {
     if (tileIsContained(target, obj)) {
