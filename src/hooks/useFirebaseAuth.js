@@ -12,7 +12,7 @@ import { doc, getDoc, setDoc } from 'firebase/firestore'
 import { useState, useEffect } from 'react'
 import { auth, db } from '../../config/firebase'
 
-// DB API CALLS
+// for creating DB association with user
 const createUserDocument = async (user) => {
   const { uid, email } = user
   await setDoc(doc(db, 'users', uid), {
@@ -30,33 +30,19 @@ const checkUserDocument = async (user) => {
   }
 }
 
-const formatAuthUser = (user) => ({
-  uid: user.uid,
-  email: user.email,
-})
-
 export default function useFirebaseAuth() {
   const [authUser, setAuthUser] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
 
-  const authStateChanged = (authState) => {
-    if (!authState) {
-      setAuthUser(null)
-      setLoading(false)
-      return
-    }
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      const formattedUser = user ? { uid: user.uid, email: user.email } : null
+      setAuthUser(formattedUser)
+    })
+    return () => unsubscribe()
+  }, [])
 
-    setLoading(true)
-    const formattedUser = formatAuthUser(authState)
-    setAuthUser(formattedUser)
-    setLoading(false)
-  }
-
-  const clear = () => {
-    setAuthUser(null)
-    setLoading(true)
-  }
-
+  // API specific functions
   const login = async (email, password) => {
     const res = await signInWithEmailAndPassword(auth, email, password)
     return res
@@ -78,13 +64,7 @@ export default function useFirebaseAuth() {
 
   const logout = () => {
     signOut(auth)
-    clear()
   }
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, authStateChanged)
-    return () => unsubscribe()
-  }, [])
 
   return {
     authUser,
