@@ -1,10 +1,11 @@
 import * as React from 'react'
 import { Button, Avatar, TextField, Grid, Box, Typography, Dialog, Container } from '@mui/material'
 import { LockOutlined } from '@mui/icons-material'
-import { useAuth } from '../../context/userProvider'
+import { useContext } from 'react'
+import { AuthUserContext } from '../../context/userProvider'
 
 export default function SignUp({ open, onClose }) {
-  const { createUser } = useAuth()
+  const { createUser } = useContext(AuthUserContext)
 
   const handleSubmit = (event) => {
     event.preventDefault()

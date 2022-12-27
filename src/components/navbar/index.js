@@ -1,6 +1,6 @@
 import { AppBar, Button, Grid, styled, Typography } from '@mui/material'
-import { Fragment, useState } from 'react'
-import { useAuth } from '../../context/userProvider'
+import { Fragment, useContext, useState } from 'react'
+import { AuthUserContext } from '../../context/userProvider'
 import Login from './login'
 import SignUp from './signup'
 
@@ -14,7 +14,7 @@ const StyledTopBar = styled(AppBar)({
 function Navbar() {
   const [showSignupModal, setShowSignupModal] = useState(false)
   const [showLoginModal, setShowLoginModal] = useState(false)
-  const { authUser, loading, logout } = useAuth()
+  const { authUser, loading, logout } = useContext(AuthUserContext)
 
   return (
     <>

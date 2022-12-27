@@ -1,9 +1,34 @@
 // https://blog.logrocket.com/implementing-authentication-in-next-js-with-firebase/
 
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth'
-import { addDoc, collection } from 'firebase/firestore'
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  signInWithPopup,
+  GoogleAuthProvider,
+} from 'firebase/auth'
+import { doc, getDoc, setDoc } from 'firebase/firestore'
 import { useState, useEffect } from 'react'
 import { auth, db } from '../../config/firebase'
+
+// DB API CALLS
+const createUserDocument = async (user) => {
+  const { uid, email } = user
+  await setDoc(doc(db, 'users', uid), {
+    email,
+  })
+}
+
+const checkUserDocument = async (user) => {
+  const { uid } = user
+  const docRef = doc(db, 'users', uid)
+  const docSnap = await getDoc(docRef)
+
+  if (!docSnap.exists()) {
+    await createUserDocument(user)
+  }
+}
 
 const formatAuthUser = (user) => ({
   uid: user.uid,
@@ -13,8 +38,6 @@ const formatAuthUser = (user) => ({
 export default function useFirebaseAuth() {
   const [authUser, setAuthUser] = useState(null)
   const [loading, setLoading] = useState(true)
-
-  const userDB = collection(db, 'users')
 
   const authStateChanged = (authState) => {
     if (!authState) {
@@ -39,12 +62,17 @@ export default function useFirebaseAuth() {
     return res
   }
 
+  const loginWithGoogle = async () => {
+    const provider = new GoogleAuthProvider()
+    const { user } = await signInWithPopup(auth, provider)
+    await checkUserDocument(user)
+  }
+
   const createUser = async (email, password) => {
     const res = await createUserWithEmailAndPassword(auth, email, password)
     if (res.user) {
-      await addDoc(userDB, { email }).catch((err) => console.log('ERR', err))
+      await createUserDocument(res.user)
     }
-
     return res
   }
 
@@ -62,6 +90,7 @@ export default function useFirebaseAuth() {
     authUser,
     loading,
     login,
+    loginWithGoogle,
     logout,
     createUser,
   }

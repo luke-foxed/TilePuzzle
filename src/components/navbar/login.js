@@ -1,10 +1,10 @@
-import * as React from 'react'
 import { Button, Avatar, TextField, Box, Typography, Dialog, Container } from '@mui/material'
 import { LockOutlined } from '@mui/icons-material'
-import { useAuth } from '../../context/userProvider'
+import { useContext } from 'react'
+import { AuthUserContext } from '../../context/userProvider'
 
 export default function Login({ open, onClose }) {
-  const { login } = useAuth()
+  const { login, loginWithGoogle } = useContext(AuthUserContext)
 
   const handleSubmit = (event) => {
     event.preventDefault()
@@ -56,6 +56,7 @@ export default function Login({ open, onClose }) {
             <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
               Sign In
             </Button>
+            <Button onClick={() => loginWithGoogle()}>Login With Google</Button>
           </Box>
         </Box>
       </Container>
