@@ -15,19 +15,24 @@ import { auth, db } from '../../config/firebase'
 // for creating DB association with user
 const createUserDocument = async (user) => {
   const { uid, email } = user
-  await setDoc(doc(db, 'users', uid), {
-    email,
-  })
+  const data = { email, avatar: `https://source.boringavatars.com/beam/120/${uid}?colors=FFFBFE,F75590` }
+  await setDoc(doc(db, 'users', uid), data)
+  return data
 }
 
-const checkUserDocument = async (user) => {
+const getUserDocument = async (user) => {
   const { uid } = user
   const docRef = doc(db, 'users', uid)
   const docSnap = await getDoc(docRef)
+  return docSnap.data()
+}
 
-  if (!docSnap.exists()) {
-    await createUserDocument(user)
+const checkUserDocument = async (user) => {
+  let userDoc = await getUserDocument(user)
+  if (!userDoc) {
+    userDoc = await createUserDocument(user)
   }
+  return userDoc
 }
 
 export default function useFirebaseAuth() {
@@ -36,22 +41,23 @@ export default function useFirebaseAuth() {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      const formattedUser = user ? { uid: user.uid, email: user.email } : null
-      setAuthUser(formattedUser)
+      if (user) {
+        checkUserDocument(user).then((data) => setAuthUser(data))
+      } else {
+        setAuthUser(null)
+      }
     })
     return () => unsubscribe()
   }, [])
 
   // API specific functions
   const login = async (email, password) => {
-    const res = await signInWithEmailAndPassword(auth, email, password)
-    return res
+    await signInWithEmailAndPassword(auth, email, password)
   }
 
   const loginWithGoogle = async () => {
     const provider = new GoogleAuthProvider()
-    const { user } = await signInWithPopup(auth, provider)
-    await checkUserDocument(user)
+    await signInWithPopup(auth, provider)
   }
 
   const createUser = async (email, password) => {
@@ -59,7 +65,6 @@ export default function useFirebaseAuth() {
     if (res.user) {
       await createUserDocument(res.user)
     }
-    return res
   }
 
   const logout = () => {

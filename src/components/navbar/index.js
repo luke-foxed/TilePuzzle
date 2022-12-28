@@ -35,7 +35,10 @@ function Navbar() {
                 <Button onClick={() => setShowLoginModal(true)}>Login</Button>
               </div>
             ) : (
-              <Button onClick={() => logout()}>Signout</Button>
+              <div style={{ display: 'flex', gap: '20px', width: 'auto' }}>
+                <img src={authUser.avatar} alt="avatar" width={80} />
+                <Button onClick={() => logout()}>Signout</Button>
+              </div>
             )}
           </Grid>
         </Grid>
