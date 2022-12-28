@@ -6,8 +6,10 @@ function Gradient({ gradientData }) {
   )
 }
 
+const BASE_URL = process.env.VERCEL_ENV === 'development' ? 'http://localhost:3000' : process.env.VERCEL_URL
+
 export async function getStaticPaths() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/gradients`)
+  const res = await fetch(`${BASE_URL}/api/gradients`)
   const gradients = await res.json()
   const paths = gradients.map((gradient) => ({
     params: { gradientID: gradient.id },
@@ -18,7 +20,7 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
   const id = params.gradientID
-  const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/gradients/${id}`)
+  const res = await fetch(`${BASE_URL}/api/gradients/${id}`)
   const gradientData = await res.json()
 
   return {
