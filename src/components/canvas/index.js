@@ -1,6 +1,6 @@
 import { Button, Grid, Slider } from '@mui/material'
+import { fabric } from 'fabric-pure-browser'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { fabric } from 'fabric'
 import { mouseDownListener, mouseUpListener, objectMovingListener } from '../../utils/canvasHelpers'
 import { generateTiles, swapTiles } from '../../utils/tileHelpers'
 
