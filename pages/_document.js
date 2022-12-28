@@ -1,7 +1,7 @@
 import * as React from 'react'
 import Document, { Html, Head, Main, NextScript } from 'next/document'
-import theme from '../styles/theme/index'
 import createEmotionServer from '@emotion/server/create-instance'
+import theme from '../styles/theme/index'
 import createEmotionCache from '../styles/theme/createEmotionCache'
 
 // sourced from https://www.geeksforgeeks.org/how-to-use-material-ui-with-next-js/
@@ -38,14 +38,12 @@ MyDocument.getInitialProps = async (ctx) => {
   const cache = createEmotionCache()
   const { extractCriticalToChunks } = createEmotionServer(cache)
 
-  ctx.renderPage = () =>
-    originalRenderPage({
-      enhanceApp: (App) =>
-        function EnhanceApp(props) {
-          // eslint-disable-next-line react/jsx-props-no-spreading
-          return <App emotionCache={cache} {...props} />
-        },
-    })
+  ctx.renderPage = () => originalRenderPage({
+    enhanceApp: (App) => function EnhanceApp(props) {
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      return <App emotionCache={cache} {...props} />
+    },
+  })
 
   const initialProps = await Document.getInitialProps(ctx)
   const emotionStyles = extractCriticalToChunks(initialProps.html)

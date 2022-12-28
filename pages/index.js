@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import { Button, Grid } from '@mui/material'
 import { Fragment, useState } from 'react'
+import Link from 'next/link'
 import Canvas from '../src/components/canvas'
 
 export default function Home() {
@@ -34,7 +35,7 @@ export default function Home() {
           </Grid>
           <Grid item>
             <Button variant="contained" style={{ width: '240px' }} size="large">
-              Generate Gradient
+              <Link href="/gradients"> Browse Levels</Link>
             </Button>
           </Grid>
         </Grid>
