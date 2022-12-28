@@ -59,6 +59,7 @@ export default function Canvas({ imageInput, gameStarted, onGameToggle }) {
       const hasWon = JSON.stringify(currentOrder) === JSON.stringify(correctOrder)
 
       if (hasWon) {
+        // eslint-disable-next-line no-alert
         alert('WINNER')
       }
     }

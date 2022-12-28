@@ -37,7 +37,7 @@ const checkUserDocument = async (user) => {
 
 export default function useFirebaseAuth() {
   const [authUser, setAuthUser] = useState(null)
-  const [loading, setLoading] = useState(false)
+  // const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -73,7 +73,7 @@ export default function useFirebaseAuth() {
 
   return {
     authUser,
-    loading,
+    loading: false,
     login,
     loginWithGoogle,
     logout,
