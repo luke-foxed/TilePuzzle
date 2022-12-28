@@ -11,14 +11,18 @@ const BASE_URL = process.env.VERCEL_URL
   : 'http://localhost:3000'
 
 export async function getStaticPaths() {
-  console.log('STUFFFF', `${BASE_URL}/api/gradients`)
-  const res = await fetch(`${BASE_URL}/api/gradients`)
-  const gradients = await res.json()
-  const paths = gradients.map((gradient) => ({
-    params: { gradientID: gradient.id },
-  }))
+  try {
+    const res = await fetch(`${BASE_URL}/api/gradients`)
+    const gradients = await res.json()
+    const paths = gradients.map((gradient) => ({
+      params: { gradientID: gradient.id },
+    }))
 
-  return { paths, fallback: false }
+    return { paths, fallback: false }
+  } catch (error) {
+    console.error('Error with static paths', error)
+    return { paths: null, fallback: false }
+  }
 }
 
 export async function getStaticProps({ params }) {
