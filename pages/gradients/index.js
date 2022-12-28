@@ -12,11 +12,19 @@ function Gradients({ gradientData }) {
   )
 }
 
-const BASE_URL = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'
+const BASE_URL = process.env.VERCEL_URL
+  ? `https://${process.env.VERCEL_URL}`
+  : 'http://localhost:3000'
 
 export async function getStaticProps() {
-  const res = await fetch(`${BASE_URL}/api/gradients`)
-  const gradientData = await res.json()
+  let gradientData = []
+
+  try {
+    const res = await fetch(`${BASE_URL}/api/gradients`)
+    gradientData = await res.json()
+  } catch (error) {
+    console.log('ERROR IN STATIC PROPS', error)
+  }
 
   return {
     props: {

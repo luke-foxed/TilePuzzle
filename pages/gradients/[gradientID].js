@@ -14,7 +14,6 @@ export async function getStaticPaths() {
   let paths = []
   try {
     const res = await fetch(`${BASE_URL}/api/gradients`)
-    console.log('RES', res)
     if (res.ok) {
       const gradients = await res.json()
       paths = gradients.map((gradient) => ({
@@ -24,7 +23,7 @@ export async function getStaticPaths() {
 
     return { paths, fallback: false }
   } catch (error) {
-    console.error('Error with static paths', error)
+    console.log('ERROR IN STATIC PATHS', error)
     return { paths, fallback: false }
   }
 }
