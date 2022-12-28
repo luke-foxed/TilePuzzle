@@ -12,10 +12,9 @@ function Gradients({ gradientData }) {
   )
 }
 
-const BASE_URL = process.env.VERCEL_URL || 'http://localhost:3000'
+const BASE_URL = `https://${process.env.VERCEL_URL}` || 'http://localhost:3000'
 
 export async function getStaticProps() {
-  console.log('BASE URLLLLLLL', `${BASE_URL}/api/gradients`)
   const res = await fetch(`${BASE_URL}/api/gradients`)
   const gradientData = await res.json()
 
