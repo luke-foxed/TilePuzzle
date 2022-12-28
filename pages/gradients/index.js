@@ -13,7 +13,7 @@ function Gradients({ gradientData }) {
 }
 
 export async function getStaticProps() {
-  const res = await fetch('http://localhost:3000/api/gradients')
+  const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/gradients`)
   const gradientData = await res.json()
 
   return {

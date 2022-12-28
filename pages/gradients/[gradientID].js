@@ -7,7 +7,7 @@ function Gradient({ gradientData }) {
 }
 
 export async function getStaticPaths() {
-  const res = await fetch('http://localhost:3000/api/gradients')
+  const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/gradients`)
   const gradients = await res.json()
   const paths = gradients.map((gradient) => ({
     params: { gradientID: gradient.id },
@@ -18,7 +18,7 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
   const id = params.gradientID
-  const res = await fetch(`http://localhost:3000/api/gradients/${id}`)
+  const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/gradients/${id}`)
   const gradientData = await res.json()
 
   return {
