@@ -4,19 +4,18 @@ function Gradients({ gradientData }) {
   return (
     <div>
       {gradientData.map((gradient) => (
-        <Link href={`gradients/${gradient.id}`}>
-          <img src={gradient.url} alt="gradient" key={gradient.id} width="200" />
+        <Link href={`gradients/${gradient.id}`} key={gradient.id}>
+          <img src={gradient.url} alt="gradient" width="200" />
         </Link>
       ))}
     </div>
   )
 }
 
-const BASE_URL = process.env.NODE_ENV === 'development'
-  ? 'http://localhost:3000'
-  : `https://${process.env.VERCEL_URL}`
+const BASE_URL = process.env.VERCEL_URL || 'http://localhost:3000'
 
 export async function getStaticProps() {
+  console.log('BASE URLLLLLLL', `${BASE_URL}/api/gradients`)
   const res = await fetch(`${BASE_URL}/api/gradients`)
   const gradientData = await res.json()
 
