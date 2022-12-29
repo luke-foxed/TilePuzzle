@@ -3,6 +3,7 @@ import { Button, Grid } from '@mui/material'
 import { Fragment, useState } from 'react'
 import Link from 'next/link'
 import Canvas from '../src/components/canvas'
+import { StyledContainer } from '../src/components/shared'
 
 export default function Home() {
   const [image, setImage] = useState(null)
@@ -21,35 +22,32 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <Grid
-          container
-          justifyContent="center"
-          style={{ width: '85%', margin: 'auto' }}
-          spacing={4}
-        >
-          <Grid item>
-            <Button component="label" variant="contained" style={{ width: '240px' }} size="large">
-              Upload Image
-              <input hidden type="file" onChange={handleImageSelect} />
-            </Button>
-          </Grid>
-          <Grid item>
-            <Button variant="contained" style={{ width: '240px' }} size="large">
-              <Link href="/gradients"> Browse Levels</Link>
-            </Button>
-          </Grid>
-        </Grid>
-        <div>
-          {image && (
-            <Grid direction="row" container justifyContent="center" alignItems="center">
-              <Canvas
-                imageInput={image}
-                gameStarted={gameStarted}
-                onGameToggle={(toggle) => setGameStarted(toggle)}
-              />
+        <StyledContainer>
+          <Grid container justifyContent="center" spacing={4}>
+            <Grid item>
+              <Button component="label" variant="contained" style={{ width: '240px' }} size="large">
+                Upload Image
+                <input hidden type="file" onChange={handleImageSelect} />
+              </Button>
             </Grid>
-          )}
-        </div>
+            <Grid item>
+              <Button variant="contained" style={{ width: '240px' }} size="large">
+                <Link href="/gradients"> Browse Levels</Link>
+              </Button>
+            </Grid>
+          </Grid>
+          <div>
+            {image && (
+              <Grid direction="row" container justifyContent="center" alignItems="center">
+                <Canvas
+                  imageInput={image}
+                  gameStarted={gameStarted}
+                  onGameToggle={(toggle) => setGameStarted(toggle)}
+                />
+              </Grid>
+            )}
+          </div>
+        </StyledContainer>
       </main>
     </>
   )

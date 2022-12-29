@@ -122,6 +122,6 @@ export const generateTiles = (padding, tileCount, canvas) => {
     // adding small delay so tiles are on canvas before attempting shuffle
     setTimeout(() => {
       shuffleTiles([...Array(tileCount * tileCount).keys()], canvas)
-    }, 200)
+    }, 500)
   }
 }

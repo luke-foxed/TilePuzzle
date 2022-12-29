@@ -32,7 +32,6 @@ export async function getStaticPaths() {
 
     return { paths, fallback: false }
   } catch (error) {
-    console.log('ERROR IN STATIC PATHS', error)
     return { paths, fallback: false }
   }
 }

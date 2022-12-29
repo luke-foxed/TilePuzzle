@@ -1,15 +1,33 @@
+import { Grid, styled } from '@mui/material'
 import Link from 'next/link'
+import { StyledContainer } from '../../src/components/shared'
 import { getGradients } from '../api/gradients'
+
+const GradientLink = styled('div')({
+  padding: '10px',
+  height: '200px',
+  width: '200px',
+  img: {
+    height: '100%',
+    width: '100%',
+    objectFit: 'cover',
+    borderRadius: '20px',
+  },
+})
 
 function Gradients({ gradientData }) {
   return (
-    <div>
-      {gradientData.map((gradient) => (
-        <Link href={`gradients/${gradient.id}`} key={gradient.id}>
-          <img src={gradient.url} alt="gradient" width="200" />
-        </Link>
-      ))}
-    </div>
+    <StyledContainer key={gradientData.id}>
+      <Grid container row>
+        {gradientData.map((gradient) => (
+          <GradientLink>
+            <Link href={`gradients/${gradient.id}`} key={gradient.id}>
+              <img src={gradient.url} alt="gradient" />
+            </Link>
+          </GradientLink>
+        ))}
+      </Grid>
+    </StyledContainer>
   )
 }
 
