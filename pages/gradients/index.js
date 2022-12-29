@@ -19,7 +19,7 @@ export async function getStaticProps() {
   try {
     gradientData = await getGradients()
   } catch (error) {
-    console.log('ERROR IN STATIC PROPS', error)
+    throw new Error(error)
   }
 
   return {

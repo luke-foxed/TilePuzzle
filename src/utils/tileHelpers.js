@@ -75,45 +75,53 @@ const shuffleTiles = (correctOrder, canvas) => {
 }
 
 export const generateTiles = (padding, tileCount, canvas) => {
-  const tileWidth = canvas.getWidth() / tileCount
-  const tileHeight = canvas.getHeight() / tileCount
-  let index = 0
-  for (let row = 0; row < tileCount; row++) {
-    for (let column = 0; column < tileCount; column++) {
-      const ctx = canvas.getContext('2d', { willReadFrequently: true })
-      const imageTileData = ctx.getImageData(
-        column * tileWidth,
-        row * tileHeight,
-        tileWidth,
-        tileHeight,
-      )
-      const mockCanvas = document.createElement('canvas')
-      const mockCanvasCtx = mockCanvas.getContext('2d')
+  const image = new Image()
+  image.src = canvas.toDataURL('image/png')
+  image.onload = () => {
+    const tileWidth = canvas.getWidth() / tileCount
+    const tileHeight = canvas.getHeight() / tileCount
+    let index = 0
+    for (let row = 0; row < tileCount; row++) {
+      for (let column = 0; column < tileCount; column++) {
+        const mockCanvas = document.createElement('canvas')
+        const mockCanvasCtx = mockCanvas.getContext('2d')
 
-      mockCanvas.width = tileWidth
-      mockCanvas.height = tileHeight
-      mockCanvasCtx.putImageData(imageTileData, 0, 0)
+        mockCanvas.width = tileWidth
+        mockCanvas.height = tileHeight
 
-      // eslint-disable-next-line no-undef, no-loop-func
-      fabric.Image.fromURL(mockCanvas.toDataURL('image/png'), (img) => {
-        img.set({
-          left: column * tileWidth + padding * column + tileWidth / 2,
-          top: row * tileHeight + padding * row + tileHeight / 2,
-          originX: 'center',
-          originY: 'center',
-          hasControls: false,
-          padding,
-          index,
+        mockCanvasCtx.drawImage(
+          image,
+          column * tileWidth,
+          row * tileHeight,
+          tileWidth,
+          tileHeight,
+          0,
+          0,
+          tileWidth,
+          tileHeight,
+        )
+
+        // eslint-disable-next-line no-undef, no-loop-func
+        fabric.Image.fromURL(mockCanvas.toDataURL('image/png'), (img) => {
+          img.set({
+            left: column * tileWidth + padding * column + tileWidth / 2,
+            top: row * tileHeight + padding * row + tileHeight / 2,
+            originX: 'center',
+            originY: 'center',
+            hasControls: false,
+            padding,
+            index,
+          })
+
+          canvas.add(img)
+          index += 1
         })
-
-        canvas.add(img)
-        index += 1
-      })
+      }
     }
-  }
 
-  // adding small delay so tiles are on canvas before attempting shuffle
-  setTimeout(() => {
-    shuffleTiles([...Array(tileCount * tileCount).keys()], canvas)
-  }, 100)
+    // adding small delay so tiles are on canvas before attempting shuffle
+    setTimeout(() => {
+      shuffleTiles([...Array(tileCount * tileCount).keys()], canvas)
+    }, 200)
+  }
 }

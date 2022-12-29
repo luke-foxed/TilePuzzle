@@ -68,7 +68,8 @@ export default function Canvas({ imageInput, gameStarted, onGameToggle }) {
   useEffect(() => {
     if (canvas) {
       const img = new Image()
-      img.src = URL.createObjectURL(imageInput)
+      img.crossOrigin = 'anonymous'
+      img.src = typeof imageInput === 'string' ? imageInput : URL.createObjectURL(imageInput)
       img.onload = () => {
         const fabricImage = new fabric.Image(img)
         canvas.setWidth(img.width)
