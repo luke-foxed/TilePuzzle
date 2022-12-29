@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { getGradients } from '../api/gradients'
 
 function Gradients({ gradientData }) {
   return (
@@ -12,16 +13,11 @@ function Gradients({ gradientData }) {
   )
 }
 
-const BASE_URL = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : 'http://localhost:3000'
-
 export async function getStaticProps() {
   let gradientData = []
 
   try {
-    const res = await fetch(`${BASE_URL}/api/gradients`)
-    gradientData = await res.json()
+    gradientData = await getGradients()
   } catch (error) {
     console.log('ERROR IN STATIC PROPS', error)
   }

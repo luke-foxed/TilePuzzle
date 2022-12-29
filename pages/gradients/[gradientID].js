@@ -27,8 +27,7 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
   const id = params.gradientID
-  const res = await getGradient(id)
-  const gradientData = await res.json()
+  const gradientData = await getGradient(id)
 
   return {
     props: {

@@ -15,7 +15,7 @@ export async function getGradients() {
   return gradients
 }
 
-export default async function handler(req, res) {
+export default async (req, res) => {
   const gradients = await getGradients()
   res.status(200).json(gradients)
 }

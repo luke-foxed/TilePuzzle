@@ -8,7 +8,7 @@ export async function getGradient(id) {
   return gradient
 }
 
-export default async function handler(req, res) {
+export default async (req, res) => {
   const { gradientID } = req.query
   const gradient = await getGradient(gradientID)
   res.status(200).json(gradient)
