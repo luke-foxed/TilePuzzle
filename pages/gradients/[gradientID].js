@@ -1,3 +1,6 @@
+import { getGradients } from '../api/gradients'
+import { getGradient } from '../api/gradients/[gradientID]'
+
 function Gradient({ gradientData }) {
   return (
     <div key={gradientData.id}>
@@ -6,20 +9,14 @@ function Gradient({ gradientData }) {
   )
 }
 
-const BASE_URL = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : 'http://localhost:3000'
-
 export async function getStaticPaths() {
   let paths = []
   try {
-    const res = await fetch(`${BASE_URL}/api/gradients`)
-    if (res.ok) {
-      const gradients = await res.json()
-      paths = gradients.map((gradient) => ({
-        params: { gradientID: gradient.id },
-      }))
-    }
+    const gradients = await getGradients()
+
+    paths = gradients.map((gradient) => ({
+      params: { gradientID: gradient.id },
+    }))
 
     return { paths, fallback: false }
   } catch (error) {
@@ -30,7 +27,7 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
   const id = params.gradientID
-  const res = await fetch(`${BASE_URL}/api/gradients/${id}`)
+  const res = await getGradient(id)
   const gradientData = await res.json()
 
   return {
