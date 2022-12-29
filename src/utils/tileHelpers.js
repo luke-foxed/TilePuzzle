@@ -1,12 +1,4 @@
-// https://stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array/6274381#6274381
-const shuffleArray = (a) => {
-  const arr = a
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]]
-  }
-  return a
-}
+import { fabric } from 'fabric-pure-browser';
 
 export const tileIsContained = (innerTile, outerTile) => {
   let isContained = false
@@ -49,7 +41,6 @@ export const tileIsContained = (innerTile, outerTile) => {
 export const swapTiles = (tile1, tile2, tile1OldPosition) => {
   const tile1Index = tile1.index
   const tile2Index = tile2.index
-
   const tile1Position = tile1OldPosition || { x: tile1.left, y: tile1.top }
 
   tile1.setPositionByOrigin({ x: tile2.left, y: tile2.top }, 'center', 'center')
@@ -61,67 +52,64 @@ export const swapTiles = (tile1, tile2, tile1OldPosition) => {
   tile2.setCoords()
 }
 
-const shuffleTiles = (correctOrder, canvas) => {
-  const jumbledOrder = shuffleArray(correctOrder)
+const shuffleTiles = (tiles) => {
+  const jumbledTiles = tiles
 
-  canvas.forEachObject((obj, index) => {
-    const randomIndex = jumbledOrder[index]
-    const randomTile = canvas.getObjects().find((tile) => tile.index === randomIndex)
-
-    swapTiles(randomTile, obj)
-  })
-
-  canvas.renderAll()
+  // https://stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array/6274381#6274381
+  for (let i = jumbledTiles.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    swapTiles(jumbledTiles[i], jumbledTiles[j])
+  }
+  return jumbledTiles
 }
 
-export const generateTiles = (padding, tileCount, canvas) => {
-  const image = new Image()
-  image.src = canvas.toDataURL('image/png')
-  image.onload = () => {
-    const tileWidth = canvas.getWidth() / tileCount
-    const tileHeight = canvas.getHeight() / tileCount
-    let index = 0
-    for (let row = 0; row < tileCount; row++) {
-      for (let column = 0; column < tileCount; column++) {
-        const mockCanvas = document.createElement('canvas')
-        const mockCanvasCtx = mockCanvas.getContext('2d')
+const loadImage = (src) => new Promise((resolve, reject) => {
+  const img = new Image()
+  img.crossOrigin = 'Anonymous' // to avoid CORS if used with Canvas
+  img.src = src
+  img.onload = () => {
+    resolve(img)
+  }
+  img.onerror = (e) => {
+    reject(e)
+  }
+})
 
-        mockCanvas.width = tileWidth
-        mockCanvas.height = tileHeight
+export const generateTiles = async (padding, tileCount, canvas) => {
+  const image = await loadImage(canvas.toDataURL('image/png'))
+  const tiles = []
+  const tW = canvas.getWidth() / tileCount // (tile width)
+  const tH = canvas.getHeight() / tileCount // (tile height)
+  let index = 0
+  for (let row = 0; row < tileCount; row++) {
+    for (let column = 0; column < tileCount; column++) {
+      const mockCanvas = document.createElement('canvas')
+      const mockCanvasCtx = mockCanvas.getContext('2d')
 
-        mockCanvasCtx.drawImage(
-          image,
-          column * tileWidth,
-          row * tileHeight,
-          tileWidth,
-          tileHeight,
-          0,
-          0,
-          tileWidth,
-          tileHeight,
-        )
+      mockCanvas.width = tW
+      mockCanvas.height = tH
+      mockCanvasCtx.drawImage(image, column * tW, row * tH, tW, tH, 0, 0, tW, tH)
 
-        // eslint-disable-next-line no-undef, no-loop-func
+      // eslint-disable-next-line no-undef, no-loop-func
+      const tilePromise = new Promise((resolve) => {
         fabric.Image.fromURL(mockCanvas.toDataURL('image/png'), (img) => {
           img.set({
-            left: column * tileWidth + padding * column + tileWidth / 2,
-            top: row * tileHeight + padding * row + tileHeight / 2,
+            left: column * tW + padding * column + tW / 2,
+            top: row * tH + padding * row + tH / 2,
             originX: 'center',
             originY: 'center',
             hasControls: false,
             padding,
             index,
           })
-
-          canvas.add(img)
           index += 1
+          resolve(img)
         })
-      }
+      })
+      tiles.push(tilePromise)
     }
-
-    // adding small delay so tiles are on canvas before attempting shuffle
-    setTimeout(() => {
-      shuffleTiles([...Array(tileCount * tileCount).keys()], canvas)
-    }, 500)
   }
+
+  const shuffledTiles = shuffleTiles(await Promise.all(tiles))
+  shuffledTiles.forEach((t) => canvas.add(t))
 }
