@@ -31,9 +31,11 @@ export default function Home() {
               </Button>
             </Grid>
             <Grid item>
-              <Button variant="contained" style={{ width: '240px' }} size="large">
-                <Link href="/gradients"> Browse Levels</Link>
-              </Button>
+              <Link style={{ textDecoration: 'none' }} href="/gradients">
+                <Button variant="contained" style={{ width: '240px' }} size="large">
+                  Browse Levels
+                </Button>
+              </Link>
             </Grid>
           </Grid>
           <div>

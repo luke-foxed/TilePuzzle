@@ -1,8 +1,8 @@
 import { AppBar, Button, Grid, styled, Typography } from '@mui/material'
+import Link from 'next/link'
 import { Fragment, useContext, useState } from 'react'
 import { AuthUserContext } from '../../context/userProvider'
-import Login from './login'
-import SignUp from './signup'
+import Authenticate from './authenticate'
 
 const StyledTopBar = styled(AppBar)({
   height: '180px',
@@ -12,8 +12,7 @@ const StyledTopBar = styled(AppBar)({
 })
 
 function Navbar() {
-  const [showSignupModal, setShowSignupModal] = useState(false)
-  const [showLoginModal, setShowLoginModal] = useState(false)
+  const [authType, setAuthType] = useState(null)
   const { authUser, loading, logout } = useContext(AuthUserContext)
 
   return (
@@ -25,14 +24,20 @@ function Navbar() {
           style={{ height: '100%', width: '85%', margin: 'auto' }}
         >
           <Grid item xs="auto" md={8}>
-            <Typography variant="h1">Tiled</Typography>
+            <Link href="/" style={{ textDecoration: 'none' }}>
+              <Typography variant="h1">Tiled</Typography>
+            </Link>
           </Grid>
           <Grid item md={2} />
-          <Grid item md={2}>
+          <Grid item md={2} gap="20px">
             {!authUser && !loading ? (
               <div>
-                <Button onClick={() => setShowSignupModal(true)}>Signup</Button>
-                <Button onClick={() => setShowLoginModal(true)}>Login</Button>
+                <Button variant="contained" onClick={() => setAuthType('signin')} style={{ borderRadius: '20px' }}>
+                  Signup
+                </Button>
+                <Button variant="contained" onClick={() => setAuthType('login')} style={{ borderRadius: '20px' }}>
+                  Login
+                </Button>
               </div>
             ) : (
               <div style={{ display: 'flex', gap: '20px', width: 'auto' }}>
@@ -44,8 +49,7 @@ function Navbar() {
         </Grid>
       </StyledTopBar>
 
-      <SignUp open={showSignupModal} onClose={() => setShowSignupModal(false)} />
-      <Login open={showLoginModal} onClose={() => setShowLoginModal(false)} />
+      <Authenticate open={authType !== null} type={authType} onClose={() => setAuthType(null)} />
     </>
   )
 }
