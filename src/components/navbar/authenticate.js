@@ -1,5 +1,5 @@
 import { Button, Avatar, TextField, Box, Typography, Dialog, styled, Grid, IconButton } from '@mui/material'
-import { Close, LockOutlined } from '@mui/icons-material'
+import { Close, LockOutlined, PersonAdd } from '@mui/icons-material'
 import { useContext } from 'react'
 import { AuthUserContext } from '../../context/userProvider'
 
@@ -35,13 +35,11 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
 
 const CloseDialogButton = styled(IconButton)(({ theme }) => ({
   width: 'min-content',
-  left: '450px',
-  top: '10px',
-  position: 'absolute',
+  padding: '20px',
   color: theme.palette.error.main,
 }))
 
-export default function Authenticate({ open, onClose, type }) {
+export default function Authenticate({ onClose, type }) {
   const { login, loginWithGoogle, createUser } = useContext(AuthUserContext)
 
   const handleSubmit = (event) => {
@@ -57,22 +55,26 @@ export default function Authenticate({ open, onClose, type }) {
   }
 
   return (
-    <Dialog open={open} sx={{ '.MuiPaper-root': { borderRadius: '20px' } }}>
-      <CloseDialogButton disableRipple="true" onClick={onClose}>
-        <Close />
-      </CloseDialogButton>
+    <Dialog open sx={{ '.MuiPaper-root': { borderRadius: '20px' } }}>
+      <Grid container justifyContent="flex-end">
+        <CloseDialogButton disableRipple="true" onClick={onClose}>
+          <Close />
+        </CloseDialogButton>
+      </Grid>
+
       <Grid
         container
+        direction="column"
         justifyContent="center"
         alignItems="center"
-        style={{ padding: '30px', width: '500px' }}
+        style={{ padding: '30px', maxWidth: '450px', marginTop: '-50px' }}
       >
         <Grid item>
           <Avatar sx={{ bgcolor: 'secondary.main', margin: 'auto' }}>
-            <LockOutlined />
+            {type === 'login' ? <LockOutlined /> : <PersonAdd />}
           </Avatar>
           <Typography variant="h5" style={{ padding: '8px' }}>
-            {type === 'login' ? 'Login' : 'Sign in'}
+            {type === 'login' ? 'Login' : 'Sign Up'}
           </Typography>
         </Grid>
         <Box component="form" noValidate onSubmit={handleSubmit} style={{ padding: '10px' }}>
@@ -100,14 +102,20 @@ export default function Authenticate({ open, onClose, type }) {
           />
 
           {type === 'login' ? (
-            <div style={{ display: 'grid', gridGap: '20px', marginTop: '20px' }}>
-              <Button color="error" type="submit" fullWidth variant="contained">
+            <>
+              <Button
+                color="error"
+                type="submit"
+                fullWidth
+                variant="contained"
+                style={{ margin: '20px 0' }}
+              >
                 Login
               </Button>
               <Button color="error" fullWidth onClick={() => loginWithGoogle()}>
                 Login With Google
               </Button>
-            </div>
+            </>
           ) : (
             <Button
               style={{ marginTop: '20px' }}

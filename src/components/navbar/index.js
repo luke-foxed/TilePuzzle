@@ -32,10 +32,18 @@ function Navbar() {
           <Grid item md={2} gap="20px">
             {!authUser && !loading ? (
               <div>
-                <Button variant="contained" onClick={() => setAuthType('signin')} style={{ borderRadius: '20px' }}>
+                <Button
+                  variant="contained"
+                  onClick={() => setAuthType('signin')}
+                  style={{ borderRadius: '20px' }}
+                >
                   Signup
                 </Button>
-                <Button variant="contained" onClick={() => setAuthType('login')} style={{ borderRadius: '20px' }}>
+                <Button
+                  variant="contained"
+                  onClick={() => setAuthType('login')}
+                  style={{ borderRadius: '20px' }}
+                >
                   Login
                 </Button>
               </div>
@@ -49,7 +57,9 @@ function Navbar() {
         </Grid>
       </StyledTopBar>
 
-      <Authenticate open={authType !== null} type={authType} onClose={() => setAuthType(null)} />
+      {authType && (
+        <Authenticate type={authType} onClose={() => setAuthType(null)} />
+      )}
     </>
   )
 }
