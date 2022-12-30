@@ -1,8 +1,12 @@
-import { Button, Grid, Slider } from '@mui/material'
+import { Gamepad, PlayArrow, RestartAlt, Timer } from '@mui/icons-material'
+import { IconButton, Slider, Typography, Box } from '@mui/material'
+import Grid from '@mui/material/Unstable_Grid2'; // Grid version 2
 import { fabric } from 'fabric-pure-browser'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useStopwatch } from 'react-timer-hook'
 import { mouseDownListener, mouseUpListener, objectMovingListener } from '../../utils/canvasHelpers'
 import { generateTiles, swapTiles } from '../../utils/tileHelpers'
+import { StyledContainer } from '../shared'
 
 const DIFFICULTIES = [
   {
@@ -29,6 +33,9 @@ export default function Canvas({ imageInput, gameStarted, onGameToggle }) {
   const [canvasState, setCanvasState] = useState(null)
   const [correctOrder, setCorrectOrder] = useState([])
   const [tileCount, setTileCount] = useState(2)
+  const [moves, setMoves] = useState(0)
+
+  const { seconds, minutes, start: startTimer, reset } = useStopwatch({ autoStart: false })
 
   // this allows for hooks to observe canvas changes rather than relying on fabric event listeners
   const objectModifiedListener = useCallback(
@@ -36,7 +43,7 @@ export default function Canvas({ imageInput, gameStarted, onGameToggle }) {
       const newCanvasState = event.target.canvas.toJSON()
       setCanvasState(newCanvasState)
     },
-    [setCanvasState],
+    [],
   )
 
   useEffect(() => {
@@ -60,7 +67,9 @@ export default function Canvas({ imageInput, gameStarted, onGameToggle }) {
 
       if (hasWon) {
         // eslint-disable-next-line no-alert
-        alert('WINNER')
+        alert('YOU WIN')
+      } else {
+        setMoves((count) => count + 1) // if they haven't won, they made a move
       }
     }
   }, [canvas, canvasState, correctOrder])
@@ -92,23 +101,62 @@ export default function Canvas({ imageInput, gameStarted, onGameToggle }) {
     // set the correct order of tiles
     setCorrectOrder([...Array(tileCount * tileCount).keys()])
     onGameToggle(true)
+    startTimer()
   }
 
   const handleRestartClick = () => {
     const objects = canvas.getObjects()
     correctOrder.forEach((idx) => {
-      if (objects[idx].index !== idx) {
-        const correctObj = objects.find((obj) => obj.index === idx)
-        swapTiles(objects[idx], correctObj)
+      const tileA = objects[idx]
+      const tileB = objects[Math.floor(Math.random() * objects.length)]
+
+      if (tileA.index !== tileB.index) {
+        swapTiles(tileA, tileB) // jumble tiles in a new random order
         canvas.renderAll()
       }
     })
 
-    // onGameToggle(false)
+    reset()
+    setMoves(0)
   }
 
+  const renderTime = () => `${minutes}:${seconds > 9 ? seconds : `0${seconds}`}`
+
   return (
-    <div style={{ border: '1px solid #30BCED', margin: '20px' }}>
+    <StyledContainer style={{ margin: '20px' }}>
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: 'auto 1px auto 1fr',
+          gap: '20px',
+          alignItems: 'center',
+        }}
+      >
+        <Typography variant="h4">Level 1</Typography>
+
+        <div style={{ border: '1px solid white', height: '100%' }} />
+
+        <Grid container>
+          <IconButton size="large" sx={{ color: 'error.main' }} onClick={handleStartClick} disabled={gameStarted}>
+            <PlayArrow fontSize="large" />
+          </IconButton>
+
+          <IconButton size="large" sx={{ color: 'error.main' }} onClick={handleRestartClick}>
+            <RestartAlt fontSize="large" />
+          </IconButton>
+        </Grid>
+
+        <Grid container justifyContent="flex-end" alignItems="center" gap="20px">
+          <Grid container gap="5px" alignItems="center">
+            <Timer fontSize="large" sx={{ color: 'secondary.main' }} />
+            <Typography variant="h5">{renderTime()}</Typography>
+          </Grid>
+          <Grid container gap="5px" alignItems="center">
+            <Gamepad fontSize="large" sx={{ color: 'secondary.main' }} />
+            <Typography variant="h5">{moves}</Typography>
+          </Grid>
+        </Grid>
+      </Box>
       <Grid container style={{ width: 'min-content', margin: 'auto' }}>
         <canvas ref={canvasRef} id="canvas" style={{ padding: '20px' }} />
         <Slider
@@ -119,26 +167,7 @@ export default function Canvas({ imageInput, gameStarted, onGameToggle }) {
           max={8}
           onChange={(e, val) => setTileCount(val)}
         />
-        {gameStarted ? (
-          <Button
-            style={{ width: '100%', borderRadius: 0 }}
-            color="secondary"
-            variant="contained"
-            onClick={handleRestartClick}
-          >
-            Restart
-          </Button>
-        ) : (
-          <Button
-            style={{ width: '100%', borderRadius: 0 }}
-            color="secondary"
-            variant="contained"
-            onClick={handleStartClick}
-          >
-            Start
-          </Button>
-        )}
       </Grid>
-    </div>
+    </StyledContainer>
   )
 }
