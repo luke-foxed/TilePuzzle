@@ -1,7 +1,16 @@
-import { Button, Avatar, TextField, Box, Typography, Dialog, styled, Grid, IconButton } from '@mui/material'
-import { Close, LockOutlined, PersonAdd } from '@mui/icons-material'
+import {
+  Button,
+  Avatar,
+  TextField,
+  Box,
+  Typography,
+  styled,
+  Grid,
+} from '@mui/material'
+import { LockOutlined, PersonAdd } from '@mui/icons-material'
 import { useContext } from 'react'
 import { AuthUserContext } from '../../context/userProvider'
+import { StyledModal } from '../shared'
 
 const StyledTextField = styled(TextField)(({ theme }) => ({
   '.MuiInputLabel-root': {
@@ -33,12 +42,6 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
   },
 }))
 
-const CloseDialogButton = styled(IconButton)(({ theme }) => ({
-  width: 'min-content',
-  padding: '20px',
-  color: theme.palette.error.main,
-}))
-
 export default function Authenticate({ onClose, type }) {
   const { login, loginWithGoogle, createUser } = useContext(AuthUserContext)
 
@@ -55,80 +58,66 @@ export default function Authenticate({ onClose, type }) {
   }
 
   return (
-    <Dialog open sx={{ '.MuiPaper-root': { borderRadius: '20px' } }}>
-      <Grid container justifyContent="flex-end">
-        <CloseDialogButton disableRipple="true" onClick={onClose}>
-          <Close />
-        </CloseDialogButton>
+    <StyledModal showX>
+      <Grid item>
+        <Avatar sx={{ bgcolor: 'secondary.main', margin: 'auto' }}>
+          {type === 'login' ? <LockOutlined /> : <PersonAdd />}
+        </Avatar>
+        <Typography variant="h5" style={{ padding: '8px' }}>
+          {type === 'login' ? 'Login' : 'Sign Up'}
+        </Typography>
       </Grid>
+      <Box component="form" noValidate onSubmit={handleSubmit} style={{ padding: '10px' }}>
+        <StyledTextField
+          color="error"
+          fullWidth
+          margin="normal"
+          required
+          id="email"
+          label="Email Address"
+          name="email"
+          autoComplete="email"
+          autoFocus
+        />
+        <StyledTextField
+          color="error"
+          fullWidth
+          required
+          margin="normal"
+          name="password"
+          label="Password"
+          type="password"
+          id="password"
+          autoComplete="current-password"
+        />
 
-      <Grid
-        container
-        direction="column"
-        justifyContent="center"
-        alignItems="center"
-        style={{ padding: '30px', maxWidth: '450px', marginTop: '-50px' }}
-      >
-        <Grid item>
-          <Avatar sx={{ bgcolor: 'secondary.main', margin: 'auto' }}>
-            {type === 'login' ? <LockOutlined /> : <PersonAdd />}
-          </Avatar>
-          <Typography variant="h5" style={{ padding: '8px' }}>
-            {type === 'login' ? 'Login' : 'Sign Up'}
-          </Typography>
-        </Grid>
-        <Box component="form" noValidate onSubmit={handleSubmit} style={{ padding: '10px' }}>
-          <StyledTextField
-            color="error"
-            fullWidth
-            margin="normal"
-            required
-            id="email"
-            label="Email Address"
-            name="email"
-            autoComplete="email"
-            autoFocus
-          />
-          <StyledTextField
-            color="error"
-            fullWidth
-            required
-            margin="normal"
-            name="password"
-            label="Password"
-            type="password"
-            id="password"
-            autoComplete="current-password"
-          />
-
-          {type === 'login' ? (
-            <>
-              <Button
-                color="error"
-                type="submit"
-                fullWidth
-                variant="contained"
-                style={{ margin: '20px 0' }}
-              >
-                Login
-              </Button>
-              <Button color="error" fullWidth onClick={() => loginWithGoogle()}>
-                Login With Google
-              </Button>
-            </>
-          ) : (
+        {type === 'login' ? (
+          <>
             <Button
-              style={{ marginTop: '20px' }}
               color="error"
               type="submit"
               fullWidth
               variant="contained"
+              style={{ margin: '20px 0' }}
             >
-              Sign Up
+              Login
             </Button>
-          )}
-        </Box>
-      </Grid>
-    </Dialog>
+            <Button color="error" fullWidth onClick={() => loginWithGoogle()}>
+              Login With Google
+            </Button>
+          </>
+        ) : (
+          <Button
+            style={{ marginTop: '20px' }}
+            color="error"
+            type="submit"
+            fullWidth
+            variant="contained"
+          >
+            Sign Up
+          </Button>
+        )}
+      </Box>
+    </StyledModal>
   )
 }

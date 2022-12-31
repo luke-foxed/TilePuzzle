@@ -1,8 +1,7 @@
 import { swapTiles, tileIsContained } from './tileHelpers'
 
-export const mouseUpListener = (event) => {
+export const mouseUpListener = (event, canvas) => {
   const { target } = event
-  const { canvas } = target
   const initialPos = { x: event.transform.original.left, y: event.transform.original.top }
 
   if (target) {
@@ -10,6 +9,7 @@ export const mouseUpListener = (event) => {
 
     if (containedTile !== undefined) {
       swapTiles(target, containedTile, initialPos)
+      canvas.set({ moves: canvas.moves + 1 })
       containedTile.set({ opacity: 1 })
     } else {
       target.setPositionByOrigin(initialPos, 'center', 'center')

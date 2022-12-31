@@ -38,6 +38,9 @@ const theme = createTheme({
     h5: {
       color: '#FFFBFE',
     },
+    h6: {
+      color: '#FFFBFE',
+    },
   },
 })
 

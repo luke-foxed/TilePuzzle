@@ -7,6 +7,7 @@ import { useStopwatch } from 'react-timer-hook'
 import { mouseDownListener, mouseUpListener, objectMovingListener } from '../../utils/canvasHelpers'
 import { generateTiles, swapTiles } from '../../utils/tileHelpers'
 import { StyledContainer } from '../shared'
+import SuccessModal from './SuccessModal';
 
 const DIFFICULTIES = [
   {
@@ -34,14 +35,15 @@ export default function Canvas({ imageInput, gameStarted, onGameToggle }) {
   const [correctOrder, setCorrectOrder] = useState([])
   const [tileCount, setTileCount] = useState(2)
   const [moves, setMoves] = useState(0)
-
-  const { seconds, minutes, start: startTimer, reset } = useStopwatch({ autoStart: false })
+  const [winner, setWinner] = useState(false)
+  const { seconds, minutes, start: startTimer, reset, pause } = useStopwatch({ autoStart: false })
 
   // this allows for hooks to observe canvas changes rather than relying on fabric event listeners
   const objectModifiedListener = useCallback(
     (event) => {
-      const newCanvasState = event.target.canvas.toJSON()
+      const newCanvasState = event.target.canvas.toJSON(['moves'])
       setCanvasState(newCanvasState)
+      setMoves(event.target.canvas.moves)
     },
     [],
   )
@@ -49,8 +51,16 @@ export default function Canvas({ imageInput, gameStarted, onGameToggle }) {
   useEffect(() => {
     const newCanvas = new fabric.Canvas(canvasRef.current, { selection: false })
 
+    newCanvas.moves = 1
+
+    const originalToObject = fabric.Canvas.prototype.toJSON
+    const myAdditional = ['moves']
+    fabric.Canvas.prototype.toJSON = function (additionalProperties) {
+      return originalToObject.call(this, myAdditional.concat(additionalProperties))
+    }
+
     newCanvas.on('object:modified', objectModifiedListener)
-    newCanvas.on('mouse:up', mouseUpListener)
+    newCanvas.on('mouse:up', (event) => mouseUpListener(event, newCanvas))
     newCanvas.on('mouse:down', mouseDownListener)
     newCanvas.on('object:moving', objectMovingListener)
 
@@ -65,14 +75,15 @@ export default function Canvas({ imageInput, gameStarted, onGameToggle }) {
       const currentOrder = canvas.getObjects().map((obj) => obj.index)
       const hasWon = JSON.stringify(currentOrder) === JSON.stringify(correctOrder)
 
+      console.log('CURRENT ORDER', currentOrder)
+      console.log('CORRECT ORDER', correctOrder)
+
       if (hasWon) {
-        // eslint-disable-next-line no-alert
-        alert('YOU WIN')
-      } else {
-        setMoves((count) => count + 1) // if they haven't won, they made a move
+        setWinner(true)
+        pause()
       }
     }
-  }, [canvas, canvasState, correctOrder])
+  }, [canvas, canvasState, correctOrder, pause])
 
   useEffect(() => {
     if (canvas) {
@@ -105,6 +116,7 @@ export default function Canvas({ imageInput, gameStarted, onGameToggle }) {
   }
 
   const handleRestartClick = () => {
+    setWinner(false)
     const objects = canvas.getObjects()
     correctOrder.forEach((idx) => {
       const tileA = objects[idx]
@@ -115,59 +127,72 @@ export default function Canvas({ imageInput, gameStarted, onGameToggle }) {
         canvas.renderAll()
       }
     })
-
     reset()
-    setMoves(0)
   }
 
   const renderTime = () => `${minutes}:${seconds > 9 ? seconds : `0${seconds}`}`
 
   return (
-    <StyledContainer style={{ margin: '20px' }}>
-      <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: 'auto 1px auto 1fr',
-          gap: '20px',
-          alignItems: 'center',
-        }}
-      >
-        <Typography variant="h4">Level 1</Typography>
+    <>
+      <StyledContainer style={{ margin: '20px' }}>
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: 'auto 1px auto 1fr',
+            gap: '20px',
+            alignItems: 'center',
+          }}
+        >
+          <Typography variant="h4">Level 1</Typography>
 
-        <div style={{ border: '1px solid white', height: '100%' }} />
+          <div style={{ border: '1px solid white', height: '100%' }} />
 
-        <Grid container>
-          <IconButton size="large" sx={{ color: 'error.main' }} onClick={handleStartClick} disabled={gameStarted}>
-            <PlayArrow fontSize="large" />
-          </IconButton>
+          <Grid container>
+            <IconButton
+              size="large"
+              sx={{ color: 'error.main' }}
+              onClick={handleStartClick}
+              disabled={gameStarted}
+            >
+              <PlayArrow fontSize="large" />
+            </IconButton>
 
-          <IconButton size="large" sx={{ color: 'error.main' }} onClick={handleRestartClick}>
-            <RestartAlt fontSize="large" />
-          </IconButton>
-        </Grid>
-
-        <Grid container justifyContent="flex-end" alignItems="center" gap="20px">
-          <Grid container gap="5px" alignItems="center">
-            <Timer fontSize="large" sx={{ color: 'secondary.main' }} />
-            <Typography variant="h5">{renderTime()}</Typography>
+            <IconButton size="large" sx={{ color: 'error.main' }} onClick={handleRestartClick}>
+              <RestartAlt fontSize="large" />
+            </IconButton>
           </Grid>
-          <Grid container gap="5px" alignItems="center">
-            <Gamepad fontSize="large" sx={{ color: 'secondary.main' }} />
-            <Typography variant="h5">{moves}</Typography>
+
+          <Grid container justifyContent="flex-end" alignItems="center" gap="20px">
+            <Grid container gap="5px" alignItems="center">
+              <Timer fontSize="large" sx={{ color: 'secondary.main' }} />
+              <Typography variant="h5">{renderTime()}</Typography>
+            </Grid>
+            <Grid container gap="5px" alignItems="center">
+              <Gamepad fontSize="large" sx={{ color: 'secondary.main' }} />
+              <Typography variant="h5">{moves}</Typography>
+            </Grid>
           </Grid>
+        </Box>
+        <Grid container style={{ width: 'min-content', margin: 'auto' }}>
+          <canvas ref={canvasRef} id="canvas" style={{ padding: '20px' }} />
+          <Slider
+            value={tileCount}
+            step={2}
+            marks={DIFFICULTIES}
+            min={2}
+            max={8}
+            onChange={(e, val) => setTileCount(val)}
+          />
         </Grid>
-      </Box>
-      <Grid container style={{ width: 'min-content', margin: 'auto' }}>
-        <canvas ref={canvasRef} id="canvas" style={{ padding: '20px' }} />
-        <Slider
-          value={tileCount}
-          step={2}
-          marks={DIFFICULTIES}
-          min={2}
-          max={8}
-          onChange={(e, val) => setTileCount(val)}
-        />
-      </Grid>
-    </StyledContainer>
+      </StyledContainer>
+
+      {/* the winning move won't increment the counter without causing loop, so doing it here  */}
+      <SuccessModal
+        open={winner}
+        timeTaken={renderTime()}
+        movesTaken={moves}
+        onClose={() => handleRestartClick()}
+      />
+    </>
   )
 }
