@@ -51,16 +51,12 @@ export default function Canvas({ imageInput, gameStarted, onGameToggle }) {
   useEffect(() => {
     const newCanvas = new fabric.Canvas(canvasRef.current, { selection: false })
 
+    // messy, but I'm tracking the moves as a custom attribute attached to the 'canvas'
+    // this way, I can better track moves and this fixes some issues with useEffect loops
     newCanvas.moves = 1
 
-    const originalToObject = fabric.Canvas.prototype.toJSON
-    const myAdditional = ['moves']
-    fabric.Canvas.prototype.toJSON = function (additionalProperties) {
-      return originalToObject.call(this, myAdditional.concat(additionalProperties))
-    }
-
     newCanvas.on('object:modified', objectModifiedListener)
-    newCanvas.on('mouse:up', (event) => mouseUpListener(event, newCanvas))
+    newCanvas.on('mouse:up', mouseUpListener)
     newCanvas.on('mouse:down', mouseDownListener)
     newCanvas.on('object:moving', objectMovingListener)
 
@@ -74,9 +70,6 @@ export default function Canvas({ imageInput, gameStarted, onGameToggle }) {
     if (canvasState) {
       const currentOrder = canvas.getObjects().map((obj) => obj.index)
       const hasWon = JSON.stringify(currentOrder) === JSON.stringify(correctOrder)
-
-      console.log('CURRENT ORDER', currentOrder)
-      console.log('CORRECT ORDER', correctOrder)
 
       if (hasWon) {
         setWinner(true)
@@ -116,7 +109,6 @@ export default function Canvas({ imageInput, gameStarted, onGameToggle }) {
   }
 
   const handleRestartClick = () => {
-    setWinner(false)
     const objects = canvas.getObjects()
     correctOrder.forEach((idx) => {
       const tileA = objects[idx]
@@ -128,6 +120,8 @@ export default function Canvas({ imageInput, gameStarted, onGameToggle }) {
       }
     })
     reset()
+    setWinner(false)
+    setMoves(0)
   }
 
   const renderTime = () => `${minutes}:${seconds > 9 ? seconds : `0${seconds}`}`
