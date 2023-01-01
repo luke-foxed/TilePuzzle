@@ -28,25 +28,23 @@ const DIFFICULTIES = [
   },
 ]
 
-export default function Canvas({ imageInput, gameStarted, onGameToggle }) {
+export default function Canvas({ imageInput, gameStarted, onGameToggle, onGameCompleted }) {
   const canvasRef = useRef()
   const [canvas, setCanvas] = useState(null)
   const [canvasState, setCanvasState] = useState(null)
-  const [correctOrder, setCorrectOrder] = useState([])
   const [tileCount, setTileCount] = useState(2)
   const [moves, setMoves] = useState(0)
   const [winner, setWinner] = useState(false)
   const { seconds, minutes, start: startTimer, reset, pause } = useStopwatch({ autoStart: false })
 
+  const timeTaken = `${minutes}:${seconds > 9 ? seconds : `0${seconds}`}`
+
   // this allows for hooks to observe canvas changes rather than relying on fabric event listeners
-  const objectModifiedListener = useCallback(
-    (event) => {
-      const newCanvasState = event.target.canvas.toJSON(['moves'])
-      setCanvasState(newCanvasState)
-      setMoves(event.target.canvas.moves)
-    },
-    [],
-  )
+  const objectModifiedListener = useCallback((event) => {
+    const newCanvasState = event.target.canvas.toJSON(['moves'])
+    setCanvasState(newCanvasState)
+    setMoves(event.target.canvas.moves)
+  }, [])
 
   useEffect(() => {
     const newCanvas = new fabric.Canvas(canvasRef.current, { selection: false })
@@ -69,14 +67,15 @@ export default function Canvas({ imageInput, gameStarted, onGameToggle }) {
   useEffect(() => {
     if (canvasState) {
       const currentOrder = canvas.getObjects().map((obj) => obj.index)
+      const correctOrder = [...Array(currentOrder.length).keys()]
       const hasWon = JSON.stringify(currentOrder) === JSON.stringify(correctOrder)
-
       if (hasWon) {
+        onGameCompleted({ completed: true, moves, timeTaken })
         setWinner(true)
         pause()
       }
     }
-  }, [canvas, canvasState, correctOrder, pause])
+  }, [canvas, canvasState, moves, onGameCompleted, pause, timeTaken])
 
   useEffect(() => {
     if (canvas) {
@@ -102,15 +101,14 @@ export default function Canvas({ imageInput, gameStarted, onGameToggle }) {
     const image = new fabric.Image('')
     canvas.setBackgroundImage(image, canvas.renderAll.bind(canvas))
 
-    // set the correct order of tiles
-    setCorrectOrder([...Array(tileCount * tileCount).keys()])
     onGameToggle(true)
     startTimer()
   }
 
   const handleRestartClick = () => {
     const objects = canvas.getObjects()
-    correctOrder.forEach((idx) => {
+    const order = [...Array(objects.length).keys()]
+    order.forEach((idx) => {
       const tileA = objects[idx]
       const tileB = objects[Math.floor(Math.random() * objects.length)]
 
@@ -123,8 +121,6 @@ export default function Canvas({ imageInput, gameStarted, onGameToggle }) {
     setWinner(false)
     setMoves(0)
   }
-
-  const renderTime = () => `${minutes}:${seconds > 9 ? seconds : `0${seconds}`}`
 
   return (
     <>
@@ -159,7 +155,7 @@ export default function Canvas({ imageInput, gameStarted, onGameToggle }) {
           <Grid container justifyContent="flex-end" alignItems="center" gap="20px">
             <Grid container gap="5px" alignItems="center">
               <Timer fontSize="large" sx={{ color: 'secondary.main' }} />
-              <Typography variant="h5">{renderTime()}</Typography>
+              <Typography variant="h5">{timeTaken}</Typography>
             </Grid>
             <Grid container gap="5px" alignItems="center">
               <Gamepad fontSize="large" sx={{ color: 'secondary.main' }} />
@@ -183,7 +179,7 @@ export default function Canvas({ imageInput, gameStarted, onGameToggle }) {
       {/* the winning move won't increment the counter without causing loop, so doing it here  */}
       <SuccessModal
         open={winner}
-        timeTaken={renderTime()}
+        timeTaken={timeTaken}
         movesTaken={moves}
         onClose={() => handleRestartClick()}
       />

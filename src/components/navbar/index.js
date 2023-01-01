@@ -2,7 +2,7 @@ import { AppBar, Button, Grid, styled, Typography } from '@mui/material'
 import Link from 'next/link'
 import { Fragment, useContext, useState } from 'react'
 import { AuthUserContext } from '../../context/userProvider'
-import Authenticate from './authenticate'
+import Authenticate from './Authenticate'
 
 const StyledTopBar = styled(AppBar)({
   height: '180px',

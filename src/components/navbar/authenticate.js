@@ -58,7 +58,7 @@ export default function Authenticate({ onClose, type }) {
   }
 
   return (
-    <StyledModal showX>
+    <StyledModal showX open>
       <Grid item>
         <Avatar sx={{ bgcolor: 'secondary.main', margin: 'auto' }}>
           {type === 'login' ? <LockOutlined /> : <PersonAdd />}

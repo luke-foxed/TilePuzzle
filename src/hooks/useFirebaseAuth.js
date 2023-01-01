@@ -14,8 +14,8 @@ import { auth, db } from '../../config/firebase'
 
 // for creating DB association with user
 const createUserDocument = async (user) => {
-  const { uid, email } = user
-  const data = { email, avatar: `https://source.boringavatars.com/beam/120/${uid}?colors=FFFBFE,F75590` }
+  const { uid, email, displayName } = user
+  const data = { displayName, email, avatar: `https://source.boringavatars.com/beam/120/${uid}?colors=FFFBFE,F75590` }
   await setDoc(doc(db, 'users', uid), data)
   return data
 }
