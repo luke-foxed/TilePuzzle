@@ -37,7 +37,7 @@ export default function Canvas({ imageInput, gameStarted, onGameToggle, onGameCo
   const [winner, setWinner] = useState(false)
   const { seconds, minutes, start: startTimer, reset, pause } = useStopwatch({ autoStart: false })
 
-  const timeTaken = `${minutes}:${seconds > 9 ? seconds : `0${seconds}`}`
+  const time = `${minutes}:${seconds > 9 ? seconds : `0${seconds}`}`
 
   // this allows for hooks to observe canvas changes rather than relying on fabric event listeners
   const objectModifiedListener = useCallback((event) => {
@@ -70,12 +70,12 @@ export default function Canvas({ imageInput, gameStarted, onGameToggle, onGameCo
       const correctOrder = [...Array(currentOrder.length).keys()]
       const hasWon = JSON.stringify(currentOrder) === JSON.stringify(correctOrder)
       if (hasWon) {
-        onGameCompleted({ completed: true, moves, timeTaken })
+        onGameCompleted({ completed: true, moves, time, date: new Date().toLocaleDateString() })
         setWinner(true)
         pause()
       }
     }
-  }, [canvas, canvasState, moves, onGameCompleted, pause, timeTaken])
+  }, [canvas, canvasState, moves, onGameCompleted, pause, time])
 
   useEffect(() => {
     if (canvas) {
@@ -155,7 +155,7 @@ export default function Canvas({ imageInput, gameStarted, onGameToggle, onGameCo
           <Grid container justifyContent="flex-end" alignItems="center" gap="20px">
             <Grid container gap="5px" alignItems="center">
               <Timer fontSize="large" sx={{ color: 'secondary.main' }} />
-              <Typography variant="h5">{timeTaken}</Typography>
+              <Typography variant="h5">{time}</Typography>
             </Grid>
             <Grid container gap="5px" alignItems="center">
               <Gamepad fontSize="large" sx={{ color: 'secondary.main' }} />
@@ -176,12 +176,10 @@ export default function Canvas({ imageInput, gameStarted, onGameToggle, onGameCo
         </Grid>
       </StyledContainer>
 
-      {/* the winning move won't increment the counter without causing loop, so doing it here  */}
       <SuccessModal
         open={winner}
-        timeTaken={timeTaken}
+        timeTaken={time}
         movesTaken={moves}
-        onClose={() => handleRestartClick()}
       />
     </>
   )

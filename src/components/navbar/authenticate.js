@@ -57,6 +57,11 @@ export default function Authenticate({ onClose, type }) {
     onClose()
   }
 
+  const handleGoogleLogin = async () => {
+    await loginWithGoogle()
+    onClose()
+  }
+
   return (
     <StyledModal showX open>
       <Grid item>
@@ -102,7 +107,7 @@ export default function Authenticate({ onClose, type }) {
             >
               Login
             </Button>
-            <Button color="error" fullWidth onClick={() => loginWithGoogle()}>
+            <Button color="error" fullWidth onClick={() => handleGoogleLogin()}>
               Login With Google
             </Button>
           </>

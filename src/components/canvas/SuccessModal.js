@@ -1,5 +1,5 @@
 import { CheckCircleOutline } from '@mui/icons-material'
-import { Avatar, Button, Typography, Box, styled } from '@mui/material'
+import { Avatar, Button, Typography, Box, styled, Link } from '@mui/material'
 import Grid from '@mui/material/Unstable_Grid2'
 import { StyledModal } from '../shared'
 
@@ -10,7 +10,7 @@ const StyledBox = styled(Box)({
   gap: '0px 10px',
 })
 
-export default function SuccessModal({ open, timeTaken, movesTaken, onClose }) {
+export default function SuccessModal({ open, timeTaken, movesTaken }) {
   return (
     <StyledModal open={open}>
       <Grid container direction="column" gap="20px" alignItems="center">
@@ -28,7 +28,12 @@ export default function SuccessModal({ open, timeTaken, movesTaken, onClose }) {
           <Typography variant="h6" style={{ textAlign: 'end' }}>{movesTaken}</Typography>
         </StyledBox>
 
-        <Button color="secondary" onClick={onClose}>Continue</Button>
+        <Link style={{ textDecoration: 'none' }} href="/gradients">
+          <Button variant="contained" style={{ width: '240px' }} size="large">
+            Continue
+          </Button>
+        </Link>
+
       </Grid>
     </StyledModal>
   )
