@@ -30,6 +30,14 @@ const DIFFICULTIES = [
 
 export function MobileCanvasModal({ onClickCanvas }) {
   const [fullScreen, setFullScreen] = useState(false)
+
+  useEffect(() => {
+    const upperCanvas = document.getElementsByClassName('upper-canvas')[0]
+    if (upperCanvas) {
+      upperCanvas.style.pointerEvents = fullScreen ? 'all' : 'none'
+    }
+  }, [fullScreen])
+
   return (
     <Box
       onClick={(e) => {
@@ -49,7 +57,7 @@ export function MobileCanvasModal({ onClickCanvas }) {
           : {}
       }
     >
-      <canvas id="canvas" style={{ pointerEvents: fullScreen ? 'auto' : 'none' }} />
+      <canvas id="canvas" style={{ pointerEvents: fullScreen ? 'all' : 'none' }} />
     </Box>
   )
 }
@@ -83,6 +91,23 @@ export default function Canvas({ img, gameStarted, onGameToggle, onGameCompleted
       newCanvas.on('mouse:down', mouseDownListener)
       newCanvas.on('object:moving', objectMovingListener)
 
+      const i = new Image()
+      const adjustedURL = isMobile ? img.replace('h_600', 'h_915,w_412') : img
+      i.crossOrigin = 'anonymous'
+      i.src = typeof img === 'string' ? adjustedURL : URL.createObjectURL(img)
+      i.onload = () => {
+        const fabricImage = new fabric.Image(i)
+        newCanvas.setDimensions(
+          isMobile
+            ? { width: window.innerWidth, height: window.innerHeight }
+            : { width: i.width, height: i.height },
+        )
+        newCanvas.setBackgroundImage(fabricImage, newCanvas.renderAll.bind(newCanvas), {
+          originX: 'left',
+          originY: 'top',
+        })
+      }
+
       setCanvas(newCanvas)
     }
     // Don't forget to destroy canvas and remove event listeners on component unmount
@@ -101,27 +126,6 @@ export default function Canvas({ img, gameStarted, onGameToggle, onGameCompleted
       }
     }
   }, [canvas, canvasState, moves, onGameCompleted, pause, time])
-
-  useEffect(() => {
-    if (canvas) {
-      const i = new Image()
-      const adjustedURL = isMobile ? img.replace('h_600', 'h_915,w_412') : img
-      i.crossOrigin = 'anonymous'
-      i.src = typeof img === 'string' ? adjustedURL : URL.createObjectURL(img)
-      i.onload = () => {
-        const fabricImage = new fabric.Image(i)
-        canvas.setDimensions(
-          isMobile
-            ? { width: window.innerWidth, height: window.innerHeight }
-            : { width: i.width, height: i.height },
-        )
-        canvas.setBackgroundImage(fabricImage, canvas.renderAll.bind(canvas), {
-          originX: 'left',
-          originY: 'top',
-        })
-      }
-    }
-  }, [canvas, img, isMobile])
 
   const handleStartClick = () => {
     generateTiles(1, tileCount, canvas)
