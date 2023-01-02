@@ -1,10 +1,9 @@
-import * as React from 'react'
 import Head from 'next/head'
 import { ThemeProvider } from '@mui/material/styles'
 import CssBaseline from '@mui/material/CssBaseline'
 import { CacheProvider } from '@emotion/react'
 import { getSelectorsByUserAgent } from 'react-device-detect'
-import App from 'next/app'
+import { useEffect, useState } from 'react'
 import { AuthUserProvider } from '../src/context/userProvider'
 import createEmotionCache from '../styles/theme/createEmotionCache'
 import theme from '../styles/theme/index'
@@ -16,7 +15,15 @@ import Navbar from '../src/components/navbar'
 const clientSideEmotionCache = createEmotionCache()
 
 export default function MyApp(props) {
-  const { Component, emotionCache = clientSideEmotionCache, pageProps, isMobile } = props
+  const { Component, emotionCache = clientSideEmotionCache, pageProps } = props
+  const [mobileView, setMobileView] = useState(false)
+
+  useEffect(() => {
+    const agent = navigator.userAgent
+    const { isMobile } = getSelectorsByUserAgent(agent)
+    setMobileView(isMobile)
+  }, [])
+
   return (
     <CacheProvider value={emotionCache}>
       <Head>
@@ -27,18 +34,9 @@ export default function MyApp(props) {
           <CssBaseline />
           <Navbar />
           {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-          <Component {...pageProps} isMobile={isMobile} />
+          <Component {...pageProps} isMobile={mobileView} />
         </ThemeProvider>
       </AuthUserProvider>
     </CacheProvider>
   )
-}
-
-// SSR means no way of detecting devices, so doing it here
-MyApp.getInitialProps = async (context) => {
-  const userAgent = context.ctx.req.headers['user-agent']
-  const appProps = await App.getInitialProps(context)
-  const selectors = getSelectorsByUserAgent(userAgent)
-  const isMobile = selectors.isMobile ?? false
-  return { ...appProps, isMobile }
 }
