@@ -14,7 +14,7 @@ export const StyledContainer = styled(Container)({
 
 export function StyledModal({ children, open, onClose, showX }) {
   return (
-    <Dialog open={open} sx={{ '.MuiPaper-root': { borderRadius: '20px' } }}>
+    <Dialog open={open} sx={{ '.MuiPaper-root': { borderRadius: '20px', bgcolor: 'background.default' } }}>
       {showX && (
         <Grid container justifyContent="flex-end">
           <CloseDialogButton disableRipple="true" onClick={onClose}>

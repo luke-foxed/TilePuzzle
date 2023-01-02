@@ -10,7 +10,7 @@ import { AuthUserContext } from '../../src/context/userProvider'
 
 const DEFAULT_GAME_STATE = { completed: false, moves: 0, time: 0 }
 
-function Gradient({ gradientData }) {
+function Gradient({ gradientData, isMobile }) {
   const [gameStarted, setGameStarted] = useState(false)
   const [gameState, setGameState] = useState(DEFAULT_GAME_STATE)
   const { authUser } = useContext(AuthUserContext)
@@ -32,7 +32,8 @@ function Gradient({ gradientData }) {
       {gradientData.url && (
         <Grid direction="row" container justifyContent="center" alignItems="center">
           <Canvas
-            imageInput={gradientData.url}
+            isMobile={isMobile}
+            img={gradientData.url}
             gameStarted={gameStarted}
             onGameToggle={(toggle) => setGameStarted(toggle)}
             onGameCompleted={(newState) => handleGameCompleted(newState)}

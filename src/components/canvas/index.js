@@ -7,7 +7,7 @@ import { useStopwatch } from 'react-timer-hook'
 import { mouseDownListener, mouseUpListener, objectMovingListener } from '../../utils/canvasHelpers'
 import { generateTiles, swapTiles } from '../../utils/tileHelpers'
 import { StyledContainer } from '../shared'
-import SuccessModal from './SuccessModal';
+import SuccessModal from './SuccessModal'
 
 const DIFFICULTIES = [
   {
@@ -28,7 +28,7 @@ const DIFFICULTIES = [
   },
 ]
 
-export default function Canvas({ imageInput, gameStarted, onGameToggle, onGameCompleted }) {
+export default function Canvas({ img, gameStarted, onGameToggle, onGameCompleted, isMobile }) {
   const canvasRef = useRef()
   const [canvas, setCanvas] = useState(null)
   const [canvasState, setCanvasState] = useState(null)
@@ -79,20 +79,23 @@ export default function Canvas({ imageInput, gameStarted, onGameToggle, onGameCo
 
   useEffect(() => {
     if (canvas) {
-      const img = new Image()
-      img.crossOrigin = 'anonymous'
-      img.src = typeof imageInput === 'string' ? imageInput : URL.createObjectURL(imageInput)
-      img.onload = () => {
-        const fabricImage = new fabric.Image(img)
-        canvas.setWidth(img.width)
-        canvas.setHeight(img.height)
+      const i = new Image()
+      i.crossOrigin = 'anonymous'
+      i.src = typeof img === 'string' ? img : URL.createObjectURL(img)
+      i.onload = () => {
+        const fabricImage = new fabric.Image(i)
+        canvas.setDimensions(
+          isMobile
+            ? { width: window.innerWidth, height: window.innerHeight }
+            : { width: i.width, height: i.height },
+        )
         canvas.setBackgroundImage(fabricImage, canvas.renderAll.bind(canvas), {
           originX: 'left',
           originY: 'top',
         })
       }
     }
-  }, [canvas, imageInput])
+  }, [canvas, img, isMobile])
 
   const handleStartClick = () => {
     generateTiles(1, tileCount, canvas)
@@ -125,19 +128,48 @@ export default function Canvas({ imageInput, gameStarted, onGameToggle, onGameCo
   return (
     <>
       <StyledContainer style={{ margin: '20px' }}>
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: 'auto 1px auto 1fr',
-            gap: '20px',
-            alignItems: 'center',
-          }}
-        >
-          <Typography variant="h4">Level 1</Typography>
+        {!isMobile ? (
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: 'auto 1px auto 1fr',
+              gap: '20px',
+              alignItems: 'center',
+            }}
+          >
+            <Typography variant="h4">Level 1</Typography>
 
-          <div style={{ border: '1px solid white', height: '100%' }} />
+            <div style={{ border: '1px solid white', height: '100%' }} />
 
+            <Grid container>
+              <IconButton
+                size="large"
+                sx={{ color: 'error.main' }}
+                onClick={handleStartClick}
+                disabled={gameStarted}
+              >
+                <PlayArrow fontSize="large" />
+              </IconButton>
+
+              <IconButton size="large" sx={{ color: 'error.main' }} onClick={handleRestartClick}>
+                <RestartAlt fontSize="large" />
+              </IconButton>
+            </Grid>
+
+            <Grid container justifyContent="flex-end" alignItems="center" gap="20px">
+              <Grid container gap="5px" alignItems="center">
+                <Timer fontSize="large" sx={{ color: 'secondary.main' }} />
+                <Typography variant="h5">{time}</Typography>
+              </Grid>
+              <Grid container gap="5px" alignItems="center">
+                <Gamepad fontSize="large" sx={{ color: 'secondary.main' }} />
+                <Typography variant="h5">{moves}</Typography>
+              </Grid>
+            </Grid>
+          </Box>
+        ) : (
           <Grid container>
+            <div>Level 1</div>
             <IconButton
               size="large"
               sx={{ color: 'error.main' }}
@@ -146,23 +178,9 @@ export default function Canvas({ imageInput, gameStarted, onGameToggle, onGameCo
             >
               <PlayArrow fontSize="large" />
             </IconButton>
-
-            <IconButton size="large" sx={{ color: 'error.main' }} onClick={handleRestartClick}>
-              <RestartAlt fontSize="large" />
-            </IconButton>
           </Grid>
+        )}
 
-          <Grid container justifyContent="flex-end" alignItems="center" gap="20px">
-            <Grid container gap="5px" alignItems="center">
-              <Timer fontSize="large" sx={{ color: 'secondary.main' }} />
-              <Typography variant="h5">{time}</Typography>
-            </Grid>
-            <Grid container gap="5px" alignItems="center">
-              <Gamepad fontSize="large" sx={{ color: 'secondary.main' }} />
-              <Typography variant="h5">{moves}</Typography>
-            </Grid>
-          </Grid>
-        </Box>
         <Grid container style={{ width: 'min-content', margin: 'auto' }}>
           <canvas ref={canvasRef} id="canvas" style={{ padding: '20px' }} />
           <Slider
@@ -176,11 +194,7 @@ export default function Canvas({ imageInput, gameStarted, onGameToggle, onGameCo
         </Grid>
       </StyledContainer>
 
-      <SuccessModal
-        open={winner}
-        timeTaken={time}
-        movesTaken={moves}
-      />
+      <SuccessModal open={winner} timeTaken={time} movesTaken={moves} />
     </>
   )
 }
