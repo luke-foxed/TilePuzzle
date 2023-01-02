@@ -16,7 +16,7 @@ const clientSideEmotionCache = createEmotionCache()
 
 export default function MyApp(props) {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props
-  const [mobileView, setMobileView] = useState(false)
+  const [mobileView, setMobileView] = useState(null)
 
   useEffect(() => {
     const agent = navigator.userAgent

@@ -1,8 +1,8 @@
 import { Gamepad, PlayArrow, RestartAlt, Timer } from '@mui/icons-material'
 import { IconButton, Slider, Typography, Box } from '@mui/material'
-import Grid from '@mui/material/Unstable_Grid2'; // Grid version 2
+import Grid from '@mui/material/Unstable_Grid2'
 import { fabric } from 'fabric-pure-browser'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useStopwatch } from 'react-timer-hook'
 import { mouseDownListener, mouseUpListener, objectMovingListener } from '../../utils/canvasHelpers'
 import { generateTiles, swapTiles } from '../../utils/tileHelpers'
@@ -28,8 +28,33 @@ const DIFFICULTIES = [
   },
 ]
 
+export function MobileCanvasModal({ onClickCanvas }) {
+  const [fullScreen, setFullScreen] = useState(false)
+  return (
+    <Box
+      onClick={(e) => {
+        e.stopPropagation()
+        setFullScreen(!fullScreen)
+        onClickCanvas()
+      }}
+      sx={
+        fullScreen
+          ? {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            height: '100%',
+            width: '100%',
+          }
+          : {}
+      }
+    >
+      <canvas id="canvas" style={{ pointerEvents: fullScreen ? 'auto' : 'none' }} />
+    </Box>
+  )
+}
+
 export default function Canvas({ img, gameStarted, onGameToggle, onGameCompleted, isMobile }) {
-  const canvasRef = useRef()
   const [canvas, setCanvas] = useState(null)
   const [canvasState, setCanvasState] = useState(null)
   const [tileCount, setTileCount] = useState(2)
@@ -47,22 +72,22 @@ export default function Canvas({ img, gameStarted, onGameToggle, onGameCompleted
   }, [])
 
   useEffect(() => {
-    const newCanvas = new fabric.Canvas(canvasRef.current, { selection: false })
+    const newCanvas = new fabric.Canvas('canvas', { selection: false })
+    if (isMobile !== null) {
+      // messy, but I'm tracking the moves as a custom attribute attached to the 'canvas'
+      // this way, I can better track moves and this fixes some issues with useEffect loops
+      newCanvas.moves = 1
 
-    // messy, but I'm tracking the moves as a custom attribute attached to the 'canvas'
-    // this way, I can better track moves and this fixes some issues with useEffect loops
-    newCanvas.moves = 1
+      newCanvas.on('object:modified', objectModifiedListener)
+      newCanvas.on('mouse:up', mouseUpListener)
+      newCanvas.on('mouse:down', mouseDownListener)
+      newCanvas.on('object:moving', objectMovingListener)
 
-    newCanvas.on('object:modified', objectModifiedListener)
-    newCanvas.on('mouse:up', mouseUpListener)
-    newCanvas.on('mouse:down', mouseDownListener)
-    newCanvas.on('object:moving', objectMovingListener)
-
-    setCanvas(newCanvas)
-
+      setCanvas(newCanvas)
+    }
     // Don't forget to destroy canvas and remove event listeners on component unmount
     return () => newCanvas.dispose()
-  }, [objectModifiedListener])
+  }, [img, isMobile, objectModifiedListener])
 
   useEffect(() => {
     if (canvasState) {
@@ -80,8 +105,9 @@ export default function Canvas({ img, gameStarted, onGameToggle, onGameCompleted
   useEffect(() => {
     if (canvas) {
       const i = new Image()
+      const adjustedURL = isMobile ? img.replace('h_600', 'h_915,w_412') : img
       i.crossOrigin = 'anonymous'
-      i.src = typeof img === 'string' ? img : URL.createObjectURL(img)
+      i.src = typeof img === 'string' ? adjustedURL : URL.createObjectURL(img)
       i.onload = () => {
         const fabricImage = new fabric.Image(i)
         canvas.setDimensions(
@@ -127,7 +153,7 @@ export default function Canvas({ img, gameStarted, onGameToggle, onGameCompleted
 
   return (
     <>
-      <StyledContainer style={{ margin: '20px' }}>
+      <StyledContainer style={{ margin: '20px' }} mobile={isMobile}>
         {!isMobile ? (
           <Box
             sx={{
@@ -181,17 +207,21 @@ export default function Canvas({ img, gameStarted, onGameToggle, onGameCompleted
           </Grid>
         )}
 
-        <Grid container style={{ width: 'min-content', margin: 'auto' }}>
-          <canvas ref={canvasRef} id="canvas" style={{ padding: '20px' }} />
-          <Slider
-            value={tileCount}
-            step={2}
-            marks={DIFFICULTIES}
-            min={2}
-            max={8}
-            onChange={(e, val) => setTileCount(val)}
-          />
-        </Grid>
+        {isMobile ? (
+          <MobileCanvasModal onClickCanvas={() => handleStartClick()} />
+        ) : (
+          <Grid container style={{ width: 'min-content', margin: 'auto' }}>
+            <canvas id="canvas" style={{ padding: isMobile ? '0px' : '20px' }} />
+            <Slider
+              value={tileCount}
+              step={2}
+              marks={DIFFICULTIES}
+              min={2}
+              max={8}
+              onChange={(e, val) => setTileCount(val)}
+            />
+          </Grid>
+        )}
       </StyledContainer>
 
       <SuccessModal open={winner} timeTaken={time} movesTaken={moves} />

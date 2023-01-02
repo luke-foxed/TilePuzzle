@@ -7,10 +7,12 @@ const CloseDialogButton = styled(IconButton)(({ theme }) => ({
   color: theme.palette.error.main,
 }))
 
-export const StyledContainer = styled(Container)({
-  width: '85%',
+export const StyledContainer = styled(Container, {
+  shouldForwardProp: (props) => props !== 'mobile',
+})(({ mobile }) => ({
+  width: mobile ? '100%' : '85%',
   margin: 'auto',
-})
+}))
 
 export function StyledModal({ children, open, onClose, showX }) {
   return (
