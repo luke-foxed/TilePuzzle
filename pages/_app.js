@@ -38,6 +38,7 @@ export default function MyApp(props) {
 MyApp.getInitialProps = async (context) => {
   const userAgent = context.ctx.req.headers['user-agent']
   const appProps = await App.getInitialProps(context)
-  const { isMobile } = getSelectorsByUserAgent(userAgent)
+  const selectors = getSelectorsByUserAgent(userAgent)
+  const isMobile = selectors.isMobile ?? false
   return { ...appProps, isMobile }
 }
