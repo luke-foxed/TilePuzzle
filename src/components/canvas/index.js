@@ -7,6 +7,7 @@ import { useStopwatch } from 'react-timer-hook'
 import { mouseDownListener, mouseUpListener, objectMovingListener } from '../../utils/canvasHelpers'
 import { generateTiles, swapTiles } from '../../utils/tileHelpers'
 import { StyledContainer } from '../shared'
+import MobileCanvasModal from './MobileCanvas'
 import SuccessModal from './SuccessModal'
 
 const DIFFICULTIES = [
@@ -27,40 +28,6 @@ const DIFFICULTIES = [
     label: 'Very Hard (64 Tiles)',
   },
 ]
-
-export function MobileCanvasModal({ onClickCanvas }) {
-  const [fullScreen, setFullScreen] = useState(false)
-
-  useEffect(() => {
-    const upperCanvas = document.getElementsByClassName('upper-canvas')[0]
-    if (upperCanvas) {
-      upperCanvas.style.pointerEvents = fullScreen ? 'all' : 'none'
-    }
-  }, [fullScreen])
-
-  return (
-    <Box
-      onClick={(e) => {
-        e.stopPropagation()
-        setFullScreen(!fullScreen)
-        onClickCanvas()
-      }}
-      sx={
-        fullScreen
-          ? {
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            height: '100%',
-            width: '100%',
-          }
-          : {}
-      }
-    >
-      <canvas id="canvas" style={{ pointerEvents: fullScreen ? 'all' : 'none' }} />
-    </Box>
-  )
-}
 
 export default function Canvas({ img, gameStarted, onGameToggle, onGameCompleted, isMobile }) {
   const [canvas, setCanvas] = useState(null)
@@ -92,14 +59,16 @@ export default function Canvas({ img, gameStarted, onGameToggle, onGameCompleted
       newCanvas.on('object:moving', objectMovingListener)
 
       const i = new Image()
-      const adjustedURL = isMobile ? img.replace('h_600', 'h_915,w_412') : img
+      const adjustedURL = isMobile
+        ? img.replace('h_600', `h_${window.innerHeight - 50},w_${window.innerWidth}`)
+        : img
       i.crossOrigin = 'anonymous'
       i.src = typeof img === 'string' ? adjustedURL : URL.createObjectURL(img)
       i.onload = () => {
         const fabricImage = new fabric.Image(i)
         newCanvas.setDimensions(
           isMobile
-            ? { width: window.innerWidth, height: window.innerHeight }
+            ? { width: window.innerWidth, height: window.innerHeight - 50 }
             : { width: i.width, height: i.height },
         )
         newCanvas.setBackgroundImage(fabricImage, newCanvas.renderAll.bind(newCanvas), {
@@ -212,7 +181,12 @@ export default function Canvas({ img, gameStarted, onGameToggle, onGameCompleted
         )}
 
         {isMobile ? (
-          <MobileCanvasModal onClickCanvas={() => handleStartClick()} />
+          <MobileCanvasModal
+            onClickCanvas={() => handleStartClick()}
+            onRestartClick={() => handleRestartClick()}
+            time={time}
+            moves={moves}
+          />
         ) : (
           <Grid container style={{ width: 'min-content', margin: 'auto' }}>
             <canvas id="canvas" style={{ padding: isMobile ? '0px' : '20px' }} />
