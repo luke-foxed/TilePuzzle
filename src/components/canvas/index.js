@@ -46,6 +46,27 @@ export default function Canvas({ img, gameStarted, onGameToggle, onGameCompleted
     setMoves(event.target.canvas.moves)
   }, [])
 
+  const setImage = useCallback((can) => {
+    const i = new Image()
+    const adjustedURL = isMobile
+      ? img.replace('h_600', `h_${window.innerHeight - 50},w_${window.innerWidth}`)
+      : img
+    i.crossOrigin = 'anonymous'
+    i.src = typeof img === 'string' ? adjustedURL : URL.createObjectURL(img)
+    i.onload = () => {
+      const fabricImage = new fabric.Image(i)
+      can.setDimensions(
+        isMobile
+          ? { width: window.innerWidth, height: window.innerHeight - 50 }
+          : { width: i.width, height: i.height },
+      )
+      can.setBackgroundImage(fabricImage, can.renderAll.bind(can), {
+        originX: 'left',
+        originY: 'top',
+      })
+    }
+  }, [img, isMobile])
+
   useEffect(() => {
     const newCanvas = new fabric.Canvas('canvas', { selection: false })
     if (isMobile !== null) {
@@ -58,33 +79,15 @@ export default function Canvas({ img, gameStarted, onGameToggle, onGameCompleted
       newCanvas.on('mouse:down', mouseDownListener)
       newCanvas.on('object:moving', objectMovingListener)
 
-      const i = new Image()
-      const adjustedURL = isMobile
-        ? img.replace('h_600', `h_${window.innerHeight - 50},w_${window.innerWidth}`)
-        : img
-      i.crossOrigin = 'anonymous'
-      i.src = typeof img === 'string' ? adjustedURL : URL.createObjectURL(img)
-      i.onload = () => {
-        const fabricImage = new fabric.Image(i)
-        newCanvas.setDimensions(
-          isMobile
-            ? { width: window.innerWidth, height: window.innerHeight - 50 }
-            : { width: i.width, height: i.height },
-        )
-        newCanvas.setBackgroundImage(fabricImage, newCanvas.renderAll.bind(newCanvas), {
-          originX: 'left',
-          originY: 'top',
-        })
-      }
-
+      setImage(newCanvas)
       setCanvas(newCanvas)
     }
     // Don't forget to destroy canvas and remove event listeners on component unmount
     return () => newCanvas.dispose()
-  }, [img, isMobile, objectModifiedListener])
+  }, [img, isMobile, objectModifiedListener, setImage])
 
   useEffect(() => {
-    if (canvasState) {
+    if (canvasState && gameStarted) {
       const currentOrder = canvas.getObjects().map((obj) => obj.index)
       const correctOrder = [...Array(currentOrder.length).keys()]
       const hasWon = JSON.stringify(currentOrder) === JSON.stringify(correctOrder)
@@ -94,10 +97,10 @@ export default function Canvas({ img, gameStarted, onGameToggle, onGameCompleted
         pause()
       }
     }
-  }, [canvas, canvasState, moves, onGameCompleted, pause, time])
+  }, [canvas, canvasState, moves, time, gameStarted, onGameCompleted, pause])
 
-  const handleStartClick = () => {
-    generateTiles(1, tileCount, canvas)
+  const handleStartClick = async () => {
+    await generateTiles(1, tileCount, canvas)
 
     // clear the background image after we've added some tiles
     const image = new fabric.Image('')
@@ -119,9 +122,19 @@ export default function Canvas({ img, gameStarted, onGameToggle, onGameCompleted
         canvas.renderAll()
       }
     })
-    reset()
     setWinner(false)
     setMoves(0)
+    reset()
+  }
+
+  const resetCanvas = () => {
+    onGameToggle(false)
+    setMoves(0)
+    canvas.clear()
+    // I don't like this but the canvas renders weird without the delay
+    setTimeout(() => {
+      setImage(canvas)
+    }, 100)
   }
 
   return (
@@ -168,15 +181,7 @@ export default function Canvas({ img, gameStarted, onGameToggle, onGameCompleted
           </Box>
         ) : (
           <Grid container>
-            <div>Level 1</div>
-            <IconButton
-              size="large"
-              sx={{ color: 'error.main' }}
-              onClick={handleStartClick}
-              disabled={gameStarted}
-            >
-              <PlayArrow fontSize="large" />
-            </IconButton>
+            <Typography variant="h5">Level 1</Typography>
           </Grid>
         )}
 
@@ -184,6 +189,7 @@ export default function Canvas({ img, gameStarted, onGameToggle, onGameCompleted
           <MobileCanvasModal
             onClickCanvas={() => handleStartClick()}
             onRestartClick={() => handleRestartClick()}
+            onReset={() => resetCanvas()}
             time={time}
             moves={moves}
           />

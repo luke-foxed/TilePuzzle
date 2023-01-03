@@ -13,6 +13,7 @@ const getCanvasContainerStyles = (fullScreen) => (fullScreen
     bgcolor: 'background.default',
   }
   : {
+    margin: 'auto',
     height: '300px',
     width: '300px',
     canvas: {
@@ -22,7 +23,7 @@ const getCanvasContainerStyles = (fullScreen) => (fullScreen
     },
   })
 
-export default function MobileCanvasModal({ onClickCanvas, onRestartClick, time, moves }) {
+export default function MobileCanvasModal({ onClickCanvas, onRestartClick, onReset, time, moves }) {
   const [fullScreen, setFullScreen] = useState(false)
 
   useEffect(() => {
@@ -37,9 +38,15 @@ export default function MobileCanvasModal({ onClickCanvas, onRestartClick, time,
     onClickCanvas()
   }
 
+  const handleLeaveFullScreen = () => {
+    onReset()
+    setFullScreen(false)
+  }
+
   return (
     <Box onClick={fullScreen ? null : handleCanvasClick} sx={getCanvasContainerStyles(fullScreen)}>
       <canvas id="canvas" style={{ pointerEvents: fullScreen ? 'all' : 'none', height: '300px' }} />
+      {fullScreen && (
       <Box
         sx={{
           display: 'grid',
@@ -48,11 +55,7 @@ export default function MobileCanvasModal({ onClickCanvas, onRestartClick, time,
           justifyContent: 'space-evenly',
         }}
       >
-        <IconButton
-          size="large"
-          sx={{ color: 'error.main', height: '50px' }}
-          onClick={() => setFullScreen(false)}
-        >
+        <IconButton size="large" sx={{ color: 'error.main', height: '50px' }} onClick={handleLeaveFullScreen}>
           <FullscreenExit fontSize="large" />
         </IconButton>
         <IconButton
@@ -71,6 +74,7 @@ export default function MobileCanvasModal({ onClickCanvas, onRestartClick, time,
           <Typography variant="h5">{moves}</Typography>
         </Grid>
       </Box>
+      )}
     </Box>
   )
 }
