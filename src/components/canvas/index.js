@@ -2,7 +2,7 @@ import { Gamepad, PlayArrow, RestartAlt, Timer } from '@mui/icons-material'
 import { IconButton, Slider, Typography, Box } from '@mui/material'
 import Grid from '@mui/material/Unstable_Grid2'
 import { fabric } from 'fabric-pure-browser'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useStopwatch } from 'react-timer-hook'
 import { mouseDownListener, mouseUpListener, objectMovingListener } from '../../utils/canvasHelpers'
 import { generateTiles, swapTiles } from '../../utils/tileHelpers'
@@ -36,6 +36,8 @@ export default function Canvas({ img, gameStarted, onGameToggle, onGameCompleted
   const [moves, setMoves] = useState(0)
   const [winner, setWinner] = useState(false)
   const { seconds, minutes, start: startTimer, reset, pause } = useStopwatch({ autoStart: false })
+  // screen sizes seem to be changing on mobile on refreshing, so keeping them here
+  const screenRef = useRef(null)
 
   const time = `${minutes}:${seconds > 9 ? seconds : `0${seconds}`}`
 
@@ -47,18 +49,15 @@ export default function Canvas({ img, gameStarted, onGameToggle, onGameCompleted
   }, [])
 
   const setImage = useCallback((can) => {
+    const { width, height } = screenRef.current
     const i = new Image()
-    const adjustedURL = isMobile
-      ? img.replace('h_600', `h_${window.innerHeight - 50},w_${window.innerWidth}`)
-      : img
+    const adjustedURL = isMobile ? img.replace('h_600', `h_${height - 50},w_${width}`) : img
     i.crossOrigin = 'anonymous'
     i.src = typeof img === 'string' ? adjustedURL : URL.createObjectURL(img)
     i.onload = () => {
       const fabricImage = new fabric.Image(i)
       can.setDimensions(
-        isMobile
-          ? { width: window.innerWidth, height: window.innerHeight - 50 }
-          : { width: i.width, height: i.height },
+        isMobile ? { width, height: height - 50 } : { width: i.width, height: i.height },
       )
       can.setBackgroundImage(fabricImage, can.renderAll.bind(can), {
         originX: 'left',
@@ -70,6 +69,7 @@ export default function Canvas({ img, gameStarted, onGameToggle, onGameCompleted
   useEffect(() => {
     const newCanvas = new fabric.Canvas('canvas', { selection: false })
     if (isMobile !== null) {
+      screenRef.current = { width: window.innerWidth, height: window.innerHeight }
       // messy, but I'm tracking the moves as a custom attribute attached to the 'canvas'
       // this way, I can better track moves and this fixes some issues with useEffect loops
       newCanvas.moves = 1

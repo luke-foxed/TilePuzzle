@@ -18,7 +18,7 @@ const GradientLink = styled('div')({
 function Gradients({ gradientData }) {
   return (
     <StyledContainer key={gradientData.id}>
-      <Grid container row>
+      <Grid container>
         {gradientData.map((gradient) => (
           <GradientLink>
             <Link href={`gradients/${gradient.id}`} key={gradient.id}>
