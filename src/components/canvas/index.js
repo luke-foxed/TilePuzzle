@@ -1,5 +1,5 @@
 import { Gamepad, PlayArrow, RestartAlt, Timer } from '@mui/icons-material'
-import { IconButton, Slider, Typography, Box } from '@mui/material'
+import { IconButton, Slider, Typography, Box, Paper } from '@mui/material'
 import Grid from '@mui/material/Unstable_Grid2'
 import { fabric } from 'fabric-pure-browser'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -139,7 +139,10 @@ export default function Canvas({ img, gameStarted, onGameToggle, onGameCompleted
 
   return (
     <>
-      <StyledContainer style={{ margin: '20px' }} mobile={isMobile}>
+      <StyledContainer
+        style={{ margin: '20px' }}
+        mobile={isMobile}
+      >
         {!isMobile ? (
           <Box
             sx={{
@@ -151,7 +154,7 @@ export default function Canvas({ img, gameStarted, onGameToggle, onGameCompleted
           >
             <Typography variant="h4">Level 1</Typography>
 
-            <div style={{ border: '1px solid white', height: '100%' }} />
+            <div />
 
             <Grid container>
               <IconButton
@@ -194,9 +197,11 @@ export default function Canvas({ img, gameStarted, onGameToggle, onGameCompleted
             moves={moves}
           />
         ) : (
-          <Grid container style={{ width: 'min-content', margin: 'auto' }}>
-            <canvas id="canvas" style={{ padding: isMobile ? '0px' : '20px' }} />
+          <Paper container sx={{ width: 'min-content', margin: 'auto', borderRadius: '20px', marginTop: '40px' }}>
+            <canvas id="canvas" style={{ padding: '20px', borderRadius: '20px' }} />
             <Slider
+              // hiding this for now
+              style={{ display: 'none' }}
               value={tileCount}
               step={2}
               marks={DIFFICULTIES}
@@ -204,7 +209,7 @@ export default function Canvas({ img, gameStarted, onGameToggle, onGameCompleted
               max={8}
               onChange={(e, val) => setTileCount(val)}
             />
-          </Grid>
+          </Paper>
         )}
       </StyledContainer>
 

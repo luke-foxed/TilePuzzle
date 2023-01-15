@@ -8,6 +8,7 @@ import { AuthUserProvider } from '../src/context/userProvider'
 import createEmotionCache from '../styles/theme/createEmotionCache'
 import theme from '../styles/theme/index'
 import Navbar from '../src/components/navbar'
+import '../styles/globals.css'
 
 // Client-side cache shared for the whole session
 // of the user in the browser.

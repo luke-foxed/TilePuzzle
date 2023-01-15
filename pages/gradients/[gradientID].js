@@ -7,6 +7,7 @@ import Canvas from '../../src/components/canvas'
 import { getGradients } from '../api/gradients'
 import { getGradient } from '../api/gradients/[gradientID]'
 import { AuthUserContext } from '../../src/context/userProvider'
+import Scoreboards from '../../src/components/scoreboards'
 
 const DEFAULT_GAME_STATE = { completed: false, moves: 0, time: 0 }
 
@@ -30,7 +31,14 @@ function Gradient({ gradientData, isMobile }) {
   return (
     <div key={gradientData.id}>
       {gradientData.url && (
-        <Grid direction="row" container justifyContent="center" alignItems="center">
+        <Grid
+          direction="column"
+          container
+          justifyContent="center"
+          alignItems="center"
+          gap="40px"
+          sx={{ flexWrap: 'nowrap' }}
+        >
           <Canvas
             isMobile={isMobile}
             img={gradientData.url}
@@ -38,6 +46,7 @@ function Gradient({ gradientData, isMobile }) {
             onGameToggle={(toggle) => setGameStarted(toggle)}
             onGameCompleted={(newState) => handleGameCompleted(newState)}
           />
+          <Scoreboards scores={gradientData.scores} />
         </Grid>
       )}
     </div>
