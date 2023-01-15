@@ -1,5 +1,5 @@
 import { Close } from '@mui/icons-material'
-import { Dialog, Grid, IconButton, styled, Box } from '@mui/material'
+import { Dialog, Grid, IconButton, styled } from '@mui/material'
 
 const CloseDialogButton = styled(IconButton)(({ theme }) => ({
   width: 'min-content',
