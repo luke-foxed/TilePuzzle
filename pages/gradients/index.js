@@ -1,6 +1,5 @@
 import { Grid, styled } from '@mui/material'
 import Link from 'next/link'
-import { StyledContainer } from '../../src/components/shared'
 import { getGradients } from '../api/gradients'
 
 const GradientLink = styled('div')({
@@ -17,8 +16,8 @@ const GradientLink = styled('div')({
 
 function Gradients({ gradientData }) {
   return (
-    <StyledContainer key={gradientData.id}>
-      <Grid container>
+    <div className="root">
+      <Grid container key={gradientData.id}>
         {gradientData.map((gradient) => (
           <GradientLink>
             <Link href={`gradients/${gradient.id}`} key={gradient.id}>
@@ -27,7 +26,7 @@ function Gradients({ gradientData }) {
           </GradientLink>
         ))}
       </Grid>
-    </StyledContainer>
+    </div>
   )
 }
 

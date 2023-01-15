@@ -3,7 +3,6 @@ import { Button, Grid } from '@mui/material'
 import { Fragment, useState } from 'react'
 import Link from 'next/link'
 import Canvas from '../src/components/canvas'
-import { StyledContainer } from '../src/components/shared'
 
 export default function Home() {
   const [image, setImage] = useState(null)
@@ -22,7 +21,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <StyledContainer>
+        <div className="root">
           <Grid container justifyContent="center" spacing={4}>
             <Grid item>
               <Button component="label" variant="contained" style={{ width: '240px' }} size="large">
@@ -49,7 +48,7 @@ export default function Home() {
               </Grid>
             )}
           </div>
-        </StyledContainer>
+        </div>
       </main>
     </>
   )

@@ -28,8 +28,18 @@ function Gradient({ gradientData, isMobile }) {
     }
   }, [gameState])
 
+  const renderScoreboard = () => {
+    let content = <Scoreboards scores={gradientData.scores} />
+    if (gameStarted && isMobile) {
+      // trying to mimic fullscreen on mobile is causing the scoreboard
+      // to affect scrolling, so hide it in fullscreen
+      content = null
+    }
+    return content
+  }
+
   return (
-    <div key={gradientData.id}>
+    <div key={gradientData.id} className="root">
       {gradientData.url && (
         <Grid
           direction="column"
@@ -46,7 +56,7 @@ function Gradient({ gradientData, isMobile }) {
             onGameToggle={(toggle) => setGameStarted(toggle)}
             onGameCompleted={(newState) => handleGameCompleted(newState)}
           />
-          <Scoreboards scores={gradientData.scores} />
+          {renderScoreboard()}
         </Grid>
       )}
     </div>

@@ -6,7 +6,6 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useStopwatch } from 'react-timer-hook'
 import { mouseDownListener, mouseUpListener, objectMovingListener } from '../../utils/canvasHelpers'
 import { generateTiles, swapTiles } from '../../utils/tileHelpers'
-import { StyledContainer } from '../shared'
 import MobileCanvasModal from './MobileCanvas'
 import SuccessModal from './SuccessModal'
 
@@ -137,82 +136,76 @@ export default function Canvas({ img, gameStarted, onGameToggle, onGameCompleted
     }, 100)
   }
 
+  const renderFullCanvas = () => (
+    <div style={{ width: '100%' }}>
+      <Typography variant="h4">Level 1</Typography>
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: '1px auto 1fr',
+          gap: '20px',
+          alignItems: 'center',
+          width: '100%',
+        }}
+      >
+        <div />
+
+        <Grid container>
+          <IconButton
+            size="large"
+            sx={{ color: 'error.main' }}
+            onClick={handleStartClick}
+            disabled={gameStarted}
+          >
+            <PlayArrow fontSize="large" />
+          </IconButton>
+
+          <IconButton size="large" sx={{ color: 'error.main' }} onClick={handleRestartClick}>
+            <RestartAlt fontSize="large" />
+          </IconButton>
+        </Grid>
+
+        <Grid container justifyContent="flex-end" alignItems="center" gap="20px">
+          <Grid container gap="5px" alignItems="center">
+            <Timer fontSize="large" sx={{ color: 'secondary.main' }} />
+            <Typography variant="h5">{time}</Typography>
+          </Grid>
+          <Grid container gap="5px" alignItems="center">
+            <Gamepad fontSize="large" sx={{ color: 'secondary.main' }} />
+            <Typography variant="h5">{moves}</Typography>
+          </Grid>
+        </Grid>
+      </Box>
+
+      <Paper container sx={{ width: 'min-content', margin: 'auto', borderRadius: '20px' }}>
+        <canvas id="canvas" style={{ borderRadius: '20px' }} />
+        <Slider
+          // hiding this for now
+          style={{ display: 'none' }}
+          value={tileCount}
+          step={2}
+          marks={DIFFICULTIES}
+          min={2}
+          max={8}
+          onChange={(e, val) => setTileCount(val)}
+        />
+      </Paper>
+    </div>
+  )
+
+  const renderMobileCanvas = () => (
+    <MobileCanvasModal
+      onClickCanvas={() => handleStartClick()}
+      onRestartClick={() => handleRestartClick()}
+      onReset={() => resetCanvas()}
+      time={time}
+      moves={moves}
+    />
+  )
+
   return (
     <>
-      <StyledContainer
-        style={{ margin: '20px' }}
-        mobile={isMobile}
-      >
-        {!isMobile ? (
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: 'auto 1px auto 1fr',
-              gap: '20px',
-              alignItems: 'center',
-            }}
-          >
-            <Typography variant="h4">Level 1</Typography>
-
-            <div />
-
-            <Grid container>
-              <IconButton
-                size="large"
-                sx={{ color: 'error.main' }}
-                onClick={handleStartClick}
-                disabled={gameStarted}
-              >
-                <PlayArrow fontSize="large" />
-              </IconButton>
-
-              <IconButton size="large" sx={{ color: 'error.main' }} onClick={handleRestartClick}>
-                <RestartAlt fontSize="large" />
-              </IconButton>
-            </Grid>
-
-            <Grid container justifyContent="flex-end" alignItems="center" gap="20px">
-              <Grid container gap="5px" alignItems="center">
-                <Timer fontSize="large" sx={{ color: 'secondary.main' }} />
-                <Typography variant="h5">{time}</Typography>
-              </Grid>
-              <Grid container gap="5px" alignItems="center">
-                <Gamepad fontSize="large" sx={{ color: 'secondary.main' }} />
-                <Typography variant="h5">{moves}</Typography>
-              </Grid>
-            </Grid>
-          </Box>
-        ) : (
-          <Grid container>
-            <Typography variant="h5">Level 1</Typography>
-          </Grid>
-        )}
-
-        {isMobile ? (
-          <MobileCanvasModal
-            onClickCanvas={() => handleStartClick()}
-            onRestartClick={() => handleRestartClick()}
-            onReset={() => resetCanvas()}
-            time={time}
-            moves={moves}
-          />
-        ) : (
-          <Paper container sx={{ width: 'min-content', margin: 'auto', borderRadius: '20px', marginTop: '40px' }}>
-            <canvas id="canvas" style={{ padding: '20px', borderRadius: '20px' }} />
-            <Slider
-              // hiding this for now
-              style={{ display: 'none' }}
-              value={tileCount}
-              step={2}
-              marks={DIFFICULTIES}
-              min={2}
-              max={8}
-              onChange={(e, val) => setTileCount(val)}
-            />
-          </Paper>
-        )}
-      </StyledContainer>
-
+      {isMobile ? renderMobileCanvas() : renderFullCanvas()}
       <SuccessModal open={winner} timeTaken={time} movesTaken={moves} />
     </>
   )

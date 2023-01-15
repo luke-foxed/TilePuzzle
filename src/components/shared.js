@@ -1,5 +1,5 @@
 import { Close } from '@mui/icons-material'
-import { Container, Dialog, Grid, IconButton, styled } from '@mui/material'
+import { Dialog, Grid, IconButton, styled, Box } from '@mui/material'
 
 const CloseDialogButton = styled(IconButton)(({ theme }) => ({
   width: 'min-content',
@@ -7,13 +7,7 @@ const CloseDialogButton = styled(IconButton)(({ theme }) => ({
   color: theme.palette.error.main,
 }))
 
-export const StyledContainer = styled(Container, {
-  shouldForwardProp: (props) => props !== 'mobile',
-})(({ mobile }) => ({
-  width: mobile ? '100%' : '85%',
-  margin: 'auto',
-}))
-
+// eslint-disable-next-line import/prefer-default-export
 export function StyledModal({ children, open, onClose, showX }) {
   return (
     <Dialog open={open} sx={{ '.MuiPaper-root': { borderRadius: '20px', bgcolor: 'background.default' } }}>

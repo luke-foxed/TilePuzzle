@@ -50,7 +50,7 @@ function Navbar() {
 
   return (
     <>
-      <StyledTopBar position="static">
+      <StyledTopBar position="static" sx={{ width: '100%', boxShadow: '0px 6px 5px -2px rgba(0,0,0,0.3)', padding: '20px 0px', height: 'auto' }}>
         <Grid
           container
           alignItems="center"

@@ -1,12 +1,21 @@
 
-html, body {
-  width: 90%;
-  margin: auto
+header {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* root is assigned to each 'page' */
+.root {
+  width: 80vw;
+  margin: auto;
+  margin-top: 30px;
 }
 
 @media (max-width: 768px) {
-  html, body {
-    width: 100%;
-    margin: auto
+  .root {
+    width: 100vw;
+    overflow: hidden;
+    margin: auto;
+    margin-top: 30px;
   }
 }
