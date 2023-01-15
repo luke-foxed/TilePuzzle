@@ -37,7 +37,7 @@ const CanvasOverlay = styled('div', {
   borderRadius: '20px',
   marginTop: '10px',
   width: '280px',
-  zIndex: 1,
+  zIndex: 2,
   // conditionally rendering is causing some weird errors, this will have to do instead
   display: showing ? 'flex' : 'none',
 }))
@@ -84,7 +84,7 @@ export default function MobileCanvasModal({ onClickCanvas, onRestartClick, onRes
           </Grid>
         </CanvasOverlay>
 
-        <canvas id="canvas" style={{ pointerEvents: fullScreen ? 'all' : 'none' }} />
+        <canvas id="canvas" style={{ pointerEvents: fullScreen ? 'all' : 'none', zIndex: 1 }} />
 
         {fullScreen && (
           <Box
