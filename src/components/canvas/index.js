@@ -43,17 +43,18 @@ const Divider = styled('div')({
 })
 
 export default function Canvas({ gradient, gameStarted, onGameToggle, isMobile }) {
+  const { url: img, id, difficulty } = gradient
+
   const [canvas, setCanvas] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [canvasState, setCanvasState] = useState(null)
-  const [tileCount, setTileCount] = useState(2)
+  const [tilesPerRow, setTilesPerRow] = useState(difficulty * 2) // difficulty is stored as 1-5
   const [moves, setMoves] = useState(0)
   const [winner, setWinner] = useState(false)
   const { seconds, minutes, start: startTimer, reset, pause } = useStopwatch({ autoStart: false })
   const screenRef = useRef(null) // screen sizes are changing on mobile refresh, keeping them here
 
-  const { url: img, id } = gradient
   const time = `${minutes}:${seconds > 9 ? seconds : `0${seconds}`}`
   const gameData = { moves, time }
 
@@ -130,7 +131,7 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, isMobile }
   }, [canvas, canvasState, moves, time, gameStarted, pause])
 
   const handleStartClick = async () => {
-    await generateTiles(1, tileCount, canvas)
+    await generateTiles(1, tilesPerRow, canvas)
 
     // clear the background image after we've added some tiles
     const image = new fabric.Image('')
@@ -225,12 +226,12 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, isMobile }
         <Slider
           // hiding this for now
           style={{ display: 'none' }}
-          value={tileCount}
+          value={tilesPerRow}
           step={2}
           marks={DIFFICULTIES}
           min={2}
           max={8}
-          onChange={(e, val) => setTileCount(val)}
+          onChange={(e, val) => setTilesPerRow(val)}
         />
       </CanvasWrapper>
     </>

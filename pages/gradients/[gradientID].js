@@ -43,7 +43,7 @@ function Gradient({ gradientData, isMobile }) {
             </Grid>
             <Grid container direction="row" gap="20px">
               <Typography variant="h6">DIFFICULTY</Typography>
-              <Difficulty difficulty={4} />
+              <Difficulty difficulty={gradientData.difficulty} />
             </Grid>
           </Grid>
 
