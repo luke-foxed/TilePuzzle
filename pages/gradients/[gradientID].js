@@ -1,35 +1,15 @@
 import { Typography } from '@mui/material'
-import { useCallback, useContext, useState } from 'react'
-import useSWR from 'swr'
-import axios from 'axios'
-import { isEqual } from 'lodash'
+import { useState } from 'react'
 import Grid from '@mui/material/Unstable_Grid2'
 import Canvas from '../../src/components/canvas'
 import { getGradients } from '../api/gradients'
 import { getGradient } from '../api/gradients/[gradientID]'
-import { AuthUserContext } from '../../src/context/userProvider'
 import Scoreboards from '../../src/components/scoreboards'
 import { StyledHeader } from '../../src/components/shared'
 import Difficulty from '../../src/components/canvas/Difficulty'
 
-const DEFAULT_GAME_STATE = { completed: false, moves: 0, time: 0 }
-
 function Gradient({ gradientData, isMobile }) {
   const [gameStarted, setGameStarted] = useState(false)
-  const [gameState, setGameState] = useState(DEFAULT_GAME_STATE)
-  const { authUser } = useContext(AuthUserContext)
-  const { completed, ...data } = gameState
-  const postData = authUser ? { ...data, user: authUser.displayName } : data
-
-  const fetcher = async (url) => axios.post(url, { data: postData })
-
-  useSWR(completed && gradientData.id ? `http://localhost:3001/api/gradients/${gradientData.id}` : null, fetcher)
-
-  const handleGameCompleted = useCallback((newState) => {
-    if (!isEqual(gameState, newState)) {
-      setGameState(newState)
-    }
-  }, [gameState])
 
   const renderScoreboard = () => {
     let content = <Scoreboards scores={gradientData.scores} />
@@ -70,10 +50,9 @@ function Gradient({ gradientData, isMobile }) {
           <Grid sx={{ margin: '50px 0' }}>
             <Canvas
               isMobile={isMobile}
-              img={gradientData.url}
+              gradient={gradientData}
               gameStarted={gameStarted}
               onGameToggle={(toggle) => setGameStarted(toggle)}
-              onGameCompleted={(newState) => handleGameCompleted(newState)}
             />
           </Grid>
 
