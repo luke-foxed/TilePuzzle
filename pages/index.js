@@ -57,6 +57,7 @@ export default function Home() {
                 </StyledBox>
               </Paper>
             </Grid>
+
             <Grid xs={12} md={4} p={8}>
               <Paper sx={{ padding: '20px', borderRadius: '20px' }}>
                 <StyledBox>

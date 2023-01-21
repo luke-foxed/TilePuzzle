@@ -20,6 +20,19 @@ const theme = createTheme({
     },
   },
   typography: {
+    fontFamily: [
+      'Raleway',
+      'Arial',
+      '-apple-system',
+      'BlinkMacSystemFont',
+      '"Segoe UI"',
+      'Roboto',
+      '"Helvetica Neue"',
+      'sans-serif',
+      '"Apple Color Emoji"',
+      '"Segoe UI Emoji"',
+      '"Segoe UI Symbol"',
+    ].join(','),
     body: {
       color: '#FFFBFE',
     },

@@ -58,7 +58,7 @@ function Navbar() {
         >
           <Grid xs={6} md={8}>
             <Link href="/" style={{ textDecoration: 'none' }}>
-              <Typography variant="h1">Tiled</Typography>
+              <Typography variant="h1">TILED</Typography>
             </Link>
           </Grid>
           <Grid xs={2} md={2} />

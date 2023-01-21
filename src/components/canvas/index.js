@@ -1,13 +1,15 @@
 import { Gamepad, PlayArrow, RestartAlt, Timer } from '@mui/icons-material'
-import { IconButton, Slider, Typography, Box, Paper } from '@mui/material'
+import { IconButton, Slider, Typography, Box, Paper, styled } from '@mui/material'
 import Grid from '@mui/material/Unstable_Grid2'
 import { fabric } from 'fabric-pure-browser'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useStopwatch } from 'react-timer-hook'
+import { SquareLoader } from 'react-spinners'
 import { mouseDownListener, mouseUpListener, objectMovingListener } from '../../utils/canvasHelpers'
 import { generateTiles, swapTiles } from '../../utils/tileHelpers'
 import MobileCanvasModal from './MobileCanvas'
 import SuccessModal from './SuccessModal'
+import theme from '../../../styles/theme'
 
 const DIFFICULTIES = [
   {
@@ -28,17 +30,32 @@ const DIFFICULTIES = [
   },
 ]
 
-export default function Canvas({ img, gameStarted, onGameToggle, onGameCompleted, isMobile }) {
+const CanvasWrapper = styled(Paper)(({ theme: t }) => ({
+  background: t.palette.background.default,
+  width: 'min-content',
+  margin: 'auto',
+}))
+
+const Divider = styled('div')({
+  height: '1px',
+  border: '2px solid white',
+  margin: 'auto',
+})
+
+export default function Canvas({ gradient, gameStarted, onGameToggle, isMobile }) {
   const [canvas, setCanvas] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
   const [canvasState, setCanvasState] = useState(null)
   const [tileCount, setTileCount] = useState(2)
   const [moves, setMoves] = useState(0)
   const [winner, setWinner] = useState(false)
   const { seconds, minutes, start: startTimer, reset, pause } = useStopwatch({ autoStart: false })
-  // screen sizes seem to be changing on mobile on refreshing, so keeping them here
-  const screenRef = useRef(null)
+  const screenRef = useRef(null) // screen sizes are changing on mobile refresh, keeping them here
 
+  const { url: img, id } = gradient
   const time = `${minutes}:${seconds > 9 ? seconds : `0${seconds}`}`
+  const gameData = { moves, time }
 
   // this allows for hooks to observe canvas changes rather than relying on fabric event listeners
   const objectModifiedListener = useCallback((event) => {
@@ -47,21 +64,36 @@ export default function Canvas({ img, gameStarted, onGameToggle, onGameCompleted
     setMoves(event.target.canvas.moves)
   }, [])
 
-  const setImage = useCallback((can) => {
+  const setImage = useCallback(async (can) => {
     const { width, height } = screenRef.current
     const i = new Image()
-    const adjustedURL = isMobile ? img.replace('h_600', `h_${height - 50},w_${width}`) : img
+    const adjustedURL = img.replace(
+      'h_300,w_300',
+      `h_${isMobile ? height - 50 : Math.round(height / 1.5)},w_${Math.round(width * 0.8)},${
+        !isMobile && 'c_scale'
+      }`,
+    )
     i.crossOrigin = 'anonymous'
     i.src = typeof img === 'string' ? adjustedURL : URL.createObjectURL(img)
-    i.onload = () => {
-      const fabricImage = new fabric.Image(i)
-      can.setDimensions(
-        isMobile ? { width, height: height - 50 } : { width: i.width, height: i.height },
-      )
-      can.setBackgroundImage(fabricImage, can.renderAll.bind(can), {
-        originX: 'left',
-        originY: 'top',
-      })
+    const loaded = await new Promise((resolve, reject) => {
+      i.onload = () => {
+        const fabricImage = new fabric.Image(i)
+        can.setDimensions({ width: width * 0.8, height: isMobile ? height - 50 : height / 1.5 })
+        can.setBackgroundImage(fabricImage, can.renderAll.bind(can), {
+          originX: 'left',
+          originY: 'top',
+        })
+        resolve(true)
+      }
+      i.onerror = () => {
+        setLoading(false)
+        setError(true)
+        reject(new Error('Error loading image'))
+      }
+    })
+
+    if (loaded) {
+      setLoading(false)
     }
   }, [img, isMobile])
 
@@ -91,12 +123,11 @@ export default function Canvas({ img, gameStarted, onGameToggle, onGameCompleted
       const correctOrder = [...Array(currentOrder.length).keys()]
       const hasWon = JSON.stringify(currentOrder) === JSON.stringify(correctOrder)
       if (hasWon) {
-        onGameCompleted({ completed: true, moves, time, date: new Date().toLocaleDateString() })
         setWinner(true)
         pause()
       }
     }
-  }, [canvas, canvasState, moves, time, gameStarted, onGameCompleted, pause])
+  }, [canvas, canvasState, moves, time, gameStarted, pause])
 
   const handleStartClick = async () => {
     await generateTiles(1, tileCount, canvas)
@@ -137,8 +168,7 @@ export default function Canvas({ img, gameStarted, onGameToggle, onGameCompleted
   }
 
   const renderFullCanvas = () => (
-    <div style={{ width: '100%' }}>
-      <Typography variant="h4">Level 1</Typography>
+    <>
       <Box
         sx={{
           display: 'grid',
@@ -177,8 +207,21 @@ export default function Canvas({ img, gameStarted, onGameToggle, onGameCompleted
         </Grid>
       </Box>
 
-      <Paper container sx={{ width: 'min-content', margin: 'auto', borderRadius: '20px' }}>
-        <canvas id="canvas" style={{ borderRadius: '20px' }} />
+      <CanvasWrapper>
+        {loading && (
+          <div>
+            <SquareLoader color={theme.palette.error.main} />
+            <Typography variant="h3">Loading Canvas</Typography>
+          </div>
+        )}
+        {error && <Typography variant="h3">Error Loading Canvas</Typography>}
+
+        <Grid container gap="20px">
+          <Divider sx={{ width: '80vw' }} />
+          <canvas id="canvas" />
+          <Divider sx={{ width: '80vw' }} />
+        </Grid>
+
         <Slider
           // hiding this for now
           style={{ display: 'none' }}
@@ -189,8 +232,8 @@ export default function Canvas({ img, gameStarted, onGameToggle, onGameCompleted
           max={8}
           onChange={(e, val) => setTileCount(val)}
         />
-      </Paper>
-    </div>
+      </CanvasWrapper>
+    </>
   )
 
   const renderMobileCanvas = () => (
@@ -206,7 +249,7 @@ export default function Canvas({ img, gameStarted, onGameToggle, onGameCompleted
   return (
     <>
       {isMobile ? renderMobileCanvas() : renderFullCanvas()}
-      <SuccessModal open={winner} timeTaken={time} movesTaken={moves} />
+      <SuccessModal open={winner} gameData={gameData} id={id} />
     </>
   )
 }
