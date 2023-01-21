@@ -1,13 +1,16 @@
-import { Grid } from '@mui/material'
+import { Typography } from '@mui/material'
 import { useCallback, useContext, useState } from 'react'
 import useSWR from 'swr'
 import axios from 'axios'
 import { isEqual } from 'lodash'
+import Grid from '@mui/material/Unstable_Grid2'
 import Canvas from '../../src/components/canvas'
 import { getGradients } from '../api/gradients'
 import { getGradient } from '../api/gradients/[gradientID]'
 import { AuthUserContext } from '../../src/context/userProvider'
 import Scoreboards from '../../src/components/scoreboards'
+import { StyledHeader } from '../../src/components/shared'
+import Difficulty from '../../src/components/canvas/Difficulty'
 
 const DEFAULT_GAME_STATE = { completed: false, moves: 0, time: 0 }
 
@@ -46,17 +49,38 @@ function Gradient({ gradientData, isMobile }) {
           container
           justifyContent="center"
           alignItems="center"
-          gap="40px"
           sx={{ flexWrap: 'nowrap' }}
         >
-          <Canvas
-            isMobile={isMobile}
-            img={gradientData.url}
-            gameStarted={gameStarted}
-            onGameToggle={(toggle) => setGameStarted(toggle)}
-            onGameCompleted={(newState) => handleGameCompleted(newState)}
-          />
-          {renderScoreboard()}
+          <Grid
+            container
+            sx={{ width: '100%' }}
+            justifyContent="space-between"
+            alignItems="center"
+            direction="row"
+          >
+            <Grid>
+              <StyledHeader size="h3">Level 1</StyledHeader>
+            </Grid>
+            <Grid container direction="row" gap="20px">
+              <Typography variant="h6">DIFFICULTY</Typography>
+              <Difficulty difficulty={4} />
+            </Grid>
+          </Grid>
+
+          <Grid sx={{ margin: '50px 0' }}>
+            <Canvas
+              isMobile={isMobile}
+              img={gradientData.url}
+              gameStarted={gameStarted}
+              onGameToggle={(toggle) => setGameStarted(toggle)}
+              onGameCompleted={(newState) => handleGameCompleted(newState)}
+            />
+          </Grid>
+
+          <Grid container sx={{ width: '100%' }}>
+            <StyledHeader size="h3">Leaderboards</StyledHeader>
+            {renderScoreboard()}
+          </Grid>
         </Grid>
       )}
     </div>

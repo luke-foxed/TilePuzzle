@@ -1,5 +1,5 @@
 import { Close } from '@mui/icons-material'
-import { Dialog, Grid, IconButton, styled } from '@mui/material'
+import { Box, Dialog, Grid, IconButton, styled, Typography } from '@mui/material'
 
 const CloseDialogButton = styled(IconButton)(({ theme }) => ({
   width: 'min-content',
@@ -29,5 +29,21 @@ export function StyledModal({ children, open, onClose, showX }) {
         {children}
       </Grid>
     </Dialog>
+  )
+}
+
+export function StyledHeader({ type, children, size }) {
+  return (
+    <Grid
+      container
+      direction="column"
+      style={{ width: 'fit-content' }}
+      alignItems="center"
+      justifyContent="center"
+      gap="10px"
+    >
+      <Typography variant={size}>{children}</Typography>
+      <Box sx={{ border: '2px solid', width: '75%', borderColor: type === 'flat' ? 'white' : 'success.main' }} />
+    </Grid>
   )
 }

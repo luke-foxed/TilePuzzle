@@ -10,15 +10,14 @@ import theme from '../styles/theme/index'
 import Navbar from '../src/components/navbar'
 import '../styles/globals.css'
 
-// Client-side cache shared for the whole session
-// of the user in the browser.
-
 const clientSideEmotionCache = createEmotionCache()
 
 export default function MyApp(props) {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props
   const [mobileView, setMobileView] = useState(null)
 
+  // the rest of the pages are rendered server-side and don't have 'access' to navigator
+  // so using naviagator here to determine if the screen is a mobile, then passing it as a prop
   useEffect(() => {
     const agent = navigator.userAgent
     const { isMobile } = getSelectorsByUserAgent(agent)
