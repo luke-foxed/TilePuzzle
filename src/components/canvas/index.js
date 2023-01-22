@@ -68,18 +68,15 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
   const setImage = useCallback(async (can) => {
     const { width, height } = screenRef.current
     const i = new Image()
-    const adjustedURL = img.replace(
-      'h_300,w_300',
-      `h_${isMobile ? height - 50 : Math.round(height / 1.5)},w_${Math.round(width * 0.8)},${
-        !isMobile && 'c_scale'
-      }`,
-    )
+    const newWidth = isMobile ? width : Math.round(width * 0.8)
+    const newHeight = isMobile ? height - 50 : Math.round(height / 1.5)
+    const adjustedURL = img.replace('h_300,w_300', `h_${newHeight},w_${newWidth},c_scale`)
     i.crossOrigin = 'anonymous'
     i.src = typeof img === 'string' ? adjustedURL : URL.createObjectURL(img)
     const loaded = await new Promise((resolve, reject) => {
       i.onload = () => {
         const fabricImage = new fabric.Image(i)
-        can.setDimensions({ width: width * 0.8, height: isMobile ? height - 50 : height / 1.5 })
+        can.setDimensions({ width: newWidth, height: newHeight })
         can.setBackgroundImage(fabricImage, can.renderAll.bind(can), {
           originX: 'left',
           originY: 'top',

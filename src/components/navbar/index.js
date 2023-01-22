@@ -15,7 +15,7 @@ const StyledTopBar = styled(AppBar)({
   boxShadow: 'none',
 })
 
-function Navbar() {
+function Navbar({ isMobile }) {
   const [authType, setAuthType] = useState(null)
   const { authUser, loading } = useContext(AuthUserContext)
 
@@ -58,7 +58,7 @@ function Navbar() {
         >
           <Grid xs={6} md={8}>
             <Link href="/" style={{ textDecoration: 'none' }}>
-              <Typography variant="h1">TILED</Typography>
+              <Typography variant={isMobile ? 'h2' : 'h1'}>TILED</Typography>
             </Link>
           </Grid>
           <Grid xs={2} md={2} />

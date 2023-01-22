@@ -32,7 +32,7 @@ export default function MyApp(props) {
       <AuthUserProvider>
         <ThemeProvider theme={theme}>
           <CssBaseline />
-          <Navbar />
+          <Navbar isMobile={mobileView} />
           {/* eslint-disable-next-line react/jsx-props-no-spreading */}
           <Component {...pageProps} isMobile={mobileView} />
         </ThemeProvider>

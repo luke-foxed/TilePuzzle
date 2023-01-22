@@ -1,4 +1,3 @@
-import { Typography } from '@mui/material'
 import { useState } from 'react'
 import Grid from '@mui/material/Unstable_Grid2'
 import Canvas from '../../src/components/canvas'
@@ -48,10 +47,10 @@ function Gradient({ gradientData, isMobile }) {
             direction="row"
           >
             <Grid>
-              <StyledHeader size="h3">Level 1</StyledHeader>
+              <StyledHeader size={isMobile ? 'h4' : 'h3'}>Level 1</StyledHeader>
             </Grid>
-            <Grid container direction="row" gap="20px">
-              <Typography variant="h6">DIFFICULTY</Typography>
+
+            <Grid sx={{ marginTop: isMobile ? '30px' : 'auto' }}>
               <Difficulty difficulty={gradientData.difficulty} />
             </Grid>
           </Grid>
@@ -68,7 +67,7 @@ function Gradient({ gradientData, isMobile }) {
           </Grid>
 
           <Grid container sx={{ width: '100%' }}>
-            <StyledHeader size="h3">Leaderboards</StyledHeader>
+            <StyledHeader size={isMobile ? 'h4' : 'h3'}>Leaderboards</StyledHeader>
             {renderScoreboard()}
           </Grid>
         </Grid>
