@@ -39,17 +39,19 @@ export const tileIsContained = (innerTile, outerTile) => {
 }
 
 export const swapTiles = (tile1, tile2, tile1OldPosition) => {
-  const tile1Index = tile1.index
-  const tile2Index = tile2.index
-  const tile1Position = tile1OldPosition || { x: tile1.left, y: tile1.top }
+  if (!tile1.locked || !tile2.locked) {
+    const tile1Index = tile1.index
+    const tile2Index = tile2.index
+    const tile1Position = tile1OldPosition || { x: tile1.left, y: tile1.top }
 
-  tile1.setPositionByOrigin({ x: tile2.left, y: tile2.top }, 'center', 'center')
-  tile2.setPositionByOrigin(tile1Position, 'center', 'center')
-  tile1.set({ index: tile2Index })
-  tile2.set({ index: tile1Index })
+    tile1.setPositionByOrigin({ x: tile2.left, y: tile2.top }, 'center', 'center')
+    tile2.setPositionByOrigin(tile1Position, 'center', 'center')
+    tile1.set({ index: tile2Index })
+    tile2.set({ index: tile1Index })
 
-  tile1.setCoords()
-  tile2.setCoords()
+    tile1.setCoords()
+    tile2.setCoords()
+  }
 }
 
 const shuffleTiles = (tiles) => {
@@ -58,7 +60,9 @@ const shuffleTiles = (tiles) => {
   // https://stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array/6274381#6274381
   for (let i = jumbledTiles.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    swapTiles(jumbledTiles[i], jumbledTiles[j])
+    if (!jumbledTiles[i].locked && !jumbledTiles[j].locked) {
+      swapTiles(jumbledTiles[i], jumbledTiles[j])
+    }
   }
   return jumbledTiles
 }
@@ -74,6 +78,29 @@ const loadImage = (src) => new Promise((resolve, reject) => {
     reject(e)
   }
 })
+
+const shouldLockTile = (row, column, tileCount) => {
+  const isTopLeft = row === 0 && column === 0
+  const isTopRight = row === 0 && column === tileCount - 1
+  const isBottomLeft = row === tileCount - 1 && column === 0
+  const isBottomRight = row === tileCount - 1 && column === tileCount - 1
+
+  switch (tileCount) {
+    case 2:
+      return isTopLeft
+    case 4:
+      return isTopLeft
+    case 6:
+      return isTopLeft || isBottomLeft || isTopRight
+    case 8:
+      return isTopLeft || isTopRight || isBottomLeft || isBottomRight
+    case 10:
+      return isTopLeft || isTopRight || isBottomLeft || isBottomRight
+
+    default:
+      return false
+  }
+}
 
 export const generateTiles = async (padding, tileCount, canvas) => {
   const image = await loadImage(canvas.toDataURL('image/png'))
@@ -93,7 +120,7 @@ export const generateTiles = async (padding, tileCount, canvas) => {
       // eslint-disable-next-line no-undef, no-loop-func
       const tilePromise = new Promise((resolve) => {
         fabric.Image.fromURL(mockCanvas.toDataURL('image/png'), (img) => {
-          img.set({
+          const params = {
             left: column * tW + padding * column + tW / 2,
             top: row * tH + padding * row + tH / 2,
             originX: 'center',
@@ -101,9 +128,31 @@ export const generateTiles = async (padding, tileCount, canvas) => {
             hasControls: false,
             padding,
             index,
-          })
-          index += 1
-          resolve(img)
+          }
+
+          const shouldLock = shouldLockTile(row, column, tileCount)
+
+          if (shouldLock) {
+            index += 1
+            const text = new fabric.Text('●', {
+              left: tW / 2,
+              top: tH / 2,
+              fontSize: 30,
+              originX: 'center',
+              originY: 'center',
+              fill: 'black',
+            })
+
+            const group = new fabric.Group([img, text])
+            group.cloneAsImage((clone) => {
+              clone.set({ ...params, locked: true, lockMovementX: true, lockMovementY: true })
+              resolve(clone)
+            })
+          } else {
+            index += 1
+            img.set(params)
+            resolve(img)
+          }
         })
       })
       tiles.push(tilePromise)

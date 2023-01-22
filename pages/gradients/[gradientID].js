@@ -10,6 +10,15 @@ import Difficulty from '../../src/components/canvas/Difficulty'
 
 function Gradient({ gradientData, isMobile }) {
   const [gameStarted, setGameStarted] = useState(false)
+  // rather than resetting the heavy logic in <Canvas /> to restart the game,
+  // change the key passed to the component instead so that it will remount
+  // https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#recommendation-fully-uncontrolled-component-with-a-key
+  const [key, setKey] = useState(0)
+
+  const handleRestartClick = () => {
+    setKey(key + 1)
+    setGameStarted(false)
+  }
 
   const renderScoreboard = () => {
     let content = <Scoreboards scores={gradientData.scores} />
@@ -49,9 +58,11 @@ function Gradient({ gradientData, isMobile }) {
 
           <Grid sx={{ margin: '50px 0' }}>
             <Canvas
+              key={key}
               isMobile={isMobile}
               gradient={gradientData}
               gameStarted={gameStarted}
+              onRestart={handleRestartClick}
               onGameToggle={(toggle) => setGameStarted(toggle)}
             />
           </Grid>

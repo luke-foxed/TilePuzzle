@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useStopwatch } from 'react-timer-hook'
 import { SquareLoader } from 'react-spinners'
 import { mouseDownListener, mouseUpListener, objectMovingListener } from '../../utils/canvasHelpers'
-import { generateTiles, swapTiles } from '../../utils/tileHelpers'
+import { generateTiles } from '../../utils/tileHelpers'
 import MobileCanvasModal from './MobileCanvas'
 import SuccessModal from './SuccessModal'
 import theme from '../../../styles/theme'
@@ -42,7 +42,7 @@ const Divider = styled('div')({
   margin: 'auto',
 })
 
-export default function Canvas({ gradient, gameStarted, onGameToggle, isMobile }) {
+export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart, isMobile }) {
   const { url: img, id, difficulty } = gradient
 
   const [canvas, setCanvas] = useState(null)
@@ -52,7 +52,7 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, isMobile }
   const [tilesPerRow, setTilesPerRow] = useState(difficulty * 2) // difficulty is stored as 1-5
   const [moves, setMoves] = useState(0)
   const [winner, setWinner] = useState(false)
-  const { seconds, minutes, start: startTimer, reset, pause } = useStopwatch({ autoStart: false })
+  const { seconds, minutes, start: startTimer, pause } = useStopwatch({ autoStart: false })
   const screenRef = useRef(null) // screen sizes are changing on mobile refresh, keeping them here
 
   const time = `${minutes}:${seconds > 9 ? seconds : `0${seconds}`}`
@@ -141,23 +141,6 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, isMobile }
     startTimer()
   }
 
-  const handleRestartClick = () => {
-    const objects = canvas.getObjects()
-    const order = [...Array(objects.length).keys()]
-    order.forEach((idx) => {
-      const tileA = objects[idx]
-      const tileB = objects[Math.floor(Math.random() * objects.length)]
-
-      if (tileA.index !== tileB.index) {
-        swapTiles(tileA, tileB) // jumble tiles in a new random order
-        canvas.renderAll()
-      }
-    })
-    setWinner(false)
-    setMoves(0)
-    reset()
-  }
-
   const resetCanvas = () => {
     onGameToggle(false)
     setMoves(0)
@@ -191,7 +174,7 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, isMobile }
             <PlayArrow fontSize="large" />
           </IconButton>
 
-          <IconButton size="large" sx={{ color: 'error.main' }} onClick={handleRestartClick}>
+          <IconButton size="large" sx={{ color: 'error.main' }} onClick={() => onRestart()}>
             <RestartAlt fontSize="large" />
           </IconButton>
         </Grid>
@@ -240,7 +223,7 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, isMobile }
   const renderMobileCanvas = () => (
     <MobileCanvasModal
       onClickCanvas={() => handleStartClick()}
-      onRestartClick={() => handleRestartClick()}
+      onRestartClick={() => onRestart()}
       onReset={() => resetCanvas()}
       time={time}
       moves={moves}

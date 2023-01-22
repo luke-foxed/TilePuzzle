@@ -25,7 +25,7 @@ export const mouseUpListener = (event) => {
 
 export const mouseDownListener = (event) => {
   const { target } = event
-  if (target) {
+  if (target && !target.locked) {
     target.set({ scaleX: 0.7, scaleY: 0.7 })
     target.setCoords()
   }
