@@ -69,7 +69,7 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
     const { width, height } = screenRef.current
     const i = new Image()
     const newWidth = isMobile ? width : Math.round(width * 0.8)
-    const newHeight = isMobile ? height - 50 : Math.round(height / 1.5)
+    const newHeight = isMobile ? height : Math.round(height / 1.5)
     const adjustedURL = img.replace('h_300,w_300', `h_${newHeight},w_${newWidth},c_scale`)
     i.crossOrigin = 'anonymous'
     i.src = typeof img === 'string' ? adjustedURL : URL.createObjectURL(img)
@@ -129,11 +129,6 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
 
   const handleStartClick = async () => {
     await generateTiles(1, tilesPerRow, canvas)
-
-    // clear the background image after we've added some tiles
-    const image = new fabric.Image('')
-    canvas.setBackgroundImage(image, canvas.renderAll.bind(canvas))
-
     onGameToggle(true)
     startTimer()
   }
@@ -154,7 +149,6 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
         sx={{
           display: 'grid',
           gridTemplateColumns: '1px auto 1fr',
-          gap: '20px',
           alignItems: 'center',
           width: '100%',
         }}
@@ -219,6 +213,7 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
 
   const renderMobileCanvas = () => (
     <MobileCanvasModal
+      loading={loading}
       onClickCanvas={() => handleStartClick()}
       onRestartClick={() => onRestart()}
       onReset={() => resetCanvas()}

@@ -107,6 +107,8 @@ export const generateTiles = async (padding, tileCount, canvas) => {
   const tiles = []
   const tW = canvas.getWidth() / tileCount // (tile width)
   const tH = canvas.getHeight() / tileCount // (tile height)
+  const blankImage = new fabric.Image('') // clear the background image after we've stored it in a variable
+  canvas.setBackgroundImage(blankImage, canvas.renderAll.bind(canvas))
   let index = 0
   for (let row = 0; row < tileCount; row++) {
     for (let column = 0; column < tileCount; column++) {
