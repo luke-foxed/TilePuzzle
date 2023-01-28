@@ -46,11 +46,17 @@ function Gradient({ gradientData, isMobile }) {
             alignItems="center"
             direction="row"
           >
-            <Grid>
+            <Grid xs={12} md={6}>
               <StyledHeader size={isMobile ? 'h4' : 'h3'}>Level 1</StyledHeader>
             </Grid>
 
-            <Grid sx={{ marginTop: isMobile ? '30px' : 'auto' }}>
+            <Grid
+              container
+              xs={12}
+              md={6}
+              sx={{ marginTop: isMobile ? '30px' : 'auto' }}
+              justifyContent={isMobile ? 'center' : 'end'}
+            >
               <Difficulty difficulty={gradientData.difficulty} />
             </Grid>
           </Grid>
