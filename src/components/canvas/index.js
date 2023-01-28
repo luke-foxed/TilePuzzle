@@ -99,8 +99,8 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
     const newCanvas = new fabric.Canvas('canvas', { selection: false })
     if (isMobile !== null) {
       screenRef.current = {
-        width: window.visualViewport.width,
-        height: window.visualViewport.height,
+        width: window.visualViewport.width || window.innerWidth,
+        height: window.visualViewport.height || window.innerHeight,
       }
       // messy, but I'm tracking the moves as a custom attribute attached to the 'canvas'
       // this way, I can better track moves and this fixes some issues with useEffect loops
