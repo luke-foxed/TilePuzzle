@@ -98,6 +98,7 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
   useEffect(() => {
     const newCanvas = new fabric.Canvas('canvas', { selection: false })
     if (isMobile !== null) {
+      console.log('VISUAL VIEWPORT WIDTH', window.visualViewport.width)
       screenRef.current = {
         width: window.visualViewport.width || window.innerWidth,
         height: window.visualViewport.height || window.innerHeight,
