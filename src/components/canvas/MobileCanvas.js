@@ -61,7 +61,7 @@ const Toolbar = styled(Box, {
 })(({ expanded, height, viewportHeight }) => ({
   width: '100%',
   height: '100px',
-  marginTop: getToolbarMargin(expanded, height, viewportHeight),
+  marginTop: expanded ? '-120px' : '-60px',
   zIndex: 1,
   padding: '0px',
   position: 'fixed',
@@ -75,7 +75,6 @@ export default function MobileCanvasModal({
   time,
   moves,
   loading,
-  height,
 }) {
   const [fullScreen, setFullScreen] = useState(false)
   const [showToolbar, setShowToolbar] = useState(false)
@@ -104,7 +103,7 @@ export default function MobileCanvasModal({
 
     if (fullScreen) {
       content = (
-        <Toolbar expanded={showToolbar} height={height} viewportHeight={viewportHeight}>
+        <Toolbar expanded={showToolbar} viewportHeight={viewportHeight}>
           <Grid container direction="column" gap="20px">
             <Grid container justifyContent="flex-end">
               <IconButton

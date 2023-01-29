@@ -100,7 +100,7 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
     if (isMobile !== null) {
       screenRef.current = {
         width: Math.round(window.visualViewport.width),
-        height: Math.round(window.visualViewport.height),
+        height: Math.round(window.screen.height - window.screen.availHeight),
       }
       // messy, but I'm tracking the moves as a custom attribute attached to the 'canvas'
       // this way, I can better track moves and this fixes some issues with useEffect loops
@@ -222,7 +222,6 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
       onReset={() => resetCanvas()}
       time={time}
       moves={moves}
-      height={screenRef.current ? screenRef.current.height : 100}
     />
   )
 
