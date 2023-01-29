@@ -7,10 +7,10 @@ import theme from '../../../styles/theme'
 
 const getCanvasContainerStyles = (fullScreen) => (fullScreen
   ? {
-    position: 'absolute',
     top: 0,
     left: 0,
-    height: '100%',
+    height: 'calc(var(--vh, 1vh) * 100)',
+    position: 'fixed',
     width: '100%',
     bgcolor: 'background.default',
     overflow: 'hidden',
@@ -66,6 +66,10 @@ export default function MobileCanvasModal({
 }) {
   const [fullScreen, setFullScreen] = useState(false)
   const [showToolbar, setShowToolbar] = useState(false)
+
+  const vh = window.innerHeight * 0.01
+  // Then we set the value in the --vh custom property to the root of the document
+  document.documentElement.style.setProperty('--vh', `${vh}px`)
 
   useEffect(() => {
     const upperCanvas = document.getElementsByClassName('upper-canvas')[0]
