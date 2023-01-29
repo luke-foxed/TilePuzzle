@@ -27,17 +27,6 @@ const getCanvasContainerStyles = (fullScreen) => (fullScreen
     },
   })
 
-const getToolbarMargin = (expanded, height, viewportHeight) => {
-  let margin = null
-  if (viewportHeight > height) {
-    // navbar is hidden
-    margin = expanded ? '-140px' : '-80px'
-  } else {
-    margin = expanded ? '-120px' : '-60px'
-  }
-  return margin
-}
-
 const CanvasOverlay = styled('div', {
   shouldForwardProp: (props) => props !== 'showing',
 })(({ showing }) => ({
@@ -58,7 +47,7 @@ const CanvasOverlay = styled('div', {
 
 const Toolbar = styled(Box, {
   shouldForwardProp: (props) => props !== 'expanded',
-})(({ expanded, height, viewportHeight }) => ({
+})(({ expanded }) => ({
   width: '100%',
   height: '100px',
   marginTop: expanded ? '-120px' : '-60px',
