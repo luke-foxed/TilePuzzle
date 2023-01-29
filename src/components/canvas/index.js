@@ -222,6 +222,7 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
       onReset={() => resetCanvas()}
       time={time}
       moves={moves}
+      height={screenRef.current.height}
     />
   )
 

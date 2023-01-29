@@ -2,6 +2,7 @@ import { RestartAlt, Timer, Gamepad, FullscreenExit, Fullscreen, ExpandLess, Exp
 import { Box, IconButton, styled, Typography } from '@mui/material'
 import Grid from '@mui/material/Unstable_Grid2'
 import { useState, useEffect } from 'react'
+import { use100vh } from 'react-div-100vh'
 import { SquareLoader } from 'react-spinners'
 import theme from '../../../styles/theme'
 
@@ -26,6 +27,17 @@ const getCanvasContainerStyles = (fullScreen) => (fullScreen
     },
   })
 
+const getToolbarMargin = (expanded, height, viewportHeight) => {
+  let margin = null
+  if (viewportHeight > height) {
+    // navbar is hidden
+    margin = expanded ? '140px' : '80px'
+  } else {
+    margin = expanded ? '-120px' : '-60px'
+  }
+  return margin
+}
+
 const CanvasOverlay = styled('div', {
   shouldForwardProp: (props) => props !== 'showing',
 })(({ showing }) => ({
@@ -46,10 +58,10 @@ const CanvasOverlay = styled('div', {
 
 const Toolbar = styled(Box, {
   shouldForwardProp: (props) => props !== 'expanded',
-})(({ expanded }) => ({
+})(({ expanded, height, viewportHeight }) => ({
   width: '100%',
   height: '100px',
-  marginTop: expanded ? '-120px' : '-60px',
+  marginTop: getToolbarMargin(expanded, height, viewportHeight),
   zIndex: 1,
   padding: '0px',
   position: 'fixed',
@@ -63,13 +75,11 @@ export default function MobileCanvasModal({
   time,
   moves,
   loading,
+  height,
 }) {
   const [fullScreen, setFullScreen] = useState(false)
   const [showToolbar, setShowToolbar] = useState(false)
-
-  const vh = window.innerHeight * 0.01
-  // Then we set the value in the --vh custom property to the root of the document
-  document.documentElement.style.setProperty('--vh', `${vh}px`)
+  const viewportHeight = use100vh()
 
   useEffect(() => {
     const upperCanvas = document.getElementsByClassName('upper-canvas')[0]
@@ -93,7 +103,7 @@ export default function MobileCanvasModal({
 
     if (fullScreen) {
       content = (
-        <Toolbar expanded={showToolbar}>
+        <Toolbar expanded={showToolbar} height={height} viewportHeight={viewportHeight}>
           <Grid container direction="column" gap="20px">
             <Grid container justifyContent="flex-end">
               <IconButton

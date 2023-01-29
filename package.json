@@ -27,6 +27,7 @@
     "next": "13.0.7",
     "react": "18.2.0",
     "react-device-detect": "^2.2.2",
+    "react-div-100vh": "^0.7.0",
     "react-spinners": "^0.13.7",
     "react-timer-hook": "^3.0.5",
     "swr": "^2.0.0"
