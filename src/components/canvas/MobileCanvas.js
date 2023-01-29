@@ -31,7 +31,7 @@ const getToolbarMargin = (expanded, height, viewportHeight) => {
   let margin = null
   if (viewportHeight > height) {
     // navbar is hidden
-    margin = expanded ? '140px' : '80px'
+    margin = expanded ? '-140px' : '-80px'
   } else {
     margin = expanded ? '-120px' : '-60px'
   }
@@ -89,6 +89,7 @@ export default function MobileCanvasModal({
   }, [fullScreen])
 
   const handleCanvasClick = async () => {
+    window.scrollTo(0, 1)
     await onClickCanvas()
     setFullScreen(!fullScreen)
   }
