@@ -100,8 +100,11 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
     if (isMobile !== null) {
       screenRef.current = {
         width: Math.round(window.visualViewport.width),
-        height: Math.round(window.screen.height - window.screen.availHeight),
+        height: Math.round(window.screen.availHeight),
       }
+
+      console.log('HEIGHT', window.screen.height)
+      console.log('AVAIL', window.screen.availHeight)
       // messy, but I'm tracking the moves as a custom attribute attached to the 'canvas'
       // this way, I can better track moves and this fixes some issues with useEffect loops
       newCanvas.moves = 1
