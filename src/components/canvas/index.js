@@ -5,11 +5,27 @@ import { fabric } from 'fabric-pure-browser'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useStopwatch } from 'react-timer-hook'
 import { SquareLoader } from 'react-spinners'
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core'
+import {
+  arraySwap,
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  rectSwappingStrategy,
+} from '@dnd-kit/sortable'
 import { mouseDownListener, mouseUpListener, objectMovingListener } from '../../utils/canvasHelpers'
-import { generateTiles } from '../../utils/tileHelpers'
+import { generateTiles, generateTilesV2 } from '../../utils/tileHelpers'
 import MobileCanvasModal from './MobileCanvas'
 import SuccessModal from './SuccessModal'
 import theme from '../../../styles/theme'
+import Tile from './Tile'
 
 const DIFFICULTIES = [
   {
@@ -44,12 +60,11 @@ const Divider = styled('div')({
 
 export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart, isMobile }) {
   const { url: img, id, difficulty } = gradient
-
-  const [canvas, setCanvas] = useState(null)
+  const [image, setImage] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
-  const [canvasState, setCanvasState] = useState(null)
   const [tilesPerRow, setTilesPerRow] = useState(difficulty * 2) // difficulty is stored as 1-5
+  const [tiles, setTiles] = useState([])
   const [moves, setMoves] = useState(0)
   const [winner, setWinner] = useState(false)
   const { seconds, minutes, start: startTimer, pause } = useStopwatch({ autoStart: false })
@@ -58,14 +73,9 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
   const time = `${minutes}:${seconds > 9 ? seconds : `0${seconds}`}`
   const gameData = { moves, time }
 
-  // this allows for hooks to observe canvas changes rather than relying on fabric event listeners
-  const objectModifiedListener = useCallback((event) => {
-    const newCanvasState = event.target.canvas.toJSON(['moves'])
-    setCanvasState(newCanvasState)
-    setMoves(event.target.canvas.moves)
-  }, [])
+ const sensors = [useSensor(PointerSensor)]
 
-  const setImage = useCallback(async (can) => {
+  const loadImage = useCallback(() => {
     const { width, height } = screenRef.current
     const i = new Image()
     const newWidth = isMobile ? width : Math.round(width * 0.8)
@@ -73,65 +83,33 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
     const adjustedURL = img.replace('h_300,w_300', `h_${newHeight},w_${newWidth},c_scale`)
     i.crossOrigin = 'anonymous'
     i.src = typeof img === 'string' ? adjustedURL : URL.createObjectURL(img)
-    const loaded = await new Promise((resolve, reject) => {
-      i.onload = () => {
-        const fabricImage = new fabric.Image(i)
-        can.setDimensions({ width: newWidth, height: newHeight })
-        can.setBackgroundImage(fabricImage, can.renderAll.bind(can), {
-          originX: 'left',
-          originY: 'top',
-        })
-        resolve(true)
-      }
-      i.onerror = () => {
-        setLoading(false)
-        setError(true)
-        reject(new Error('Error loading image'))
-      }
-    })
-
-    if (loaded) {
+    i.onload = () => {
+      setImage(i)
       setLoading(false)
+    }
+    i.onerror = () => {
+      setLoading(false)
+      setError(true)
     }
   }, [img, isMobile])
 
   useEffect(() => {
-    const newCanvas = new fabric.Canvas('canvas', { selection: false })
-    if (isMobile !== null) {
-      screenRef.current = {
-        width: Math.round(window.visualViewport.width),
-        height: Math.round(window.visualViewport.height),
-      }
-      // messy, but I'm tracking the moves as a custom attribute attached to the 'canvas'
-      // this way, I can better track moves and this fixes some issues with useEffect loops
-      newCanvas.moves = 1
-
-      newCanvas.on('object:modified', objectModifiedListener)
-      newCanvas.on('mouse:up', mouseUpListener)
-      newCanvas.on('mouse:down', mouseDownListener)
-      newCanvas.on('object:moving', objectMovingListener)
-
-      setImage(newCanvas)
-      setCanvas(newCanvas)
+    screenRef.current = {
+      width: Math.round(window.visualViewport.width),
+      height: Math.round(window.visualViewport.height),
     }
-    // Don't forget to destroy canvas and remove event listeners on component unmount
-    return () => newCanvas.dispose()
-  }, [img, isMobile, objectModifiedListener, setImage])
+    loadImage()
+  }, [loadImage])
 
   useEffect(() => {
-    if (canvasState && gameStarted) {
-      const currentOrder = canvas.getObjects().map((obj) => obj.index)
-      const correctOrder = [...Array(currentOrder.length).keys()]
-      const hasWon = JSON.stringify(currentOrder) === JSON.stringify(correctOrder)
-      if (hasWon) {
-        setWinner(true)
-        pause()
-      }
+    if (image) {
+      generateTilesV2(image, tilesPerRow).then((data) => {
+        setTiles(data)
+      })
     }
-  }, [canvas, canvasState, moves, time, gameStarted, pause])
+  }, [image, tilesPerRow])
 
   const handleStartClick = async () => {
-    await generateTiles(1, tilesPerRow, canvas)
     onGameToggle(true)
     startTimer()
   }
@@ -139,11 +117,18 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
   const resetCanvas = () => {
     onGameToggle(false)
     setMoves(0)
-    canvas.clear()
-    // I don't like this but the canvas renders weird without the delay
-    setTimeout(() => {
-      setImage(canvas)
-    }, 100)
+  }
+
+  const handleDragEnd = ({ ...props }) => {
+    const { active, over } = props
+    if (active.id !== over.id) {
+      setTiles((itms) => {
+        const oldIndex = itms.findIndex((item) => item.id === active.id)
+        const newIndex = itms.findIndex((item) => item.id === over.id)
+
+        return arraySwap(itms, oldIndex, newIndex)
+      })
+    }
   }
 
   const renderFullCanvas = () => (
@@ -196,7 +181,32 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
 
         <Grid container gap="20px">
           <Divider sx={{ width: '80vw' }} />
-          <canvas id="canvas" />
+
+          {image && !tiles.length && <img src={image.src} alt="level" />}
+
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: `repeat(${tilesPerRow}, 1fr)`,
+              gap: '2px',
+            }}
+          >
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={tiles.map((tile) => tile.index)}
+                strategy={rectSwappingStrategy}
+              >
+                {tiles && tiles.map((tile) => (
+                  <Tile tile={tile} key={tile.id} />
+                ))}
+              </SortableContext>
+            </DndContext>
+          </div>
+
           <Divider sx={{ width: '80vw' }} />
         </Grid>
 
