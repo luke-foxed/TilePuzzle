@@ -102,30 +102,7 @@ const shouldLockTile = (row, column, tileCount) => {
   }
 }
 
-export const generateTilesV2 = async (img, tileCount) => {
-  const image = img
-  const tH = image.height / tileCount
-  const imagePieces = []
-  const tW = image.width / tileCount
-  let index = 0
-  for (let row = 0; row < tileCount; row++) {
-    for (let column = 0; column < tileCount; column++) {
-      const mockCanvas = document.createElement('canvas')
-      const mockCanvasCtx = mockCanvas.getContext('2d')
-
-      index += 1
-
-      mockCanvas.width = tW
-      mockCanvas.height = tH
-      mockCanvasCtx.drawImage(image, column * tW, row * tH, tW, tH, 0, 0, tW, tH)
-
-      imagePieces.push({ id: index, image: mockCanvas.toDataURL() })
-    }
-  }
-  return imagePieces
-}
-
-export const generateTiles = async (padding, tileCount, canvas) => {
+export const generateTilesV2 = async (padding, tileCount, canvas) => {
   const image = await loadImage(canvas.toDataURL('image/png'))
   const tiles = []
   const tW = canvas.getWidth() / tileCount // (tile width)

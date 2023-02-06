@@ -1,31 +1,26 @@
 import { Gamepad, PlayArrow, RestartAlt, Timer } from '@mui/icons-material'
 import { IconButton, Slider, Typography, Box, Paper, styled } from '@mui/material'
 import Grid from '@mui/material/Unstable_Grid2'
-import { fabric } from 'fabric-pure-browser'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useStopwatch } from 'react-timer-hook'
 import { SquareLoader } from 'react-spinners'
 import {
   DndContext,
   closestCenter,
-  KeyboardSensor,
   PointerSensor,
   useSensor,
-  useSensors,
 } from '@dnd-kit/core'
 import {
   arraySwap,
-  arrayMove,
   SortableContext,
-  sortableKeyboardCoordinates,
   rectSwappingStrategy,
 } from '@dnd-kit/sortable'
-import { mouseDownListener, mouseUpListener, objectMovingListener } from '../../utils/canvasHelpers'
-import { generateTiles, generateTilesV2 } from '../../utils/tileHelpers'
+import { isEqual } from 'lodash'
 import MobileCanvasModal from './MobileCanvas'
 import SuccessModal from './SuccessModal'
 import theme from '../../../styles/theme'
 import Tile from './Tile'
+import { generateTiles, shuffleTiles } from '../../utils/dndHelper'
 
 const DIFFICULTIES = [
   {
@@ -67,13 +62,12 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
   const [tiles, setTiles] = useState([])
   const [moves, setMoves] = useState(0)
   const [winner, setWinner] = useState(false)
+  const sensors = [useSensor(PointerSensor)]
   const { seconds, minutes, start: startTimer, pause } = useStopwatch({ autoStart: false })
   const screenRef = useRef(null) // screen sizes are changing on mobile refresh, keeping them here
 
   const time = `${minutes}:${seconds > 9 ? seconds : `0${seconds}`}`
   const gameData = { moves, time }
-
- const sensors = [useSensor(PointerSensor)]
 
   const loadImage = useCallback(() => {
     const { width, height } = screenRef.current
@@ -102,12 +96,23 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
   }, [loadImage])
 
   useEffect(() => {
-    if (image) {
-      generateTilesV2(image, tilesPerRow).then((data) => {
-        setTiles(data)
+    if (image && gameStarted) {
+      generateTiles(image, tilesPerRow).then((data) => {
+        setTiles(shuffleTiles(data))
       })
     }
-  }, [image, tilesPerRow])
+  }, [gameStarted, image, tilesPerRow])
+
+  useEffect(() => {
+    // IDs need to start at 1 for DnD to work, so subtracting 1 here
+    const currentOrder = tiles.map((tile) => tile.id - 1)
+    const correctOrder = [...Array(tiles.length).keys()]
+
+    if (currentOrder.length && isEqual(currentOrder, correctOrder)) {
+      setWinner(true)
+      pause()
+    }
+  }, [pause, tiles])
 
   const handleStartClick = async () => {
     onGameToggle(true)
@@ -122,6 +127,7 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
   const handleDragEnd = ({ ...props }) => {
     const { active, over } = props
     if (active.id !== over.id) {
+      setMoves(moves + 1)
       setTiles((itms) => {
         const oldIndex = itms.findIndex((item) => item.id === active.id)
         const newIndex = itms.findIndex((item) => item.id === over.id)
@@ -197,7 +203,7 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
               onDragEnd={handleDragEnd}
             >
               <SortableContext
-                items={tiles.map((tile) => tile.index)}
+                items={tiles.map((tile) => tile.id)}
                 strategy={rectSwappingStrategy}
               >
                 {tiles && tiles.map((tile) => (

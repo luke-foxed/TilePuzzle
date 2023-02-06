@@ -17,8 +17,7 @@ export default function Tile({ tile }) {
   }
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <img src={tile.image} alt="tile" />
-    </div>
+    // eslint-disable-next-line react/jsx-props-no-spreading
+    <img src={tile.image} alt="tile" ref={setNodeRef} style={style} {...attributes} {...listeners} />
   )
 }
