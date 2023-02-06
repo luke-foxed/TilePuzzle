@@ -77,7 +77,6 @@ export default function MobileCanvasModal({
   }, [fullScreen])
 
   const handleCanvasClick = async () => {
-    window.scrollTo(0, 1)
     await onClickCanvas()
     setFullScreen(!fullScreen)
   }
@@ -86,6 +85,20 @@ export default function MobileCanvasModal({
     onReset()
     setFullScreen(false)
   }
+
+  const [vh, setVh] = useState(window.innerHeight)
+
+  useEffect(() => {
+    const updateVh = () => {
+      setVh(window.innerHeight)
+    }
+
+    window.addEventListener('resize', updateVh)
+
+    return () => window.removeEventListener('resize', updateVh)
+  }, [])
+
+  console.log('vh', vh)
 
   const renderToolbar = () => {
     let content = null
@@ -155,6 +168,11 @@ export default function MobileCanvasModal({
     return content
   }
 
+  console.log('HEIGHT', window.screen.height)
+  console.log('AVAIL', window.screen.availHeight)
+  console.log('INNER HEIGHT', window.innerHeight)
+  console.log('VIEWPORT HEIGHT', window.visualViewport.height)
+
   return (
     <Box
       onClick={fullScreen || loading ? null : handleCanvasClick}
@@ -187,7 +205,7 @@ export default function MobileCanvasModal({
 
       <canvas id="canvas" style={{ pointerEvents: fullScreen ? 'all' : 'none', zIndex: 1 }} />
 
-      {renderToolbar()}
+      {/* {renderToolbar()} */}
     </Box>
   )
 }

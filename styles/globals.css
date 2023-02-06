@@ -4,6 +4,10 @@ header {
   max-width: 100%;
 }
 
+body{
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
 /* root is assigned to each 'page' */
 .root {
   width: 80vw;
