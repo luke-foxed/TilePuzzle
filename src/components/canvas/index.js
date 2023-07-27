@@ -126,7 +126,7 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
 
   const handleDragEnd = ({ ...props }) => {
     const { active, over } = props
-    if (active.id !== over.id) {
+    if (active && over && active.id !== over.id) {
       setMoves(moves + 1)
       setTiles((itms) => {
         const oldIndex = itms.findIndex((item) => item.id === active.id)
@@ -137,8 +137,57 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
     }
   }
 
+  const renderCanvas = () => (
+    <CanvasWrapper>
+      {loading && (
+      <div>
+        <SquareLoader color={theme.palette.error.main} />
+        <Typography variant="h3">Loading Canvas</Typography>
+      </div>
+      )}
+      {error && <Typography variant="h3">Error Loading Canvas</Typography>}
+
+      <Grid container gap="20px">
+        <Divider sx={{ width: '80vw' }} />
+
+        {image && !tiles.length && <img src={image.src} alt="level" />}
+
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: `repeat(${tilesPerRow}, 1fr)`,
+            gap: '2px',
+          }}
+        >
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext items={tiles.map((tile) => tile.id)} strategy={rectSwappingStrategy}>
+              {tiles && tiles.map((tile) => <Tile tile={tile} key={tile.id} />)}
+            </SortableContext>
+          </DndContext>
+        </div>
+
+        <Divider sx={{ width: '80vw' }} />
+      </Grid>
+
+      <Slider
+          // hiding this for now
+        style={{ display: 'none' }}
+        value={tilesPerRow}
+        step={2}
+        marks={DIFFICULTIES}
+        min={2}
+        max={8}
+        onChange={(e, val) => setTilesPerRow(val)}
+      />
+    </CanvasWrapper>
+  )
+
   const renderFullCanvas = () => (
-    <>
+    <div>
       <Box
         sx={{
           display: 'grid',
@@ -176,58 +225,8 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
         </Grid>
       </Box>
 
-      <CanvasWrapper>
-        {loading && (
-          <div>
-            <SquareLoader color={theme.palette.error.main} />
-            <Typography variant="h3">Loading Canvas</Typography>
-          </div>
-        )}
-        {error && <Typography variant="h3">Error Loading Canvas</Typography>}
-
-        <Grid container gap="20px">
-          <Divider sx={{ width: '80vw' }} />
-
-          {image && !tiles.length && <img src={image.src} alt="level" />}
-
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: `repeat(${tilesPerRow}, 1fr)`,
-              gap: '2px',
-            }}
-          >
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
-            >
-              <SortableContext
-                items={tiles.map((tile) => tile.id)}
-                strategy={rectSwappingStrategy}
-              >
-                {tiles && tiles.map((tile) => (
-                  <Tile tile={tile} key={tile.id} />
-                ))}
-              </SortableContext>
-            </DndContext>
-          </div>
-
-          <Divider sx={{ width: '80vw' }} />
-        </Grid>
-
-        <Slider
-          // hiding this for now
-          style={{ display: 'none' }}
-          value={tilesPerRow}
-          step={2}
-          marks={DIFFICULTIES}
-          min={2}
-          max={8}
-          onChange={(e, val) => setTilesPerRow(val)}
-        />
-      </CanvasWrapper>
-    </>
+      {renderCanvas()}
+    </div>
   )
 
   const renderMobileCanvas = () => (
