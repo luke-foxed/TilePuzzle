@@ -41,7 +41,7 @@ export default function Home() {
 
           <Grid container spacing={10} sx={{ marginTop: '10px' }} justifyContent="center">
             <Grid xs={12} md={4} p={8}>
-              <Paper sx={{ padding: '20px', borderRadius: '20px' }}>
+              <Paper sx={{ padding: '20px' }}>
                 <StyledBox>
                   <Image src="/ordered.png" width={150} height={150} style={{ margin: 'auto' }} />
                   <Typography variant="h4">Slide</Typography>
@@ -59,7 +59,7 @@ export default function Home() {
             </Grid>
 
             <Grid xs={12} md={4} p={8}>
-              <Paper sx={{ padding: '20px', borderRadius: '20px' }}>
+              <Paper sx={{ padding: '20px' }}>
                 <StyledBox>
                   <Image src="/scrambled.png" width={150} height={150} style={{ margin: 'auto' }} />
                   <Typography variant="h4">Unscramble</Typography>

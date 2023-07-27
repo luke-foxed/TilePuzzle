@@ -3,6 +3,7 @@ import Grid from '@mui/material/Unstable_Grid2'
 import Link from 'next/link'
 import { Fragment, useContext, useState } from 'react'
 import { SquareLoader } from 'react-spinners'
+import Image from 'next/image'
 import theme from '../../../styles/theme'
 import { AuthUserContext } from '../../context/userProvider'
 import Authenticate from './Authenticate'
@@ -50,19 +51,34 @@ function Navbar({ isMobile }) {
 
   return (
     <>
-      <StyledTopBar position="static" sx={{ width: '100%', boxShadow: '0px 6px 5px -2px rgba(0,0,0,0.3)', padding: '20px 0px', height: 'auto' }}>
+      <StyledTopBar
+        position="static"
+        sx={{
+          width: '100%',
+          boxShadow: '0px 6px 5px -2px rgba(0,0,0,0.3)',
+          padding: '20px 0px',
+          height: 'auto',
+        }}
+      >
         <Grid
           container
           alignItems="center"
           style={{ height: '100%', width: '85%', margin: 'auto' }}
         >
-          <Grid xs={6} md={8}>
+          <Grid xs={8} md={8}>
             <Link href="/" style={{ textDecoration: 'none' }}>
-              <Typography variant={isMobile ? 'h2' : 'h1'}>TILED</Typography>
+              <Grid container alignItems="center" gap="20px">
+                <Image
+                  src="/tile_icon.png"
+                  width={isMobile ? 50 : 80}
+                  height={isMobile ? 50 : 80}
+                />
+                <Typography variant={isMobile ? 'h3' : 'h1'}>TILED</Typography>
+              </Grid>
             </Link>
           </Grid>
-          <Grid xs={2} md={2} />
-          <Grid container xs={4} md={2} gap="20px" justifyContent="flex-end">
+          <Grid xs={1} md={2} />
+          <Grid container xs={3} md={2} gap="20px" justifyContent="flex-end">
             {renderUserActions()}
           </Grid>
         </Grid>

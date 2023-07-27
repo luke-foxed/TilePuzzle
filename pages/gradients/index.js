@@ -10,7 +10,6 @@ const GradientLink = styled('div')({
     height: '100%',
     width: '100%',
     objectFit: 'cover',
-    borderRadius: '20px',
   },
 })
 

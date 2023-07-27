@@ -9,7 +9,6 @@ const MENU_PAPER_PROPS = {
   sx: {
     minWidth: '200px',
     bgcolor: 'background.paper',
-    borderRadius: '20px',
     overflow: 'visible',
     filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
     mt: 1.5,
@@ -42,8 +41,8 @@ export default function UserMenu() {
   }
   return (
     <div style={{ display: 'flex', gap: '20px', width: 'auto' }}>
-      <ButtonBase onClick={handleClick}>
-        <img src={authUser.avatar} alt="avatar" width={80} />
+      <ButtonBase onClick={handleClick} sx={{ width: '70px', height: '70px', overflow: 'hidden' }}>
+        <img src={authUser.avatar} alt="avatar" width={110} style={{ objectFit: 'cover' }} />
       </ButtonBase>
 
       <Menu
@@ -59,7 +58,6 @@ export default function UserMenu() {
           sx={{
             bgcolor: 'error.main',
             marginTop: '-8px',
-            borderRadius: '20px 20px 0px 0px',
           }}
         >
           <Typography variant="h5" sx={{ textAlign: 'center' }}>
