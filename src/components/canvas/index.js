@@ -4,17 +4,8 @@ import Grid from '@mui/material/Unstable_Grid2'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useStopwatch } from 'react-timer-hook'
 import { SquareLoader } from 'react-spinners'
-import {
-  DndContext,
-  closestCenter,
-  PointerSensor,
-  useSensor,
-} from '@dnd-kit/core'
-import {
-  arraySwap,
-  SortableContext,
-  rectSwappingStrategy,
-} from '@dnd-kit/sortable'
+import { DndContext, closestCenter, PointerSensor, useSensor } from '@dnd-kit/core'
+import { arraySwap, SortableContext, rectSwappingStrategy } from '@dnd-kit/sortable'
 import { isEqual } from 'lodash'
 import MobileCanvasModal from './MobileCanvas'
 import SuccessModal from './SuccessModal'
@@ -140,10 +131,10 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
   const renderCanvas = () => (
     <CanvasWrapper>
       {loading && (
-      <div>
-        <SquareLoader color={theme.palette.error.main} />
-        <Typography variant="h3">Loading Canvas</Typography>
-      </div>
+        <div>
+          <SquareLoader color={theme.palette.error.main} />
+          <Typography variant="h3">Loading Canvas</Typography>
+        </div>
       )}
       {error && <Typography variant="h3">Error Loading Canvas</Typography>}
 
@@ -154,7 +145,7 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
 
         <div
           style={{
-            display: 'grid',
+            display: gameStarted ? 'grid' : 'none',
             gridTemplateColumns: `repeat(${tilesPerRow}, 1fr)`,
             gap: '2px',
           }}
@@ -174,7 +165,7 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
       </Grid>
 
       <Slider
-          // hiding this for now
+        // hiding this for now
         style={{ display: 'none' }}
         value={tilesPerRow}
         step={2}
