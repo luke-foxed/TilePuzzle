@@ -2,6 +2,8 @@
 import { useSortable, arraySwap } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { Lock } from '@mui/icons-material'
+import { Box } from '@mui/material'
+import { useEffect, useState } from 'react'
 
 function getNewIndex({ id, items, activeIndex, overIndex }) {
   return arraySwap(items, overIndex, activeIndex).indexOf(id)
@@ -9,20 +11,38 @@ function getNewIndex({ id, items, activeIndex, overIndex }) {
 
 export default function Tile({ tile }) {
   const { id, height, width, locked, image } = tile
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
+  const [isVisible, setIsVisible] = useState(false)
+
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id,
     getNewIndex,
   })
 
+  useEffect(() => {
+    const delay = id * 50
+    const animationTimeout = setTimeout(() => {
+      setIsVisible(true)
+    }, delay)
+    return () => clearTimeout(animationTimeout)
+  }, [id])
+
   const style = {
+    zIndex: isDragging ? 1 : 'unset', // Higher z-index for the tile being dragged
     transform: CSS.Transform.toString(transform),
-    transition,
+    transition: `${isVisible ? `${transition}, opacity 0.5s` : ''}`,
+    opacity: isVisible ? 1 : 0,
+    boxShadow: isDragging ? '0px 4px 10px rgba(0, 0, 0, 0.3)' : '', // Add drop shadow when tile is dragged
+  }
+
+  const tileHoverStyle = !locked && {
+    '&:hover': { outline: '1px solid rgba(0,0,0,0.3)', outlineOffset: '-1px' },
   }
 
   return (
-    <div
+    <Box
       ref={locked ? null : setNodeRef}
-      style={{ ...style, height }}
+      style={{ ...style, height, cursor: locked ? 'default' : 'grab' }}
+      sx={tileHoverStyle}
       {...attributes}
       {...listeners}
     >
@@ -41,6 +61,6 @@ export default function Tile({ tile }) {
         </div>
       )}
       <img src={image} alt="tile" />
-    </div>
+    </Box>
   )
 }
