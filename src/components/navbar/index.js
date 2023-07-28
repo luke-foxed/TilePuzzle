@@ -9,12 +9,12 @@ import { AuthUserContext } from '../../context/userProvider'
 import Authenticate from './Authenticate'
 import UserMenu from './UserMenu'
 
-const StyledTopBar = styled(AppBar)({
+const StyledTopBar = styled(AppBar)(({ theme: t }) => ({
   height: '180px',
-  background: 'none',
+  background: t.palette.background.default,
   color: 'black',
   boxShadow: 'none',
-})
+}))
 
 function Navbar({ isMobile }) {
   const [authType, setAuthType] = useState(null)
