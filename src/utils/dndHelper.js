@@ -34,8 +34,9 @@ const shouldLockTile = (row, column, tileCount) => {
 
 export const generateTiles = async (img, tileCount) => {
   const image = img
-  const tH = image.height / tileCount
-  const tW = image.width / tileCount
+  // subtracting a small amount to remove gaps in tiles
+  const tH = image.height / tileCount - 0.1
+  const tW = image.width / tileCount - 0.1
   const imagePieces = []
   let id = 1
   for (let row = 0; row < tileCount; row++) {

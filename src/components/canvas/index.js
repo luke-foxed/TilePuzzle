@@ -1,5 +1,5 @@
 import { Gamepad, PlayArrow, RestartAlt, Timer } from '@mui/icons-material'
-import { IconButton, Slider, Typography, Box, Paper, styled } from '@mui/material'
+import { Slider, Typography, Box, Paper, styled, Button } from '@mui/material'
 import Grid from '@mui/material/Unstable_Grid2'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useStopwatch } from 'react-timer-hook'
@@ -38,10 +38,13 @@ const CanvasWrapper = styled(Paper)(({ theme: t }) => ({
   margin: 'auto',
 }))
 
-const Divider = styled('div')({
-  height: '1px',
-  border: '2px solid white',
-  margin: 'auto',
+const CanvasButton = styled(Button)({
+  color: '#fff',
+  width: '120px',
+  border: '4px solid white',
+  marginBottom: '0px',
+  marginLeft: '-1px',
+  borderBottom: 'none',
 })
 
 export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart, isMobile }) {
@@ -131,23 +134,29 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
   const renderCanvas = () => (
     <CanvasWrapper>
       {loading && (
-        <div>
+        <Grid
+          container
+          sx={{ width: '75vw', height: '60vh', border: '4px solid #fff' }}
+          textAlign="center"
+          justifyContent="center"
+          alignItems="center"
+        >
           <SquareLoader color={theme.palette.error.main} />
           <Typography variant="h3">Loading Canvas</Typography>
-        </div>
+        </Grid>
       )}
       {error && <Typography variant="h3">Error Loading Canvas</Typography>}
 
       <Grid container gap="20px">
-        <Divider sx={{ width: '80vw' }} />
-
-        {image && !tiles.length && <img src={image.src} alt="level" />}
+        {image && !tiles.length && (
+          <img src={image.src} style={{ border: '4px solid white' }} alt="level" />
+        )}
 
         <div
           style={{
+            border: '4px solid white',
             display: gameStarted ? 'grid' : 'none',
             gridTemplateColumns: `repeat(${tilesPerRow}, 1fr)`,
-            gap: '2px',
           }}
         >
           <DndContext
@@ -160,8 +169,6 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
             </SortableContext>
           </DndContext>
         </div>
-
-        <Divider sx={{ width: '80vw' }} />
       </Grid>
 
       <Slider
@@ -189,19 +196,23 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
       >
         <div />
 
-        <Grid container>
-          <IconButton
+        <Grid container gap="20px">
+          <CanvasButton
+            startIcon={<PlayArrow fontSize="large" />}
             size="large"
-            sx={{ color: 'error.main' }}
             onClick={handleStartClick}
             disabled={gameStarted}
           >
-            <PlayArrow fontSize="large" />
-          </IconButton>
+            Start
+          </CanvasButton>
 
-          <IconButton size="large" sx={{ color: 'error.main' }} onClick={() => onRestart()}>
-            <RestartAlt fontSize="large" />
-          </IconButton>
+          <CanvasButton
+            size="large"
+            startIcon={<RestartAlt fontSize="large" />}
+            onClick={() => onRestart()}
+          >
+            Restart
+          </CanvasButton>
         </Grid>
 
         <Grid container justifyContent="flex-end" alignItems="center" gap="20px">

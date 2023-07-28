@@ -40,7 +40,7 @@ export default function Home() {
           <Typography variant="h3">Choose A Game Mode</Typography>
 
           <Grid container spacing={10} sx={{ marginTop: '10px' }} justifyContent="center">
-            <Grid xs={12} md={4} p={8}>
+            <Grid xs={12} md="auto" p={8}>
               <Paper sx={{ padding: '20px' }}>
                 <StyledBox>
                   <Image src="/ordered.png" width={150} height={150} style={{ margin: 'auto' }} />
@@ -58,7 +58,7 @@ export default function Home() {
               </Paper>
             </Grid>
 
-            <Grid xs={12} md={4} p={8}>
+            <Grid xs={12} md="auto" p={8}>
               <Paper sx={{ padding: '20px' }}>
                 <StyledBox>
                   <Image src="/scrambled.png" width={150} height={150} style={{ margin: 'auto' }} />
