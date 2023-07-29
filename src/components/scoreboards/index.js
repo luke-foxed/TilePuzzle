@@ -150,7 +150,7 @@ export default function Scoreboards({ scores }) {
   if (!scores) return null
 
   return (
-    <Box sx={{ width: '100%', margin: '20px', height: '100%' }}>
+    <Box sx={{ width: '100%', padding: '20px', height: '100%' }}>
       <Paper sx={{ width: '100%' }}>
         <TableContainer>
           <Table sx={{ minWidth: 750, padding: '20px' }}>

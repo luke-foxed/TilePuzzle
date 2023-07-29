@@ -27,6 +27,7 @@ export default function Tile({ tile }) {
   }, [id])
 
   const style = {
+    touchAction: 'none',
     zIndex: isDragging ? 1 : 'unset', // Higher z-index for the tile being dragged
     transform: CSS.Transform.toString(transform),
     transition: `${isVisible ? `${transition}, opacity 0.5s` : ''}`,

@@ -60,6 +60,9 @@ export default function MobileCanvasModal({
   canvasComponent,
 }) {
   const [fullScreen, setFullScreen] = useState(false)
+  const canvasHeight = document.getElementById('tile-canvas')?.clientHeight || 0
+  // height of window - 10px margin top (set below) - minus the height of the canvas
+  const toolbarHeight = `${(window.visualViewport.height - 10) - canvasHeight}px`
 
   const handleCanvasClick = async () => {
     await onClickCanvas()
@@ -76,7 +79,7 @@ export default function MobileCanvasModal({
 
     if (fullScreen) {
       content = (
-        <Toolbar sx={{ height: '100%' }}>
+        <Toolbar sx={{ height: toolbarHeight }}>
           <Box
             sx={{
               display: 'grid',
@@ -147,7 +150,7 @@ export default function MobileCanvasModal({
         </Grid>
       </CanvasOverlay>
 
-      {fullScreen && canvasComponent}
+      {fullScreen && <div style={{ marginTop: '10px' }}>{canvasComponent}</div>}
 
       {renderToolbar()}
     </Box>

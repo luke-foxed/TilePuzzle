@@ -132,7 +132,7 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
   }
 
   const renderCanvas = () => (
-    <CanvasWrapper>
+    <CanvasWrapper id="tile-canvas">
       {loading && (
         <Grid
           container
@@ -231,73 +231,18 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
     </div>
   )
 
-  const renderMobileCanvas = () => {
-    const canvasComponent = (
-      <CanvasWrapper>
-        {loading && (
-          <Grid
-            container
-            sx={{ width: '75vw', height: '80vh', border: '4px solid #fff' }}
-            textAlign="center"
-            justifyContent="center"
-            alignItems="center"
-          >
-            <SquareLoader color={theme.palette.error.main} />
-            <Typography variant="h3">Loading Canvas</Typography>
-          </Grid>
-        )}
-        {error && <Typography variant="h3">Error Loading Canvas</Typography>}
-
-        <Grid container gap="20px">
-          {image && !tiles.length && (
-            <img src={image.src} style={{ border: '4px solid white' }} alt="level" />
-          )}
-
-          <div
-            style={{
-              border: '4px solid white',
-              display: gameStarted ? 'grid' : 'none',
-              gridTemplateColumns: `repeat(${tilesPerRow}, 1fr)`,
-            }}
-          >
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
-            >
-              <SortableContext items={tiles.map((tile) => tile.id)} strategy={rectSwappingStrategy}>
-                {tiles && tiles.map((tile) => <Tile tile={tile} key={tile.id} />)}
-              </SortableContext>
-            </DndContext>
-          </div>
-        </Grid>
-
-        <Slider
-          // hiding this for now
-          style={{ display: 'none' }}
-          value={tilesPerRow}
-          step={2}
-          marks={DIFFICULTIES}
-          min={2}
-          max={8}
-          onChange={(e, val) => setTilesPerRow(val)}
-        />
-      </CanvasWrapper>
-    )
-
-    return (
-      <MobileCanvasModal
-        loading={loading}
-        onClickCanvas={() => handleStartClick()}
-        onRestartClick={() => onRestart()}
-        onReset={() => resetCanvas()}
-        time={time}
-        moves={moves}
-        image={img}
-        canvasComponent={canvasComponent}
-      />
-    )
-  }
+  const renderMobileCanvas = () => (
+    <MobileCanvasModal
+      loading={loading}
+      onClickCanvas={() => handleStartClick()}
+      onRestartClick={() => onRestart()}
+      onReset={() => resetCanvas()}
+      time={time}
+      moves={moves}
+      image={img}
+      canvasComponent={renderCanvas()}
+    />
+  )
 
   return (
     <>
