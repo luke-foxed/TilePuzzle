@@ -68,7 +68,7 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
     const i = new Image()
     const newWidth = isMobile ? Math.round(width / 1.1) : Math.round(width * 0.8)
     const newHeight = isMobile ? Math.round(height / 1.1) : Math.round(height / 1.5)
-    const adjustedURL = img.replace('h_300,w_300', `h_${newHeight},w_${newWidth},c_scale`)
+    const adjustedURL = img.replace('h_1,w_1', `h_${newHeight},w_${newWidth},c_scale`)
     i.crossOrigin = 'anonymous'
     i.src = typeof img === 'string' ? adjustedURL : URL.createObjectURL(img)
     i.onload = () => {

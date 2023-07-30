@@ -1,5 +1,3 @@
-// https://blog.logrocket.com/implementing-authentication-in-next-js-with-firebase/
-
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -12,13 +10,15 @@ import { doc, getDoc, setDoc } from 'firebase/firestore'
 import { useState, useEffect } from 'react'
 import { auth, db } from '../../config/firebase'
 
+// NOTE: firebase solution from https://blog.logrocket.com/implementing-authentication-in-next-js-with-firebase/
+
 // for creating DB association with user
 const createUserDocument = async (user) => {
   const { uid, email, displayName } = user
   const data = {
     displayName,
     email,
-    avatar: `https://source.boringavatars.com/beam/120/${uid}?colors=FFFBFE,F75590`,
+    avatar: `https://source.boringavatars.com/beam/120/${uid}?colors=FFFBFE,30BCED`,
   }
   await setDoc(doc(db, 'users', uid), data)
   return data
@@ -57,7 +57,9 @@ export default function useFirebaseAuth() {
 
   // API specific functions
   const login = async (email, password) => {
-    await signInWithEmailAndPassword(auth, email, password)
+    await signInWithEmailAndPassword(auth, email, password).catch(() => {
+      throw new Error('Invalid Email or Password')
+    })
   }
 
   const loginWithGoogle = async () => {
@@ -66,9 +68,12 @@ export default function useFirebaseAuth() {
   }
 
   const createUser = async (email, password) => {
-    const res = await createUserWithEmailAndPassword(auth, email, password)
-    if (res.user) {
-      await createUserDocument(res.user)
+    let { user } = await createUserWithEmailAndPassword(auth, email, password)
+    if (user) {
+      if (!user.displayName) {
+        user = { ...user, displayName: email.split('@')[0] }
+      }
+      await createUserDocument(user)
     }
   }
 

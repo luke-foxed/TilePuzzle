@@ -16,7 +16,7 @@ const StyledTopBar = styled(AppBar)(({ theme: t }) => ({
   boxShadow: 'none',
 }))
 
-function Navbar({ isMobile }) {
+export default function Navbar({ isMobile }) {
   const [authType, setAuthType] = useState(null)
   const { authUser, loading } = useContext(AuthUserContext)
 
@@ -25,22 +25,24 @@ function Navbar({ isMobile }) {
 
     if (!authUser && !loading) {
       content = (
-        <div>
+        <>
           <Button
+            size={isMobile ? 'small' : 'large'}
             variant="contained"
             onClick={() => setAuthType('signin')}
-            style={{ borderRadius: '20px' }}
+            style={{ width: '100px' }}
           >
-            Signup
+            Sign Up
           </Button>
           <Button
+            size={isMobile ? 'small' : 'large'}
             variant="contained"
             onClick={() => setAuthType('login')}
-            style={{ borderRadius: '20px' }}
+            style={{ width: '100px' }}
           >
             Login
           </Button>
-        </div>
+        </>
       )
     } else if (loading) {
       content = <SquareLoader color={theme.palette.error.main} />
@@ -57,28 +59,32 @@ function Navbar({ isMobile }) {
           width: '100%',
           boxShadow: '0px 6px 5px -2px rgba(0,0,0,0.3)',
           padding: '20px 0px',
-          height: 'auto',
+          height: isMobile ? '120px' : '180px',
         }}
       >
         <Grid
           container
           alignItems="center"
+          justifyContent="space-between"
           style={{ height: '100%', width: '85%', margin: 'auto' }}
         >
-          <Grid xs={8} md={8}>
+          <Grid xs="auto" md={8}>
             <Link href="/" style={{ textDecoration: 'none' }}>
               <Grid container alignItems="center" gap="20px">
-                <Image
-                  src="/tile_icon.png"
-                  width={isMobile ? 50 : 80}
-                  height={isMobile ? 50 : 80}
-                />
-                <Typography variant={isMobile ? 'h3' : 'h1'}>TILED</Typography>
+                <Image src="/tile_icon.png" width={80} height={80} />
+                {!isMobile && <Typography variant="h1">TILED</Typography>}
               </Grid>
             </Link>
           </Grid>
-          <Grid xs={1} md={2} />
-          <Grid container xs={3} md={2} gap="20px" justifyContent="flex-end">
+          <Grid xs={5} md={2} />
+          <Grid
+            container
+            xs="auto"
+            md={2}
+            gap="5px"
+            alignItems="center"
+            direction="column"
+          >
             {renderUserActions()}
           </Grid>
         </Grid>
@@ -88,5 +94,3 @@ function Navbar({ isMobile }) {
     </>
   )
 }
-
-export default Navbar

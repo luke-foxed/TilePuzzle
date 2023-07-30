@@ -41,8 +41,12 @@ export default function UserMenu() {
   }
   return (
     <div style={{ display: 'flex', gap: '20px', width: 'auto' }}>
-      <ButtonBase onClick={handleClick} sx={{ width: '70px', height: '70px', overflow: 'hidden' }}>
-        <img src={authUser.avatar} alt="avatar" width={110} style={{ objectFit: 'cover' }} />
+      <ButtonBase onClick={handleClick} sx={{ border: '4px dashed #202C5A' }}>
+        <img
+          src={authUser.avatar}
+          alt="avatar"
+          style={{ objectFit: 'cover', padding: '10px', width: 'max(7vw, 70px)' }}
+        />
       </ButtonBase>
 
       <Menu

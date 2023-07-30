@@ -4,11 +4,13 @@ import CssBaseline from '@mui/material/CssBaseline'
 import { CacheProvider } from '@emotion/react'
 import { getSelectorsByUserAgent } from 'react-device-detect'
 import { useEffect, useState } from 'react'
+import { SnackbarProvider } from 'notistack'
 import { AuthUserProvider } from '../src/context/userProvider'
 import createEmotionCache from '../styles/theme/createEmotionCache'
 import theme from '../styles/theme/index'
 import Navbar from '../src/components/navbar'
 import '../styles/globals.css'
+import StyledSnackbar from '../styles/theme/snackbar'
 
 const clientSideEmotionCache = createEmotionCache()
 
@@ -30,12 +32,17 @@ export default function MyApp(props) {
         <meta name="viewport" content="initial-scale=1, width=device-width" />
       </Head>
       <AuthUserProvider>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <Navbar isMobile={mobileView} />
-          {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-          <Component {...pageProps} isMobile={mobileView} />
-        </ThemeProvider>
+        <SnackbarProvider
+          anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+          Components={{ success: StyledSnackbar, error: StyledSnackbar }}
+        >
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <Navbar isMobile={mobileView} />
+            {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+            <Component {...pageProps} isMobile={mobileView} />
+          </ThemeProvider>
+        </SnackbarProvider>
       </AuthUserProvider>
     </CacheProvider>
   )

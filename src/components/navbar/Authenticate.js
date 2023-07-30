@@ -1,16 +1,10 @@
-import {
-  Button,
-  Avatar,
-  TextField,
-  Box,
-  Typography,
-  styled,
-  Grid,
-} from '@mui/material'
+import { Button, Avatar, TextField, Box, Typography, styled, Grid } from '@mui/material'
 import { LockOutlined, PersonAdd } from '@mui/icons-material'
 import { useContext } from 'react'
+import { enqueueSnackbar } from 'notistack'
 import { AuthUserContext } from '../../context/userProvider'
 import { StyledModal } from '../shared'
+import { getAuthErrorMessage } from '../../utils/authHelpers'
 
 const StyledTextField = styled(TextField)(({ theme }) => ({
   '.MuiInputLabel-root': {
@@ -45,16 +39,21 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
 export default function Authenticate({ onClose, type }) {
   const { login, loginWithGoogle, createUser } = useContext(AuthUserContext)
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
-
     const data = new FormData(event.currentTarget)
+
     const callback = () => (type === 'login'
       ? login(data.get('email'), data.get('password'))
       : createUser(data.get('email'), data.get('password')))
 
-    callback()
-    onClose()
+    try {
+      await callback()
+      enqueueSnackbar('Login successful', { variant: 'success' })
+      onClose()
+    } catch (err) {
+      enqueueSnackbar(getAuthErrorMessage(err.code), { variant: 'error' })
+    }
   }
 
   const handleGoogleLogin = async () => {
@@ -63,7 +62,7 @@ export default function Authenticate({ onClose, type }) {
   }
 
   return (
-    <StyledModal showX open>
+    <StyledModal showX open onClose={onClose}>
       <Grid item>
         <Avatar sx={{ bgcolor: 'secondary.main', margin: 'auto' }}>
           {type === 'login' ? <LockOutlined /> : <PersonAdd />}

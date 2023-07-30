@@ -47,7 +47,11 @@ function Gradient({ gradientData, isMobile }) {
             direction="row"
           >
             <Grid xs={12} md={6}>
-              <StyledHeader size={isMobile ? 'h4' : 'h3'}>Level 1</StyledHeader>
+              <StyledHeader size={isMobile ? 'h4' : 'h3'}>
+                Level
+                {' '}
+                {gradientData.level}
+              </StyledHeader>
             </Grid>
 
             <Grid
