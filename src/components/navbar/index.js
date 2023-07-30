@@ -30,7 +30,7 @@ export default function Navbar({ isMobile }) {
             size={isMobile ? 'small' : 'large'}
             variant="contained"
             onClick={() => setAuthType('signin')}
-            style={{ width: '100px' }}
+            style={{ width: '110px' }}
           >
             Sign Up
           </Button>
@@ -38,7 +38,7 @@ export default function Navbar({ isMobile }) {
             size={isMobile ? 'small' : 'large'}
             variant="contained"
             onClick={() => setAuthType('login')}
-            style={{ width: '100px' }}
+            style={{ width: '110px' }}
           >
             Login
           </Button>
