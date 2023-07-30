@@ -102,7 +102,7 @@ const shouldLockTile = (row, column, tileCount) => {
   }
 }
 
-export const generateTiles = async (padding, tileCount, canvas) => {
+export const generateTilesV2 = async (padding, tileCount, canvas) => {
   const image = await loadImage(canvas.toDataURL('image/png'))
   const tiles = []
   const tW = canvas.getWidth() / tileCount // (tile width)

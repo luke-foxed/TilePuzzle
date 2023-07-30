@@ -54,7 +54,7 @@ function Gradient({ gradientData, isMobile }) {
               container
               xs={12}
               md={6}
-              sx={{ marginTop: isMobile ? '30px' : 'auto' }}
+              sx={{ margin: isMobile ? '30px' : 'auto' }}
               justifyContent={isMobile ? 'center' : 'end'}
             >
               <Difficulty difficulty={gradientData.difficulty} />

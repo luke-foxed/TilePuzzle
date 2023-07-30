@@ -32,7 +32,7 @@ export default class MyDocument extends Document {
 
           {this.props.emotionStyleTags}
         </Head>
-        <body>
+        <body className="app">
           <Main />
           <NextScript />
         </body>

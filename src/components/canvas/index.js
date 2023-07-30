@@ -1,15 +1,17 @@
 import { Gamepad, PlayArrow, RestartAlt, Timer } from '@mui/icons-material'
-import { IconButton, Slider, Typography, Box, Paper, styled } from '@mui/material'
+import { Slider, Typography, Box, Paper, styled, Button } from '@mui/material'
 import Grid from '@mui/material/Unstable_Grid2'
-import { fabric } from 'fabric-pure-browser'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useStopwatch } from 'react-timer-hook'
 import { SquareLoader } from 'react-spinners'
-import { mouseDownListener, mouseUpListener, objectMovingListener } from '../../utils/canvasHelpers'
-import { generateTiles } from '../../utils/tileHelpers'
+import { DndContext, closestCenter, PointerSensor, useSensor } from '@dnd-kit/core'
+import { arraySwap, SortableContext, rectSwappingStrategy } from '@dnd-kit/sortable'
+import { isEqual } from 'lodash'
 import MobileCanvasModal from './MobileCanvas'
 import SuccessModal from './SuccessModal'
 import theme from '../../../styles/theme'
+import Tile from './Tile'
+import { generateTiles, shuffleTiles } from '../../utils/dndHelper'
 
 const DIFFICULTIES = [
   {
@@ -36,102 +38,77 @@ const CanvasWrapper = styled(Paper)(({ theme: t }) => ({
   margin: 'auto',
 }))
 
-const Divider = styled('div')({
-  height: '1px',
-  border: '2px solid white',
-  margin: 'auto',
+const CanvasButton = styled(Button)({
+  color: '#fff',
+  width: '120px',
+  border: '4px solid white',
+  marginBottom: '0px',
+  marginLeft: '-1px',
+  borderBottom: 'none',
 })
 
 export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart, isMobile }) {
   const { url: img, id, difficulty } = gradient
-
-  const [canvas, setCanvas] = useState(null)
+  const [image, setImage] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
-  const [canvasState, setCanvasState] = useState(null)
   const [tilesPerRow, setTilesPerRow] = useState(difficulty * 2) // difficulty is stored as 1-5
+  const [tiles, setTiles] = useState([])
   const [moves, setMoves] = useState(0)
   const [winner, setWinner] = useState(false)
+  const sensors = [useSensor(PointerSensor)]
   const { seconds, minutes, start: startTimer, pause } = useStopwatch({ autoStart: false })
   const screenRef = useRef(null) // screen sizes are changing on mobile refresh, keeping them here
 
   const time = `${minutes}:${seconds > 9 ? seconds : `0${seconds}`}`
   const gameData = { moves, time }
 
-  // this allows for hooks to observe canvas changes rather than relying on fabric event listeners
-  const objectModifiedListener = useCallback((event) => {
-    const newCanvasState = event.target.canvas.toJSON(['moves'])
-    setCanvasState(newCanvasState)
-    setMoves(event.target.canvas.moves)
-  }, [])
-
-  const setImage = useCallback(async (can) => {
+  const loadImage = useCallback(() => {
     const { width, height } = screenRef.current
     const i = new Image()
-    const newWidth = isMobile ? width : Math.round(width * 0.8)
-    const newHeight = isMobile ? height : Math.round(height / 1.5)
+    const newWidth = isMobile ? Math.round(width / 1.1) : Math.round(width * 0.8)
+    const newHeight = isMobile ? Math.round(height / 1.1) : Math.round(height / 1.5)
     const adjustedURL = img.replace('h_300,w_300', `h_${newHeight},w_${newWidth},c_scale`)
     i.crossOrigin = 'anonymous'
     i.src = typeof img === 'string' ? adjustedURL : URL.createObjectURL(img)
-    const loaded = await new Promise((resolve, reject) => {
-      i.onload = () => {
-        const fabricImage = new fabric.Image(i)
-        can.setDimensions({ width: newWidth, height: newHeight })
-        can.setBackgroundImage(fabricImage, can.renderAll.bind(can), {
-          originX: 'left',
-          originY: 'top',
-        })
-        resolve(true)
-      }
-      i.onerror = () => {
-        setLoading(false)
-        setError(true)
-        reject(new Error('Error loading image'))
-      }
-    })
-
-    if (loaded) {
+    i.onload = () => {
+      setImage(i)
       setLoading(false)
+    }
+    i.onerror = () => {
+      setLoading(false)
+      setError(true)
     }
   }, [img, isMobile])
 
   useEffect(() => {
-    const newCanvas = new fabric.Canvas('canvas', { selection: false })
-    if (isMobile !== null) {
-      screenRef.current = {
-        width: Math.round(window.visualViewport.width),
-        height: Math.round(window.visualViewport.height),
-      }
-      // messy, but I'm tracking the moves as a custom attribute attached to the 'canvas'
-      // this way, I can better track moves and this fixes some issues with useEffect loops
-      newCanvas.moves = 1
-
-      newCanvas.on('object:modified', objectModifiedListener)
-      newCanvas.on('mouse:up', mouseUpListener)
-      newCanvas.on('mouse:down', mouseDownListener)
-      newCanvas.on('object:moving', objectMovingListener)
-
-      setImage(newCanvas)
-      setCanvas(newCanvas)
+    screenRef.current = {
+      width: Math.round(window.visualViewport.width),
+      height: Math.round(window.visualViewport.height),
     }
-    // Don't forget to destroy canvas and remove event listeners on component unmount
-    return () => newCanvas.dispose()
-  }, [img, isMobile, objectModifiedListener, setImage])
+    loadImage()
+  }, [loadImage])
 
   useEffect(() => {
-    if (canvasState && gameStarted) {
-      const currentOrder = canvas.getObjects().map((obj) => obj.index)
-      const correctOrder = [...Array(currentOrder.length).keys()]
-      const hasWon = JSON.stringify(currentOrder) === JSON.stringify(correctOrder)
-      if (hasWon) {
-        setWinner(true)
-        pause()
-      }
+    if (image && gameStarted) {
+      generateTiles(image, tilesPerRow).then((data) => {
+        setTiles(shuffleTiles(data))
+      })
     }
-  }, [canvas, canvasState, moves, time, gameStarted, pause])
+  }, [gameStarted, image, tilesPerRow])
+
+  useEffect(() => {
+    // IDs need to start at 1 for DnD to work, so subtracting 1 here
+    const currentOrder = tiles.map((tile) => tile.id - 1)
+    const correctOrder = [...Array(tiles.length).keys()]
+
+    if (currentOrder.length && isEqual(currentOrder, correctOrder)) {
+      setWinner(true)
+      pause()
+    }
+  }, [pause, tiles])
 
   const handleStartClick = async () => {
-    await generateTiles(1, tilesPerRow, canvas)
     onGameToggle(true)
     startTimer()
   }
@@ -139,15 +116,76 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
   const resetCanvas = () => {
     onGameToggle(false)
     setMoves(0)
-    canvas.clear()
-    // I don't like this but the canvas renders weird without the delay
-    setTimeout(() => {
-      setImage(canvas)
-    }, 100)
   }
 
+  const handleDragEnd = ({ ...props }) => {
+    const { active, over } = props
+    if (active && over && active.id !== over.id) {
+      setMoves(moves + 1)
+      setTiles((itms) => {
+        const oldIndex = itms.findIndex((item) => item.id === active.id)
+        const newIndex = itms.findIndex((item) => item.id === over.id)
+
+        return arraySwap(itms, oldIndex, newIndex)
+      })
+    }
+  }
+
+  const renderCanvas = () => (
+    <CanvasWrapper id="tile-canvas">
+      {loading && (
+        <Grid
+          container
+          sx={{ width: '75vw', height: '60vh', border: '4px solid #fff' }}
+          textAlign="center"
+          justifyContent="center"
+          alignItems="center"
+        >
+          <SquareLoader color={theme.palette.error.main} />
+          <Typography variant="h3">Loading Canvas</Typography>
+        </Grid>
+      )}
+      {error && <Typography variant="h3">Error Loading Canvas</Typography>}
+
+      <Grid container gap="20px">
+        {image && !tiles.length && (
+          <img src={image.src} style={{ border: '4px solid white' }} alt="level" />
+        )}
+
+        <div
+          style={{
+            border: '4px solid white',
+            display: gameStarted ? 'grid' : 'none',
+            gridTemplateColumns: `repeat(${tilesPerRow}, 1fr)`,
+          }}
+        >
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext items={tiles.map((tile) => tile.id)} strategy={rectSwappingStrategy}>
+              {tiles && tiles.map((tile) => <Tile tile={tile} key={tile.id} />)}
+            </SortableContext>
+          </DndContext>
+        </div>
+      </Grid>
+
+      <Slider
+        // hiding this for now
+        style={{ display: 'none' }}
+        value={tilesPerRow}
+        step={2}
+        marks={DIFFICULTIES}
+        min={2}
+        max={8}
+        onChange={(e, val) => setTilesPerRow(val)}
+      />
+    </CanvasWrapper>
+  )
+
   const renderFullCanvas = () => (
-    <>
+    <div>
       <Box
         sx={{
           display: 'grid',
@@ -158,19 +196,23 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
       >
         <div />
 
-        <Grid container>
-          <IconButton
+        <Grid container gap="20px">
+          <CanvasButton
+            startIcon={<PlayArrow fontSize="large" />}
             size="large"
-            sx={{ color: 'error.main' }}
             onClick={handleStartClick}
             disabled={gameStarted}
           >
-            <PlayArrow fontSize="large" />
-          </IconButton>
+            Start
+          </CanvasButton>
 
-          <IconButton size="large" sx={{ color: 'error.main' }} onClick={() => onRestart()}>
-            <RestartAlt fontSize="large" />
-          </IconButton>
+          <CanvasButton
+            size="large"
+            startIcon={<RestartAlt fontSize="large" />}
+            onClick={() => onRestart()}
+          >
+            Restart
+          </CanvasButton>
         </Grid>
 
         <Grid container justifyContent="flex-end" alignItems="center" gap="20px">
@@ -185,33 +227,8 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
         </Grid>
       </Box>
 
-      <CanvasWrapper>
-        {loading && (
-          <div>
-            <SquareLoader color={theme.palette.error.main} />
-            <Typography variant="h3">Loading Canvas</Typography>
-          </div>
-        )}
-        {error && <Typography variant="h3">Error Loading Canvas</Typography>}
-
-        <Grid container gap="20px">
-          <Divider sx={{ width: '80vw' }} />
-          <canvas id="canvas" />
-          <Divider sx={{ width: '80vw' }} />
-        </Grid>
-
-        <Slider
-          // hiding this for now
-          style={{ display: 'none' }}
-          value={tilesPerRow}
-          step={2}
-          marks={DIFFICULTIES}
-          min={2}
-          max={8}
-          onChange={(e, val) => setTilesPerRow(val)}
-        />
-      </CanvasWrapper>
-    </>
+      {renderCanvas()}
+    </div>
   )
 
   const renderMobileCanvas = () => (
@@ -222,6 +239,8 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
       onReset={() => resetCanvas()}
       time={time}
       moves={moves}
+      image={img}
+      canvasComponent={renderCanvas()}
     />
   )
 
