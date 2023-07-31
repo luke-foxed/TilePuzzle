@@ -1,12 +1,14 @@
 export const shuffleTiles = (tiles) => {
-  const newTiles = tiles
+  const newTiles = [...tiles]
   for (let i = tiles.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
     if (!newTiles[i].locked && !newTiles[j].locked) {
       [newTiles[i], newTiles[j]] = [newTiles[j], newTiles[i]]
     }
   }
-  return newTiles
+
+  const areEqual = newTiles.every((_, index) => newTiles[index].id === tiles[index].id)
+  return areEqual ? shuffleTiles(newTiles) : newTiles
 }
 
 const shouldLockTile = (row, column, tileCount) => {
@@ -14,18 +16,20 @@ const shouldLockTile = (row, column, tileCount) => {
   const isTopRight = row === 0 && column === tileCount - 1
   const isBottomLeft = row === tileCount - 1 && column === 0
   const isBottomRight = row === tileCount - 1 && column === tileCount - 1
+  const randomTile = row === Math.floor(Math.random() * (0 - tileCount - 1) + tileCount - 1)
+    && column === Math.floor(Math.random() * (0 - tileCount - 1) + tileCount - 1)
 
   switch (tileCount) {
-    case 2:
+    case 3:
       return isTopLeft
     case 4:
-      return isTopLeft
+      return isTopLeft || isBottomRight
     case 6:
       return isTopLeft || isBottomLeft || isTopRight
     case 8:
       return isTopLeft || isTopRight || isBottomLeft || isBottomRight
     case 10:
-      return isTopLeft || isTopRight || isBottomLeft || isBottomRight
+      return isTopLeft || isTopRight || isBottomLeft || isBottomRight || randomTile
 
     default:
       return false

@@ -18,7 +18,6 @@ export default function SuccessModal({ open, gameData, id }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
   const { moves, time } = gameData
-  // const { error, isLoading } = useSWR(moves > 0 && id ? `http://localhost:3000/api/gradients/${id}` : null, fetcher)
 
   useEffect(() => {
     if (open) {
@@ -32,6 +31,7 @@ export default function SuccessModal({ open, gameData, id }) {
         .post(`http://localhost:3000/api/gradients/${id}`, { data })
         .then((res) => {
           if (res.status !== 200) {
+            console.log('res', res)
             setError(true)
           } else {
             setLoading(false)

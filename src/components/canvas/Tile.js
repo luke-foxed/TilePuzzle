@@ -44,6 +44,7 @@ export default function Tile({ tile }) {
       ref={locked ? null : setNodeRef}
       style={{ ...style, height, cursor: locked ? 'default' : 'grab' }}
       sx={tileHoverStyle}
+      key={id}
       {...attributes}
       {...listeners}
     >

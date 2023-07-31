@@ -47,14 +47,22 @@ const CanvasButton = styled(Button)({
   borderBottom: 'none',
 })
 
+const getTileCount = (difficulty) => {
+  if (difficulty === 1) {
+    return difficulty * 3
+  }
+  return difficulty * 2
+}
+
 export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart, isMobile }) {
   const { url: img, id, difficulty } = gradient
   const [image, setImage] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
-  const [tilesPerRow, setTilesPerRow] = useState(difficulty * 2) // difficulty is stored as 1-5
+  const [tilesPerRow, setTilesPerRow] = useState(getTileCount(difficulty))
   const [tiles, setTiles] = useState([])
   const [moves, setMoves] = useState(0)
+  const [correctOrder, setCorrectOrder] = useState([])
   const [winner, setWinner] = useState(false)
   const sensors = [useSensor(PointerSensor)]
   const { seconds, minutes, start: startTimer, pause } = useStopwatch({ autoStart: false })
@@ -92,7 +100,9 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
   useEffect(() => {
     if (image && gameStarted) {
       generateTiles(image, tilesPerRow).then((data) => {
-        setTiles(shuffleTiles(data))
+        const shuffledTiles = shuffleTiles(data)
+        setTiles(shuffledTiles)
+        setCorrectOrder(data.map((tile) => tile.id - 1))
       })
     }
   }, [gameStarted, image, tilesPerRow])
@@ -100,13 +110,11 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
   useEffect(() => {
     // IDs need to start at 1 for DnD to work, so subtracting 1 here
     const currentOrder = tiles.map((tile) => tile.id - 1)
-    const correctOrder = [...Array(tiles.length).keys()]
-
     if (currentOrder.length && isEqual(currentOrder, correctOrder)) {
       setWinner(true)
       pause()
     }
-  }, [pause, tiles])
+  }, [correctOrder, pause, tiles])
 
   const handleStartClick = async () => {
     onGameToggle(true)
