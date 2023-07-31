@@ -31,7 +31,6 @@ export default function SuccessModal({ open, gameData, id }) {
         .post(`http://localhost:3000/api/gradients/${id}`, { data })
         .then((res) => {
           if (res.status !== 200) {
-            console.log('res', res)
             setError(true)
           } else {
             setLoading(false)
@@ -53,7 +52,7 @@ export default function SuccessModal({ open, gameData, id }) {
         </Grid>
         <Typography variant="h4">Success!</Typography>
 
-        {loading && 'Loading'}
+        {loading && 'Loading...'}
         {error && 'Error'}
 
         <StyledBox>

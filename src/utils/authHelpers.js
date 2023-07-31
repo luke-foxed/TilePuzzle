@@ -6,7 +6,6 @@ export const getAuthErrorMessage = (code) => {
     case 'auth/weak-password':
       return 'Password should be at least 6 characters'
     default:
-      console.log(code)
       return 'There was an error with this request'
   }
 }
