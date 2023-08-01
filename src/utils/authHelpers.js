@@ -5,6 +5,10 @@ export const getAuthErrorMessage = (code) => {
       return 'This email is already in use'
     case 'auth/weak-password':
       return 'Password should be at least 6 characters'
+    case 'auth/user-not-found':
+      return 'Incorrect login details'
+    case 'auth/wrong-password':
+      return 'Incorrect login details'
     default:
       return 'There was an error with this request'
   }

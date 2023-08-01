@@ -31,12 +31,14 @@ export default function SuccessModal({ open, gameData, id }) {
         .post(`http://localhost:3000/api/gradients/${id}`, { data })
         .then((res) => {
           if (res.status !== 200) {
+            console.log('RES', res)
             setError(true)
           } else {
             setLoading(false)
           }
         })
-        .catch(() => {
+        .catch((err) => {
+          console.log('RES ERR', err)
           setError(true)
         })
     }

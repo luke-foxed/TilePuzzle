@@ -57,8 +57,8 @@ export default function useFirebaseAuth() {
 
   // API specific functions
   const login = async (email, password) => {
-    await signInWithEmailAndPassword(auth, email, password).catch(() => {
-      throw new Error('Invalid Email or Password')
+    await signInWithEmailAndPassword(auth, email, password).catch((err) => {
+      throw err
     })
   }
 
