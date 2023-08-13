@@ -1,8 +1,8 @@
 import { CheckCircleOutline } from '@mui/icons-material'
 import { Avatar, Button, Typography, Box, styled, Link } from '@mui/material'
 import Grid from '@mui/material/Unstable_Grid2'
-import axios from 'axios'
-import { useContext, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect } from 'react'
+import { enqueueSnackbar } from 'notistack'
 import { AuthUserContext } from '../../context/userProvider'
 import { StyledModal } from '../shared'
 
@@ -15,34 +15,23 @@ const StyledBox = styled(Box)({
 
 export default function SuccessModal({ open, gameData, id }) {
   const { authUser } = useContext(AuthUserContext)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(false)
   const { moves, time } = gameData
+
+  const postScore = useCallback(() => {
+    const date = new Date().toLocaleDateString()
+    const data = { moves, time, date, user: authUser ? authUser.displayName : 'Anonymous' }
+    return fetch(`/api/gradients/${id}`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+      headers: { 'Content-Type': 'application/json' },
+    }).catch(() => enqueueSnackbar('Error saving score', { variant: 'error' }))
+  }, [authUser, id, moves, time])
 
   useEffect(() => {
     if (open) {
-      const data = {
-        moves,
-        time,
-        user: authUser ? authUser.displayName : 'Anonymous',
-        date: new Date().toLocaleDateString(),
-      }
-      axios
-        .post(`http://localhost:3000/api/gradients/${id}`, { data })
-        .then((res) => {
-          if (res.status !== 200) {
-            console.log('RES', res)
-            setError(true)
-          } else {
-            setLoading(false)
-          }
-        })
-        .catch((err) => {
-          console.log('RES ERR', err)
-          setError(true)
-        })
+      postScore()
     }
-  }, [authUser, id, moves, open, time])
+  }, [open, postScore])
 
   return (
     <StyledModal open={open}>
@@ -53,9 +42,6 @@ export default function SuccessModal({ open, gameData, id }) {
           </Avatar>
         </Grid>
         <Typography variant="h4">Success!</Typography>
-
-        {loading && 'Loading...'}
-        {error && 'Error'}
 
         <StyledBox>
           <Typography variant="h6" style={{ textAlign: 'start' }}>Time Taken:</Typography>
