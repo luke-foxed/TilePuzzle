@@ -24,7 +24,10 @@ export default function SuccessModal({ open, gameData, id }) {
       method: 'POST',
       body: JSON.stringify(data),
       headers: { 'Content-Type': 'application/json' },
-    }).catch(() => enqueueSnackbar('Error saving score', { variant: 'error' }))
+    }).catch((err) => {
+      enqueueSnackbar('Error saving score', { variant: 'error' })
+      throw err
+    })
   }, [authUser, id, moves, time])
 
   useEffect(() => {
