@@ -31,57 +31,55 @@ function Gradient({ gradientData, isMobile }) {
 
   return (
     <div key={gradientData.id} className="root">
-      {gradientData.url && (
+      <Grid
+        direction="column"
+        container
+        justifyContent="center"
+        alignItems="center"
+        sx={{ flexWrap: 'nowrap' }}
+      >
         <Grid
-          direction="column"
           container
-          justifyContent="center"
+          sx={{ width: '100%' }}
+          justifyContent="space-between"
           alignItems="center"
-          sx={{ flexWrap: 'nowrap' }}
+          direction="row"
         >
+          <Grid xs={12} md={6}>
+            <StyledHeader size={isMobile ? 'h4' : 'h3'}>
+              Level
+              {' '}
+              {gradientData.level}
+            </StyledHeader>
+          </Grid>
+
           <Grid
             container
-            sx={{ width: '100%' }}
-            justifyContent="space-between"
-            alignItems="center"
-            direction="row"
+            xs={12}
+            md={6}
+            sx={{ margin: isMobile ? '30px' : 'auto' }}
+            justifyContent={isMobile ? 'center' : 'end'}
           >
-            <Grid xs={12} md={6}>
-              <StyledHeader size={isMobile ? 'h4' : 'h3'}>
-                Level
-                {' '}
-                {gradientData.level}
-              </StyledHeader>
-            </Grid>
-
-            <Grid
-              container
-              xs={12}
-              md={6}
-              sx={{ margin: isMobile ? '30px' : 'auto' }}
-              justifyContent={isMobile ? 'center' : 'end'}
-            >
-              <Difficulty difficulty={gradientData.difficulty} />
-            </Grid>
-          </Grid>
-
-          <Grid sx={{ margin: '50px 0' }}>
-            <Canvas
-              key={key}
-              isMobile={isMobile}
-              gradient={gradientData}
-              gameStarted={gameStarted}
-              onRestart={handleRestartClick}
-              onGameToggle={(toggle) => setGameStarted(toggle)}
-            />
-          </Grid>
-
-          <Grid container sx={{ width: '100%' }}>
-            <StyledHeader size={isMobile ? 'h4' : 'h3'}>Leaderboards</StyledHeader>
-            {renderScoreboard()}
+            <Difficulty difficulty={gradientData.difficulty} />
           </Grid>
         </Grid>
-      )}
+
+        <Grid sx={{ margin: '50px 0' }}>
+          <Canvas
+            key={key}
+            isMobile={isMobile}
+            gradient={gradientData}
+            gameStarted={gameStarted}
+            onRestart={handleRestartClick}
+            onGameToggle={(toggle) => setGameStarted(toggle)}
+          />
+        </Grid>
+
+        <Grid container sx={{ width: '100%' }}>
+          <StyledHeader size={isMobile ? 'h4' : 'h3'}>Leaderboards</StyledHeader>
+          {renderScoreboard()}
+        </Grid>
+      </Grid>
     </div>
   )
 }

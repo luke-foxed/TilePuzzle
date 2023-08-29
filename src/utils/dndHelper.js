@@ -1,3 +1,5 @@
+import { lighten } from '@mui/material'
+
 export const shuffleTiles = (tiles) => {
   const newTiles = [...tiles]
   for (let i = tiles.length - 1; i > 0; i--) {
@@ -57,4 +59,69 @@ export const generateTiles = async (img, tileCount) => {
     }
   }
   return imagePieces
+}
+
+const parseRgbString = (rgbString) => {
+  const match = rgbString.match(/rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/)
+  // Extract the values from the regex match
+  const r = parseInt(match[1], 10)
+  const g = parseInt(match[2], 10)
+  const b = parseInt(match[3], 10)
+
+  // Create and return the object
+  return { r, g, b }
+}
+
+export const generateTileShadesV2 = async (width, height, colors, tileCount) => {
+  const tileHeight = Math.floor(height / tileCount)
+  const tileWidth = Math.floor(width / tileCount)
+  const tiles = []
+
+  const canvas = document.createElement('canvas')
+  const canvasCtx = canvas.getContext('2d')
+
+  let id = 1
+
+  for (let row = 0; row < tileCount; row++) {
+    for (let column = 0; column < tileCount; column++) {
+      const locked = shouldLockTile(row, column, tileCount)
+      const color1 = parseRgbString(colors[0])
+      const color2 = parseRgbString(colors[1])
+
+      canvas.width = tileWidth
+      canvas.height = tileHeight
+
+      // Calculate interpolation factors for both rows and columns
+      const tY = column / (tileCount - 1)
+
+      let tileColor
+
+      if (row === 0) {
+        // Use linear interpolation for the top row
+        const r = Math.round((1 - tY) * color1.r + tY * color2.r)
+        const g = Math.round((1 - tY) * color1.g + tY * color2.g)
+        const b = Math.round((1 - tY) * color1.b + tY * color2.b)
+        tileColor = `rgb(${r}, ${g}, ${b})`
+      } else {
+        // Use the color from the previous row, lightened by 20%
+        const previousTile = tiles[(row - 1) * tileCount + column]
+        const lighterColor = lighten(previousTile.color, 0.2)
+        tileColor = lighterColor
+      }
+
+      canvasCtx.fillStyle = tileColor
+      canvasCtx.fillRect(0, 0, tileWidth, tileHeight)
+      tiles.push({
+        id,
+        image: canvas.toDataURL(),
+        locked,
+        width: tileWidth,
+        height: tileHeight,
+        color: tileColor,
+      })
+
+      id += 1
+    }
+  }
+  return tiles
 }
