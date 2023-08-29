@@ -1,4 +1,5 @@
-import { arrayUnion, doc, getDoc, updateDoc } from 'firebase/firestore'
+import { doc, getDoc } from 'firebase/firestore'
+// import { arrayUnion, doc, getDoc, updateDoc } from 'firebase/firestore'
 import { db } from '../../../config/firebase'
 
 export async function getGradient(id) {
