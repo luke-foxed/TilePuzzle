@@ -1,7 +1,7 @@
 import { Gamepad, PlayArrow, RestartAlt, Timer } from '@mui/icons-material'
 import { Slider, Typography, Box, Paper, styled, Button } from '@mui/material'
 import Grid from '@mui/material/Unstable_Grid2'
-import { useEffect, useRef, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import { useStopwatch } from 'react-timer-hook'
 import { SquareLoader } from 'react-spinners'
 import { isEqual } from 'lodash'
@@ -12,6 +12,7 @@ import SuccessModal from './SuccessModal'
 import theme from '../../../styles/theme'
 import Tile from './Tile'
 import { generateTileShadesV2, shuffleTiles } from '../../utils/dndHelper'
+import { MobileContext } from '../../context/mobileContext'
 
 const DIFFICULTIES = [
   {
@@ -54,9 +55,10 @@ const getTileCount = (difficulty) => {
   return difficulty * 2
 }
 
-export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart, isMobile }) {
+export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart }) {
   const { url: img, id, difficulty } = gradient
   const [loading, setLoading] = useState(true)
+  const { isMobile } = useContext(MobileContext)
   const [tilesPerRow, setTilesPerRow] = useState(getTileCount(difficulty))
   const [tiles, setTiles] = useState([])
   const [moves, setMoves] = useState(0)
@@ -81,7 +83,7 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
       const { width, height } = screenRef.current
       const newWidth = isMobile ? Math.round(width / 1.1) : Math.round(width * 0.8)
       const newHeight = isMobile ? Math.round(height / 1.1) : Math.round(height / 1.5)
-      generateTileShadesV2(newWidth, newHeight, gradient.colors, 3).then(
+      generateTileShadesV2(newWidth, newHeight, gradient.colors, tilesPerRow).then(
         (data) => {
           setTiles(data)
           setLoading(false)

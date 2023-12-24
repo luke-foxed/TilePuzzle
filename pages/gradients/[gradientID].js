@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import Grid from '@mui/material/Unstable_Grid2'
 import Canvas from '../../src/components/canvas'
 import { getGradients } from '../api/gradients'
@@ -6,9 +6,11 @@ import { getGradient } from '../api/gradients/[gradientID]'
 import Scoreboards from '../../src/components/scoreboards'
 import { StyledHeader } from '../../src/components/shared'
 import Difficulty from '../../src/components/canvas/Difficulty'
+import { MobileContext } from '../../src/context/mobileContext'
 
-function Gradient({ gradientData, isMobile }) {
+function Gradient({ gradientData }) {
   const [gameStarted, setGameStarted] = useState(false)
+  const { isMobile } = useContext(MobileContext)
   // rather than resetting the heavy logic in <Canvas /> to restart the game,
   // change the key passed to the component instead so that it will remount
   // https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#recommendation-fully-uncontrolled-component-with-a-key

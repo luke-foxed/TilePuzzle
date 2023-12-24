@@ -8,6 +8,7 @@ import theme from '../../../styles/theme'
 import { AuthUserContext } from '../../context/userProvider'
 import Authenticate from './Authenticate'
 import UserMenu from './UserMenu'
+import { MobileContext } from '../../context/mobileContext'
 
 const StyledTopBar = styled(AppBar)(({ theme: t }) => ({
   height: '180px',
@@ -16,9 +17,10 @@ const StyledTopBar = styled(AppBar)(({ theme: t }) => ({
   boxShadow: 'none',
 }))
 
-export default function Navbar({ isMobile }) {
+export default function Navbar() {
   const [authType, setAuthType] = useState(null)
   const { authUser, loading } = useContext(AuthUserContext)
+  const { isMobile } = useContext(MobileContext)
 
   const renderUserActions = () => {
     let content = <UserMenu />

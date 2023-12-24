@@ -98,10 +98,30 @@ export const generateTileShadesV2 = async (width, height, colors, tileCount) => 
 
       if (row === 0) {
         // Use linear interpolation for the top row
-        const r = Math.round((1 - tY) * color1.r + tY * color2.r)
-        const g = Math.round((1 - tY) * color1.g + tY * color2.g)
-        const b = Math.round((1 - tY) * color1.b + tY * color2.b)
-        tileColor = `rgb(${r}, ${g}, ${b})`
+        if (colors.length >= 3) {
+          // If a third color exists, blend all three colors
+          const color3 = parseRgbString(colors[2])
+          const r1 = Math.round((1 - tY) * color1.r + tY * color2.r)
+          const g1 = Math.round((1 - tY) * color1.g + tY * color2.g)
+          const b1 = Math.round((1 - tY) * color1.b + tY * color2.b)
+
+          const r2 = Math.round((1 - tY) * color2.r + tY * color3.r)
+          const g2 = Math.round((1 - tY) * color2.g + tY * color3.g)
+          const b2 = Math.round((1 - tY) * color2.b + tY * color3.b)
+
+          // Blend from color1 to color2 and then from color2 to color3
+          const blendedR = Math.round((1 - tY) * r1 + tY * r2)
+          const blendedG = Math.round((1 - tY) * g1 + tY * g2)
+          const blendedB = Math.round((1 - tY) * b1 + tY * b2)
+
+          tileColor = `rgb(${blendedR}, ${blendedG}, ${blendedB})`
+        } else {
+          // If no third color, use linear interpolation between color1 and color2
+          const r = Math.round((1 - tY) * color1.r + tY * color2.r)
+          const g = Math.round((1 - tY) * color1.g + tY * color2.g)
+          const b = Math.round((1 - tY) * color1.b + tY * color2.b)
+          tileColor = `rgb(${r}, ${g}, ${b})`
+        }
       } else {
         // Use the color from the previous row, lightened by 20%
         const previousTile = tiles[(row - 1) * tileCount + column]
@@ -124,4 +144,28 @@ export const generateTileShadesV2 = async (width, height, colors, tileCount) => 
     }
   }
   return tiles
+}
+
+export const generateThumbnail = async (colors) => {
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d')
+
+  canvas.width = 200
+  canvas.height = 200
+
+  const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0)
+
+  // Add color stops to the gradient
+  colors.forEach((color, index) => {
+    gradient.addColorStop(index / (colors.length - 1), color)
+  })
+
+  // Fill the canvas with the gradient
+  ctx.fillStyle = gradient
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+  // Convert the canvas to a base64 image
+  const base64Image = canvas.toDataURL()
+
+  return base64Image
 }
