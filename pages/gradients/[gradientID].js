@@ -93,9 +93,9 @@ export async function getStaticPaths() {
       params: { gradientID: gradient.id },
     }))
 
-    return { paths, fallback: false }
+    return { paths, fallback: 'blocking' }
   } catch (error) {
-    return { paths, fallback: false }
+    return { paths, fallback: 'blocking' }
   }
 }
 
@@ -107,6 +107,7 @@ export async function getStaticProps({ params }) {
     props: {
       gradientData,
     },
+    revalidate: 60,
   }
 }
 
