@@ -11,7 +11,7 @@ export async function getGradient(id) {
 export default async (req, res) => {
   if (req.method === 'POST') {
     try {
-      const gradientDoc = doc(db, 'gradients', req.query.gradientID)
+      const gradientDoc = await doc(db, 'gradients', req.query.gradientID)
       await updateDoc(gradientDoc, { scores: arrayUnion(req.body) })
       res.status(200).json({ msg: 'Score saved' })
     } catch (error) {

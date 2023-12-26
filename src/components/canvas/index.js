@@ -1,17 +1,18 @@
 import { Gamepad, PlayArrow, RestartAlt, Timer } from '@mui/icons-material'
 import { Slider, Typography, Box, Paper, styled, Button } from '@mui/material'
 import Grid from '@mui/material/Unstable_Grid2'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import { useStopwatch } from 'react-timer-hook'
 import { SquareLoader } from 'react-spinners'
+import { isEqual } from 'lodash'
 import { DndContext, closestCenter, PointerSensor, useSensor } from '@dnd-kit/core'
 import { arraySwap, SortableContext, rectSwappingStrategy } from '@dnd-kit/sortable'
-import { isEqual } from 'lodash'
 import MobileCanvasModal from './MobileCanvas'
 import SuccessModal from './SuccessModal'
 import theme from '../../../styles/theme'
 import Tile from './Tile'
-import { generateTiles, shuffleTiles } from '../../utils/dndHelper'
+import { generateTileShadesV2, shuffleTiles } from '../../utils/dndHelper'
+import { MobileContext } from '../../context/mobileContext'
 
 const DIFFICULTIES = [
   {
@@ -54,11 +55,10 @@ const getTileCount = (difficulty) => {
   return difficulty * 2
 }
 
-export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart, isMobile }) {
+export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart }) {
   const { url: img, id, difficulty } = gradient
-  const [image, setImage] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(false)
+  const { isMobile } = useContext(MobileContext)
   const [tilesPerRow, setTilesPerRow] = useState(getTileCount(difficulty))
   const [tiles, setTiles] = useState([])
   const [moves, setMoves] = useState(0)
@@ -71,41 +71,35 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
   const time = `${minutes}:${seconds > 9 ? seconds : `0${seconds}`}`
   const gameData = { moves, time }
 
-  const loadImage = useCallback(() => {
-    const { width, height } = screenRef.current
-    const i = new Image()
-    const newWidth = isMobile ? Math.round(width / 1.1) : Math.round(width * 0.8)
-    const newHeight = isMobile ? Math.round(height / 1.1) : Math.round(height / 1.5)
-    const adjustedURL = img.replace('h_1,w_1', `h_${newHeight},w_${newWidth},c_scale`)
-    i.crossOrigin = 'anonymous'
-    i.src = typeof img === 'string' ? adjustedURL : URL.createObjectURL(img)
-    i.onload = () => {
-      setImage(i)
-      setLoading(false)
-    }
-    i.onerror = () => {
-      setLoading(false)
-      setError(true)
-    }
-  }, [img, isMobile])
-
   useEffect(() => {
     screenRef.current = {
       width: Math.round(window.visualViewport.width),
       height: Math.round(window.visualViewport.height),
     }
-    loadImage()
-  }, [loadImage])
+  }, [])
 
   useEffect(() => {
-    if (image && gameStarted) {
-      generateTiles(image, tilesPerRow).then((data) => {
-        const shuffledTiles = shuffleTiles(data)
-        setTiles(shuffledTiles)
-        setCorrectOrder(data.map((tile) => tile.id - 1))
+    if (screenRef.current) {
+      const { width, height } = screenRef.current
+      const newWidth = isMobile ? Math.round(width / 1.1) : Math.round(width * 0.8)
+      const newHeight = isMobile ? Math.round(height / 1.1) : Math.round(height / 1.5)
+      generateTileShadesV2(newWidth, newHeight, gradient.colors, tilesPerRow).then(
+        (data) => {
+          setTiles(data)
+          setLoading(false)
+        },
+      )
+    }
+  }, [gradient.colors, isMobile, tilesPerRow])
+
+  useEffect(() => {
+    if (gameStarted) {
+      setTiles((prevTiles) => {
+        setCorrectOrder(prevTiles.map((tile) => tile.id - 1))
+        return shuffleTiles(prevTiles)
       })
     }
-  }, [gameStarted, image, tilesPerRow])
+  }, [gameStarted])
 
   useEffect(() => {
     // IDs need to start at 1 for DnD to work, so subtracting 1 here
@@ -153,17 +147,11 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart,
           <Typography variant="h3">Loading Canvas</Typography>
         </Grid>
       )}
-      {error && <Typography variant="h3">Error Loading Canvas</Typography>}
-
       <Grid container gap="20px">
-        {image && !tiles.length && (
-          <img src={image.src} style={{ border: '4px solid white' }} alt="level" />
-        )}
-
         <div
           style={{
             border: '4px solid white',
-            display: gameStarted ? 'grid' : 'none',
+            display: 'grid',
             gridTemplateColumns: `repeat(${tilesPerRow}, 1fr)`,
           }}
         >
