@@ -1,5 +1,3 @@
-import { lighten } from '@mui/material'
-
 export const shuffleTiles = (tiles) => {
   const newTiles = [...tiles]
   for (let i = tiles.length - 1; i > 0; i--) {
@@ -85,48 +83,62 @@ export const generateTileShadesV2 = async (width, height, colors, tileCount) => 
   for (let row = 0; row < tileCount; row++) {
     for (let column = 0; column < tileCount; column++) {
       const locked = shouldLockTile(row, column, tileCount)
-      const color1 = parseRgbString(colors[0])
-      const color2 = parseRgbString(colors[1])
 
       canvas.width = tileWidth
       canvas.height = tileHeight
 
       // Calculate interpolation factors for both rows and columns
-      const tY = column / (tileCount - 1)
+      const tX = column / (tileCount - 1)
+      const tY = row / (tileCount - 1)
 
       let tileColor
 
-      if (row === 0) {
-        // Use linear interpolation for the top row
-        if (colors.length >= 3) {
-          // If a third color exists, blend all three colors
-          const color3 = parseRgbString(colors[2])
-          const r1 = Math.round((1 - tY) * color1.r + tY * color2.r)
-          const g1 = Math.round((1 - tY) * color1.g + tY * color2.g)
-          const b1 = Math.round((1 - tY) * color1.b + tY * color2.b)
+      if (colors.length === 4) {
+        // If four colors, blend them together
+        const color1 = parseRgbString(colors[0])
+        const color2 = parseRgbString(colors[1])
+        const color3 = parseRgbString(colors[2])
+        const color4 = parseRgbString(colors[3])
 
-          const r2 = Math.round((1 - tY) * color2.r + tY * color3.r)
-          const g2 = Math.round((1 - tY) * color2.g + tY * color3.g)
-          const b2 = Math.round((1 - tY) * color2.b + tY * color3.b)
+        const r = Math.round(
+          (1 - tY) * (1 - tX) * color1.r
+            + tY * (1 - tX) * color4.r
+            + (1 - tY) * tX * color2.r
+            + tY * tX * color3.r,
+        )
 
-          // Blend from color1 to color2 and then from color2 to color3
-          const blendedR = Math.round((1 - tY) * r1 + tY * r2)
-          const blendedG = Math.round((1 - tY) * g1 + tY * g2)
-          const blendedB = Math.round((1 - tY) * b1 + tY * b2)
+        const g = Math.round(
+          (1 - tY) * (1 - tX) * color1.g
+            + tY * (1 - tX) * color4.g
+            + (1 - tY) * tX * color2.g
+            + tY * tX * color3.g,
+        )
 
-          tileColor = `rgb(${blendedR}, ${blendedG}, ${blendedB})`
-        } else {
-          // If no third color, use linear interpolation between color1 and color2
-          const r = Math.round((1 - tY) * color1.r + tY * color2.r)
-          const g = Math.round((1 - tY) * color1.g + tY * color2.g)
-          const b = Math.round((1 - tY) * color1.b + tY * color2.b)
-          tileColor = `rgb(${r}, ${g}, ${b})`
-        }
+        const b = Math.round(
+          (1 - tY) * (1 - tX) * color1.b
+            + tY * (1 - tX) * color4.b
+            + (1 - tY) * tX * color2.b
+            + tY * tX * color3.b,
+        )
+
+        tileColor = `rgb(${r}, ${g}, ${b})`
       } else {
-        // Use the color from the previous row, lightened by 20%
-        const previousTile = tiles[(row - 1) * tileCount + column]
-        const lighterColor = lighten(previousTile.color, 0.2)
-        tileColor = lighterColor
+        // If fewer than four colors, use linear interpolation between the available colors
+        const color1 = parseRgbString(colors[0])
+        const color2 = parseRgbString(colors[1])
+        const color3 = parseRgbString(colors[2])
+
+        const r = Math.round(
+          (1 - tY) * (1 - tX) * color1.r + tY * (1 - tX) * color3.r + (1 - tY) * tX * color2.r,
+        )
+        const g = Math.round(
+          (1 - tY) * (1 - tX) * color1.g + tY * (1 - tX) * color3.g + (1 - tY) * tX * color2.g,
+        )
+        const b = Math.round(
+          (1 - tY) * (1 - tX) * color1.b + tY * (1 - tX) * color3.b + (1 - tY) * tX * color2.b,
+        )
+
+        tileColor = `rgb(${r}, ${g}, ${b})`
       }
 
       canvasCtx.fillStyle = tileColor
