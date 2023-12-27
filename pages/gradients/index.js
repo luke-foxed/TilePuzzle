@@ -37,7 +37,7 @@ function Gradients({ gradientData }) {
       {loading ? (
         <SquareLoader />
       ) : (
-        <Grid container>
+        <Grid container rowGap={2} style={{ margin: '20px 0' }}>
           {gradientsWithImages.map((gradient) => (
             <Grid container item xs={6} sm={3} alignItems="center" justifyContent="center">
               <Link href={`gradients/${gradient.id}`} style={{ textDecoration: 'none' }}>
@@ -59,6 +59,12 @@ function Gradients({ gradientData }) {
           ))}
         </Grid>
       )}
+      <Typography
+        variant={isMobile ? 'h6' : 'h5'}
+        style={{ textAlign: 'center', textTransform: 'uppercase', padding: '20px' }}
+      >
+        More Levels Coming Soon (Maybe)
+      </Typography>
     </div>
   )
 }

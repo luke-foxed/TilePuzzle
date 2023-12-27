@@ -1,5 +1,3 @@
-import { lighten } from '@mui/material'
-
 export const shuffleTiles = (tiles) => {
   const newTiles = [...tiles]
   for (let i = tiles.length - 1; i > 0; i--) {
@@ -18,12 +16,17 @@ const shouldLockTile = (row, column, tileCount) => {
   const isTopRight = row === 0 && column === tileCount - 1
   const isBottomLeft = row === tileCount - 1 && column === 0
   const isBottomRight = row === tileCount - 1 && column === tileCount - 1
-  const randomTile = row === Math.floor(Math.random() * (0 - tileCount - 1) + tileCount - 1)
-    && column === Math.floor(Math.random() * (0 - tileCount - 1) + tileCount - 1)
+
+  const isCenterRow = row === Math.floor(tileCount / 2)
+  || row === Math.floor(tileCount / 2) - 1
+  const isCenterColumn = column === Math.floor(tileCount / 2)
+  || column === Math.floor(tileCount / 2) - 1
+
+  const isCenter = isCenterColumn && isCenterRow
 
   switch (tileCount) {
     case 3:
-      return isTopLeft
+      return isTopLeft || isBottomRight
     case 4:
       return isTopLeft || isBottomRight
     case 6:
@@ -31,8 +34,7 @@ const shouldLockTile = (row, column, tileCount) => {
     case 8:
       return isTopLeft || isTopRight || isBottomLeft || isBottomRight
     case 10:
-      return isTopLeft || isTopRight || isBottomLeft || isBottomRight || randomTile
-
+      return isTopLeft || isTopRight || isBottomLeft || isBottomRight || isCenter
     default:
       return false
   }
@@ -80,54 +82,47 @@ export const generateTileShadesV2 = async (width, height, colors, tileCount) => 
   const canvas = document.createElement('canvas')
   const canvasCtx = canvas.getContext('2d')
 
+  canvas.width = tileWidth
+  canvas.height = tileHeight
+
   let id = 1
 
   for (let row = 0; row < tileCount; row++) {
     for (let column = 0; column < tileCount; column++) {
       const locked = shouldLockTile(row, column, tileCount)
-      const color1 = parseRgbString(colors[0])
-      const color2 = parseRgbString(colors[1])
-
-      canvas.width = tileWidth
-      canvas.height = tileHeight
 
       // Calculate interpolation factors for both rows and columns
-      const tY = column / (tileCount - 1)
+      const tX = column / (tileCount - 1)
+      const tY = row / (tileCount - 1)
 
-      let tileColor
+      // If four colors, blend them together
+      const color1 = parseRgbString(colors[0])
+      const color2 = parseRgbString(colors[1])
+      const color3 = parseRgbString(colors[2])
+      const color4 = parseRgbString(colors[3])
 
-      if (row === 0) {
-        // Use linear interpolation for the top row
-        if (colors.length >= 3) {
-          // If a third color exists, blend all three colors
-          const color3 = parseRgbString(colors[2])
-          const r1 = Math.round((1 - tY) * color1.r + tY * color2.r)
-          const g1 = Math.round((1 - tY) * color1.g + tY * color2.g)
-          const b1 = Math.round((1 - tY) * color1.b + tY * color2.b)
+      const r = Math.round(
+        (1 - tY) * (1 - tX) * color1.r
+            + tY * (1 - tX) * color4.r
+            + (1 - tY) * tX * color2.r
+            + tY * tX * color3.r,
+      )
 
-          const r2 = Math.round((1 - tY) * color2.r + tY * color3.r)
-          const g2 = Math.round((1 - tY) * color2.g + tY * color3.g)
-          const b2 = Math.round((1 - tY) * color2.b + tY * color3.b)
+      const g = Math.round(
+        (1 - tY) * (1 - tX) * color1.g
+            + tY * (1 - tX) * color4.g
+            + (1 - tY) * tX * color2.g
+            + tY * tX * color3.g,
+      )
 
-          // Blend from color1 to color2 and then from color2 to color3
-          const blendedR = Math.round((1 - tY) * r1 + tY * r2)
-          const blendedG = Math.round((1 - tY) * g1 + tY * g2)
-          const blendedB = Math.round((1 - tY) * b1 + tY * b2)
+      const b = Math.round(
+        (1 - tY) * (1 - tX) * color1.b
+            + tY * (1 - tX) * color4.b
+            + (1 - tY) * tX * color2.b
+            + tY * tX * color3.b,
+      )
 
-          tileColor = `rgb(${blendedR}, ${blendedG}, ${blendedB})`
-        } else {
-          // If no third color, use linear interpolation between color1 and color2
-          const r = Math.round((1 - tY) * color1.r + tY * color2.r)
-          const g = Math.round((1 - tY) * color1.g + tY * color2.g)
-          const b = Math.round((1 - tY) * color1.b + tY * color2.b)
-          tileColor = `rgb(${r}, ${g}, ${b})`
-        }
-      } else {
-        // Use the color from the previous row, lightened by 20%
-        const previousTile = tiles[(row - 1) * tileCount + column]
-        const lighterColor = lighten(previousTile.color, 0.2)
-        tileColor = lighterColor
-      }
+      const tileColor = `rgb(${r}, ${g}, ${b})`
 
       canvasCtx.fillStyle = tileColor
       canvasCtx.fillRect(0, 0, tileWidth, tileHeight)
@@ -149,20 +144,26 @@ export const generateTileShadesV2 = async (width, height, colors, tileCount) => 
 export const generateThumbnail = async (colors) => {
   const canvas = document.createElement('canvas')
   const ctx = canvas.getContext('2d')
+  const squareSize = 96
+  const padding = 4
 
-  canvas.width = 200
-  canvas.height = 200
+  canvas.width = squareSize * 2 + padding * 3
+  canvas.height = squareSize * 2 + padding * 3
 
-  const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0)
+  // this is the order the colors are rendered during the game
+  const orderedColors = [colors[0], colors[1], colors[3], colors[2]]
 
-  // Add color stops to the gradient
-  colors.forEach((color, index) => {
-    gradient.addColorStop(index / (colors.length - 1), color)
+  // Iterate over colors and draw squares
+  orderedColors.forEach((color, index) => {
+    const row = Math.floor(index / 2)
+    const col = index % 2
+
+    const x = col * (squareSize + padding)
+    const y = row * (squareSize + padding)
+
+    ctx.fillStyle = color
+    ctx.fillRect(x, y, squareSize, squareSize)
   })
-
-  // Fill the canvas with the gradient
-  ctx.fillStyle = gradient
-  ctx.fillRect(0, 0, canvas.width, canvas.height)
 
   // Convert the canvas to a base64 image
   const base64Image = canvas.toDataURL()

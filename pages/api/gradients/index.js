@@ -1,7 +1,7 @@
 import { collection, getDocs } from 'firebase/firestore'
 import { db } from '../../../config/firebase'
 
-export async function getGradients() {
+export const getGradients = async () => {
   const gradients = []
   const querySnapshot = await getDocs(collection(db, 'gradients'))
 
@@ -11,6 +11,9 @@ export async function getGradients() {
       id: doc.id,
     })
   })
+
+  // Sort gradients based on the 'level' field
+  gradients.sort((a, b) => a.level - b.level)
 
   return gradients
 }
