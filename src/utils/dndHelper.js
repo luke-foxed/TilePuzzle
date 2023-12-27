@@ -78,68 +78,47 @@ export const generateTileShadesV2 = async (width, height, colors, tileCount) => 
   const canvas = document.createElement('canvas')
   const canvasCtx = canvas.getContext('2d')
 
+  canvas.width = tileWidth
+  canvas.height = tileHeight
+
   let id = 1
 
   for (let row = 0; row < tileCount; row++) {
     for (let column = 0; column < tileCount; column++) {
       const locked = shouldLockTile(row, column, tileCount)
 
-      canvas.width = tileWidth
-      canvas.height = tileHeight
-
       // Calculate interpolation factors for both rows and columns
       const tX = column / (tileCount - 1)
       const tY = row / (tileCount - 1)
 
-      let tileColor
+      // If four colors, blend them together
+      const color1 = parseRgbString(colors[0])
+      const color2 = parseRgbString(colors[1])
+      const color3 = parseRgbString(colors[2])
+      const color4 = parseRgbString(colors[3])
 
-      if (colors.length === 4) {
-        // If four colors, blend them together
-        const color1 = parseRgbString(colors[0])
-        const color2 = parseRgbString(colors[1])
-        const color3 = parseRgbString(colors[2])
-        const color4 = parseRgbString(colors[3])
-
-        const r = Math.round(
-          (1 - tY) * (1 - tX) * color1.r
+      const r = Math.round(
+        (1 - tY) * (1 - tX) * color1.r
             + tY * (1 - tX) * color4.r
             + (1 - tY) * tX * color2.r
             + tY * tX * color3.r,
-        )
+      )
 
-        const g = Math.round(
-          (1 - tY) * (1 - tX) * color1.g
+      const g = Math.round(
+        (1 - tY) * (1 - tX) * color1.g
             + tY * (1 - tX) * color4.g
             + (1 - tY) * tX * color2.g
             + tY * tX * color3.g,
-        )
+      )
 
-        const b = Math.round(
-          (1 - tY) * (1 - tX) * color1.b
+      const b = Math.round(
+        (1 - tY) * (1 - tX) * color1.b
             + tY * (1 - tX) * color4.b
             + (1 - tY) * tX * color2.b
             + tY * tX * color3.b,
-        )
+      )
 
-        tileColor = `rgb(${r}, ${g}, ${b})`
-      } else {
-        // If fewer than four colors, use linear interpolation between the available colors
-        const color1 = parseRgbString(colors[0])
-        const color2 = parseRgbString(colors[1])
-        const color3 = parseRgbString(colors[2])
-
-        const r = Math.round(
-          (1 - tY) * (1 - tX) * color1.r + tY * (1 - tX) * color3.r + (1 - tY) * tX * color2.r,
-        )
-        const g = Math.round(
-          (1 - tY) * (1 - tX) * color1.g + tY * (1 - tX) * color3.g + (1 - tY) * tX * color2.g,
-        )
-        const b = Math.round(
-          (1 - tY) * (1 - tX) * color1.b + tY * (1 - tX) * color3.b + (1 - tY) * tX * color2.b,
-        )
-
-        tileColor = `rgb(${r}, ${g}, ${b})`
-      }
+      const tileColor = `rgb(${r}, ${g}, ${b})`
 
       canvasCtx.fillStyle = tileColor
       canvasCtx.fillRect(0, 0, tileWidth, tileHeight)
@@ -162,19 +141,25 @@ export const generateThumbnail = async (colors) => {
   const canvas = document.createElement('canvas')
   const ctx = canvas.getContext('2d')
 
-  canvas.width = 200
-  canvas.height = 200
+  // Set square size and padding
+  const squareSize = 96
+  const padding = 4
 
-  const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0)
+  // Set canvas size based on squares and padding
+  canvas.width = squareSize * 2 + padding * 3
+  canvas.height = squareSize * 2 + padding * 3
 
-  // Add color stops to the gradient
+  // Iterate over colors and draw squares
   colors.forEach((color, index) => {
-    gradient.addColorStop(index / (colors.length - 1), color)
-  })
+    const row = Math.floor(index / 2)
+    const col = index % 2
 
-  // Fill the canvas with the gradient
-  ctx.fillStyle = gradient
-  ctx.fillRect(0, 0, canvas.width, canvas.height)
+    const x = col * (squareSize + padding)
+    const y = row * (squareSize + padding)
+
+    ctx.fillStyle = color
+    ctx.fillRect(x, y, squareSize, squareSize)
+  })
 
   // Convert the canvas to a base64 image
   const base64Image = canvas.toDataURL()
