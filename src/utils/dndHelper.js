@@ -144,17 +144,17 @@ export const generateTileShadesV2 = async (width, height, colors, tileCount) => 
 export const generateThumbnail = async (colors) => {
   const canvas = document.createElement('canvas')
   const ctx = canvas.getContext('2d')
-
-  // Set square size and padding
   const squareSize = 96
   const padding = 4
 
-  // Set canvas size based on squares and padding
   canvas.width = squareSize * 2 + padding * 3
   canvas.height = squareSize * 2 + padding * 3
 
+  // this is the order the colors are rendered during the game
+  const orderedColors = [colors[0], colors[1], colors[3], colors[2]]
+
   // Iterate over colors and draw squares
-  colors.forEach((color, index) => {
+  orderedColors.forEach((color, index) => {
     const row = Math.floor(index / 2)
     const col = index % 2
 
