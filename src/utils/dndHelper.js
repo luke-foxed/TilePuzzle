@@ -16,12 +16,17 @@ const shouldLockTile = (row, column, tileCount) => {
   const isTopRight = row === 0 && column === tileCount - 1
   const isBottomLeft = row === tileCount - 1 && column === 0
   const isBottomRight = row === tileCount - 1 && column === tileCount - 1
-  const randomTile = row === Math.floor(Math.random() * (0 - tileCount - 1) + tileCount - 1)
-    && column === Math.floor(Math.random() * (0 - tileCount - 1) + tileCount - 1)
+
+  const isCenterRow = row === Math.floor(tileCount / 2)
+  || row === Math.floor(tileCount / 2) - 1
+  const isCenterColumn = column === Math.floor(tileCount / 2)
+  || column === Math.floor(tileCount / 2) - 1
+
+  const isCenter = isCenterColumn && isCenterRow
 
   switch (tileCount) {
     case 3:
-      return isTopLeft
+      return isTopLeft || isBottomRight
     case 4:
       return isTopLeft || isBottomRight
     case 6:
@@ -29,8 +34,7 @@ const shouldLockTile = (row, column, tileCount) => {
     case 8:
       return isTopLeft || isTopRight || isBottomLeft || isBottomRight
     case 10:
-      return isTopLeft || isTopRight || isBottomLeft || isBottomRight || randomTile
-
+      return isTopLeft || isTopRight || isBottomLeft || isBottomRight || isCenter
     default:
       return false
   }
