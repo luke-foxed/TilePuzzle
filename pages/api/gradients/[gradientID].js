@@ -9,13 +9,24 @@ export async function getGradient(id) {
 }
 
 export default async (req, res) => {
-  if (req.method === 'POST') {
+  const { method, query, body } = req
+  if (method === 'POST') {
     try {
-      const gradientDoc = await doc(db, 'gradients', req.query.gradientID)
-      await updateDoc(gradientDoc, { scores: arrayUnion(req.body) })
+      const gradientDoc = await doc(db, 'gradients', query.gradientID)
+      await updateDoc(gradientDoc, { scores: arrayUnion(body) })
       res.status(200).json({ msg: 'Score saved' })
     } catch (error) {
       res.status(500).json({ msg: 'Error saving score', error })
+    }
+  }
+  if (method === 'GET') {
+    try {
+      const docRef = doc(db, 'gradients', query.gradientID)
+      const docSnap = await getDoc(docRef)
+      const gradient = await docSnap.data()
+      res.status(200).json({ ...gradient, id: query.id })
+    } catch (error) {
+      res.status(500).json({ msg: 'Error getting gradient', error })
     }
   }
 }

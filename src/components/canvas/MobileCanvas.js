@@ -10,8 +10,9 @@ import Grid from '@mui/material/Unstable_Grid2'
 import { useState } from 'react'
 import { SquareLoader } from 'react-spinners'
 import theme from '../../../styles/theme'
+import { generateThumbnail } from '../../utils/dndHelper'
 
-const getCanvasContainerStyles = (fullScreen, image) => (fullScreen
+const getCanvasContainerStyles = (fullScreen, thumbnail) => (fullScreen
   ? {
     top: 0,
     left: 0,
@@ -24,26 +25,24 @@ const getCanvasContainerStyles = (fullScreen, image) => (fullScreen
     margin: 'auto',
     height: '300px',
     width: '300px',
-    backgroundImage: `url(${image})`, // Use the Image object as background image
-    backgroundSize: 'cover', // Customize background size as needed
+    backgroundImage: `url(${thumbnail})`, // Use the Image object as background image
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
   })
 
-const CanvasOverlay = styled('div', {
-  shouldForwardProp: (props) => props !== 'showing',
-})(({ showing }) => ({
-  position: 'absolute',
-  background: 'rgba(0,0,0,0.5)',
-  height: '300px',
-  left: '0',
-  right: '0',
-  marginLeft: 'auto',
-  marginRight: 'auto',
-  border: '1px dashed white',
-  width: '300px',
-  zIndex: 2,
-  // conditionally rendering is causing some weird errors, this will have to do instead
-  display: showing ? 'flex' : 'none',
-}))
+const CanvasOverlay = styled('div', { shouldForwardProp: (props) => props !== 'showing' })(
+  ({ showing }) => ({
+    position: 'absolute',
+    background: 'rgba(0,0,0,0.5)',
+    height: '300px',
+    border: '1px dashed white',
+    width: '300px',
+    zIndex: 2,
+    margin: 'auto',
+    // conditionally rendering is causing some weird errors, this will have to do instead
+    display: showing ? 'flex' : 'none',
+  }),
+)
 
 const Toolbar = styled(Box)(() => ({
   width: '100%',
@@ -56,13 +55,14 @@ export default function MobileCanvasModal({
   time,
   moves,
   loading,
-  image,
   canvasComponent,
+  colors,
 }) {
   const [fullScreen, setFullScreen] = useState(false)
   const canvasHeight = document.getElementById('tile-canvas')?.clientHeight || 0
   // height of window - 10px margin top (set below) - minus the height of the canvas
   const toolbarHeight = `${(window.visualViewport.height - 10) - canvasHeight}px`
+  const thumbnail = generateThumbnail(colors)
 
   const handleCanvasClick = async () => {
     await onClickCanvas()
@@ -123,7 +123,7 @@ export default function MobileCanvasModal({
   return (
     <Box
       onClick={fullScreen || loading ? null : handleCanvasClick}
-      sx={getCanvasContainerStyles(fullScreen, image)}
+      sx={getCanvasContainerStyles(fullScreen, thumbnail)}
     >
       <CanvasOverlay showing={!fullScreen}>
         <Grid
@@ -142,9 +142,7 @@ export default function MobileCanvasModal({
           ) : (
             <>
               <Fullscreen style={{ color: 'white' }} />
-              <Typography style={{ textAlign: 'center', color: 'white' }}>
-                Press to Start!
-              </Typography>
+              <Typography style={{ textAlign: 'center', color: 'white' }}>Tap to Start!</Typography>
             </>
           )}
         </Grid>

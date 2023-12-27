@@ -1,7 +1,6 @@
 import { Grid, Typography, styled } from '@mui/material'
 import Link from 'next/link'
 import { useContext, useEffect, useState } from 'react'
-import { SquareLoader } from 'react-spinners'
 import { getGradients } from '../api/gradients'
 import { generateThumbnail } from '../../src/utils/dndHelper'
 import { MobileContext } from '../../src/context/mobileContext'
@@ -13,52 +12,40 @@ const GradientThumbnail = styled('img')({
 
 function Gradients({ gradientData }) {
   const [gradientsWithImages, setGradientsWithImages] = useState([])
-  const [loading, setLoading] = useState(true)
   const { isMobile } = useContext(MobileContext)
 
   useEffect(() => {
-    const getThumbnails = async () => {
-      const thumbnails = await Promise.all(
-        gradientData.map(async (gradient) => {
-          const thumbnail = await generateThumbnail(gradient.colors)
-          return { ...gradient, image: thumbnail }
-        }),
-      )
+    const thumbnails = gradientData.map((gradient) => {
+      const thumbnail = generateThumbnail(gradient.colors)
+      return { ...gradient, image: thumbnail }
+    })
 
-      setGradientsWithImages(thumbnails)
-      setLoading(false)
-    }
-
-    getThumbnails()
+    setGradientsWithImages(thumbnails)
   }, [gradientData, isMobile])
 
   return (
     <div className="root">
-      {loading ? (
-        <SquareLoader />
-      ) : (
-        <Grid container rowGap={2} style={{ margin: '20px 0' }}>
-          {gradientsWithImages.map((gradient) => (
-            <Grid container item xs={6} sm={3} alignItems="center" justifyContent="center">
-              <Link href={`gradients/${gradient.id}`} style={{ textDecoration: 'none' }}>
-                <GradientThumbnail
-                  style={{ height: isMobile ? 100 : 200, width: isMobile ? 100 : 200 }}
-                  src={gradient.image}
-                  alt="gradient"
-                />
-                <Typography
-                  variant={isMobile ? 'h6' : 'h5'}
-                  style={{ textAlign: 'center', textTransform: 'uppercase' }}
-                >
-                  Level
-                  {' '}
-                  {gradient.level}
-                </Typography>
-              </Link>
-            </Grid>
-          ))}
-        </Grid>
-      )}
+      <Grid container rowGap={2} style={{ margin: '20px 0' }}>
+        {gradientsWithImages.map((gradient) => (
+          <Grid container item xs={6} sm={3} alignItems="center" justifyContent="center">
+            <Link href={`gradients/${gradient.id}`} style={{ textDecoration: 'none' }}>
+              <GradientThumbnail
+                style={{ height: isMobile ? 100 : 200, width: isMobile ? 100 : 200 }}
+                src={gradient.image}
+                alt="gradient"
+              />
+              <Typography
+                variant={isMobile ? 'h6' : 'h5'}
+                style={{ textAlign: 'center', textTransform: 'uppercase' }}
+              >
+                Level
+                {' '}
+                {gradient.level}
+              </Typography>
+            </Link>
+          </Grid>
+        ))}
+      </Grid>
       <Typography
         variant={isMobile ? 'h6' : 'h5'}
         style={{ textAlign: 'center', textTransform: 'uppercase', padding: '20px' }}

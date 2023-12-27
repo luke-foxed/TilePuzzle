@@ -141,14 +141,14 @@ export const generateTileShadesV2 = async (width, height, colors, tileCount) => 
   return tiles
 }
 
-export const generateThumbnail = async (colors) => {
+export const generateThumbnail = (colors) => {
   const canvas = document.createElement('canvas')
   const ctx = canvas.getContext('2d')
-  const squareSize = 96
-  const padding = 4
+  const squareSize = 94
+  const padding = 6
 
-  canvas.width = squareSize * 2 + padding * 3
-  canvas.height = squareSize * 2 + padding * 3
+  canvas.width = Math.floor(squareSize * 2 + padding * 3)
+  canvas.height = Math.floor(squareSize * 2 + padding * 3)
 
   // this is the order the colors are rendered during the game
   const orderedColors = [colors[0], colors[1], colors[3], colors[2]]
@@ -158,8 +158,8 @@ export const generateThumbnail = async (colors) => {
     const row = Math.floor(index / 2)
     const col = index % 2
 
-    const x = col * (squareSize + padding)
-    const y = row * (squareSize + padding)
+    const x = Math.floor(col * (squareSize + padding) + padding)
+    const y = Math.floor(row * (squareSize + padding) + padding)
 
     ctx.fillStyle = color
     ctx.fillRect(x, y, squareSize, squareSize)

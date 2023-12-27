@@ -56,7 +56,7 @@ const getTileCount = (difficulty) => {
 }
 
 export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart }) {
-  const { url: img, id, difficulty } = gradient
+  const { id, difficulty, colors } = gradient
   const [loading, setLoading] = useState(true)
   const { isMobile } = useContext(MobileContext)
   const [tilesPerRow, setTilesPerRow] = useState(getTileCount(difficulty))
@@ -235,8 +235,8 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart 
       onReset={() => resetCanvas()}
       time={time}
       moves={moves}
-      image={img}
       canvasComponent={renderCanvas()}
+      colors={colors}
     />
   )
 
