@@ -11,36 +11,7 @@ export const shuffleTiles = (tiles) => {
   return areEqual ? shuffleTiles(newTiles) : newTiles
 }
 
-const shouldLockTile = (row, column, tileCount) => {
-  const isTopLeft = row === 0 && column === 0
-  const isTopRight = row === 0 && column === tileCount - 1
-  const isBottomLeft = row === tileCount - 1 && column === 0
-  const isBottomRight = row === tileCount - 1 && column === tileCount - 1
-
-  const isCenterRow = row === Math.floor(tileCount / 2)
-  || row === Math.floor(tileCount / 2) - 1
-  const isCenterColumn = column === Math.floor(tileCount / 2)
-  || column === Math.floor(tileCount / 2) - 1
-
-  const isCenter = isCenterColumn && isCenterRow
-
-  switch (tileCount) {
-    case 3:
-      return isTopLeft || isBottomRight
-    case 4:
-      return isTopLeft || isBottomRight
-    case 6:
-      return isTopLeft || isBottomLeft || isTopRight
-    case 8:
-      return isTopLeft || isTopRight || isBottomLeft || isBottomRight
-    case 10:
-      return isTopLeft || isTopRight || isBottomLeft || isBottomRight || isCenter
-    default:
-      return false
-  }
-}
-
-export const generateTiles = async (img, tileCount) => {
+export const generateTiles = async (img, tileCount, pattern) => {
   const image = img
   const tH = Math.floor(image.height / tileCount)
   const tW = Math.floor(image.width / tileCount)
@@ -50,7 +21,8 @@ export const generateTiles = async (img, tileCount) => {
     for (let column = 0; column < tileCount; column++) {
       const mockCanvas = document.createElement('canvas')
       const mockCanvasCtx = mockCanvas.getContext('2d')
-      const locked = shouldLockTile(row, column, tileCount)
+      const locked = pattern[row * tileCount + column] === 'x'
+
       mockCanvas.width = tW
       mockCanvas.height = tH
       mockCanvasCtx.drawImage(image, column * tW, row * tH, tW, tH, 0, 0, tW, tH)
@@ -74,7 +46,7 @@ const parseRgbString = (rgbString) => {
   return { r, g, b }
 }
 
-export const generateTileShadesV2 = async (width, height, colors, tileCount) => {
+export const generateTileShadesV2 = async (width, height, colors, tileCount, pattern) => {
   const tileHeight = Math.floor(height / tileCount)
   const tileWidth = Math.floor(width / tileCount)
   const tiles = []
@@ -89,7 +61,7 @@ export const generateTileShadesV2 = async (width, height, colors, tileCount) => 
 
   for (let row = 0; row < tileCount; row++) {
     for (let column = 0; column < tileCount; column++) {
-      const locked = shouldLockTile(row, column, tileCount)
+      const locked = pattern[row * tileCount + column] === 'x'
 
       // Calculate interpolation factors for both rows and columns
       const tX = column / (tileCount - 1)

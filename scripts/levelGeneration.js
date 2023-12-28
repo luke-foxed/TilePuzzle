@@ -176,6 +176,25 @@ const generateTileColors = (difficulty) => {
   )
 }
 
+function generatePatter(size) {
+  const matrix = []
+
+  for (let i = 0; i < size; i++) {
+    const row = Array(size).fill('o') // Initialize all tiles as open
+    matrix.push(row)
+  }
+
+  // Set locked tiles in a symmetrical pattern
+  for (let i = 0; i < Math.ceil(size / 2); i++) {
+    matrix[i][i] = 'x' // Top-left
+    matrix[i][size - 1 - i] = 'x' // Top-right
+    matrix[size - 1 - i][i] = 'x' // Bottom-left
+    matrix[size - 1 - i][size - 1 - i] = 'x' // Bottom-right
+  }
+
+  return matrix.flat().join('');
+}
+
 // Function to add a level to Firestore
 const addLevel = async (levelData) => {
   try {
@@ -186,17 +205,22 @@ const addLevel = async (levelData) => {
   }
 }
 
-// Main script to add 20 levels
 const addLevels = async () => {
   for (let difficulty = 1; difficulty <= 5; difficulty++) {
     for (let i = 0; i < 4; i++) {
       const colors = generateTileColors(difficulty)
+
+      // Generate a pattern for the level
+      const pattern = generatePatter(3 + difficulty)
+
       const levelData = {
         colors,
         difficulty,
         scores: [],
         level: i + (difficulty - 1) * 4 + 1, // Ensuring unique levels for each difficulty
+        pattern,
       }
+
       // eslint-disable-next-line no-await-in-loop
       await addLevel(levelData)
     }

@@ -10,7 +10,7 @@ const CloseDialogButton = styled(IconButton)(({ theme }) => ({
 // eslint-disable-next-line import/prefer-default-export
 export function StyledModal({ children, open, onClose, showX }) {
   return (
-    <Dialog open={open} sx={{ '.MuiPaper-root': { borderRadius: '20px', bgcolor: 'background.default' } }}>
+    <Dialog open={open} sx={{ '.MuiPaper-root': { bgcolor: 'background.default' } }}>
       {showX && (
         <Grid container justifyContent="flex-end">
           <CloseDialogButton disableRipple="true" onClick={onClose}>

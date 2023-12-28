@@ -49,14 +49,12 @@ const CanvasButton = styled(Button)({
 })
 
 const getTileCount = (difficulty) => {
-  if (difficulty === 1) {
-    return difficulty * 3
-  }
-  return difficulty * 2
+  const baseDifficulty = 3
+  return baseDifficulty + difficulty
 }
 
 export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart }) {
-  const { id, difficulty, colors } = gradient
+  const { id, difficulty, colors, pattern } = gradient
   const [loading, setLoading] = useState(true)
   const { isMobile } = useContext(MobileContext)
   const [tilesPerRow, setTilesPerRow] = useState(getTileCount(difficulty))
@@ -83,14 +81,14 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart 
       const { width, height } = screenRef.current
       const newWidth = isMobile ? Math.round(width / 1.1) : Math.round(width * 0.8)
       const newHeight = isMobile ? Math.round(height / 1.1) : Math.round(height / 1.5)
-      generateTileShadesV2(newWidth, newHeight, gradient.colors, tilesPerRow).then(
+      generateTileShadesV2(newWidth, newHeight, gradient.colors, tilesPerRow, pattern).then(
         (data) => {
           setTiles(data)
           setLoading(false)
         },
       )
     }
-  }, [gradient.colors, isMobile, tilesPerRow])
+  }, [gradient.colors, isMobile, pattern, tilesPerRow])
 
   useEffect(() => {
     if (gameStarted) {
@@ -108,7 +106,7 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart 
       setWinner(true)
       pause()
     }
-  }, [correctOrder, pause, tiles])
+  }, [correctOrder, gameStarted, pause, tiles])
 
   const handleStartClick = async () => {
     onGameToggle(true)
@@ -158,7 +156,7 @@ export default function Canvas({ gradient, gameStarted, onGameToggle, onRestart 
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
+            onDragEnd={gameStarted ? handleDragEnd : null}
           >
             <SortableContext items={tiles.map((tile) => tile.id)} strategy={rectSwappingStrategy}>
               {tiles && tiles.map((tile) => <Tile tile={tile} key={tile.id} />)}
