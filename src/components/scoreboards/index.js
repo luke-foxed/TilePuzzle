@@ -180,7 +180,7 @@ export default function Scoreboards({ scores }) {
   }
 
   return (
-    <Box sx={{ width: '100%', padding: '20px', height: '100%' }}>
+    <Box sx={{ width: '100%', height: '100%', marginTop: '50px' }}>
       <Paper sx={{ width: '100%' }}>
         <TableContainer>
           <Table sx={{ minWidth: 750, padding: '20px' }}>

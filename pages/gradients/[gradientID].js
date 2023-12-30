@@ -3,6 +3,7 @@ import Grid from '@mui/material/Unstable_Grid2'
 import useSWR from 'swr'
 import { useRouter } from 'next/router'
 import { SquareLoader } from 'react-spinners'
+import { Leaderboard, VideogameAsset } from '@mui/icons-material'
 import Canvas from '../../src/components/canvas'
 import Scoreboards from '../../src/components/scoreboards'
 import { StyledHeader } from '../../src/components/shared'
@@ -53,7 +54,7 @@ function Gradient() {
               direction="row"
             >
               <Grid xs={12} md={6}>
-                <StyledHeader size={isMobile ? 'h4' : 'h3'}>
+                <StyledHeader size={isMobile ? 'h4' : 'h3'} icon={VideogameAsset}>
                   Level
                   {' '}
                   {gradientData?.level}
@@ -83,7 +84,7 @@ function Gradient() {
             </Grid>
 
             <Grid container sx={{ width: '100%' }}>
-              <StyledHeader size={isMobile ? 'h4' : 'h3'}>Leaderboards</StyledHeader>
+              <StyledHeader size={isMobile ? 'h4' : 'h3'} icon={Leaderboard}>Leaderboards</StyledHeader>
               {gameStarted && isMobile ? null : <Scoreboards scores={gradientData?.scores} />}
             </Grid>
           </>

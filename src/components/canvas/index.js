@@ -46,6 +46,7 @@ const CanvasButton = styled(Button)({
   marginBottom: '0px',
   marginLeft: '-1px',
   borderBottom: 'none',
+  borderRadius: '0px',
 })
 
 const getTileCount = (difficulty) => {

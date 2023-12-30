@@ -66,7 +66,7 @@ export default function SuccessModal({ open, gameData, id }) {
           </Button>
           <Link style={{ textDecoration: 'none' }} href="/gradients">
             <Button variant="contained" style={{ width: '240px' }} size="large">
-              View Levels
+              Back To Levels
             </Button>
           </Link>
         </Box>

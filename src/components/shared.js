@@ -1,5 +1,7 @@
 import { Close } from '@mui/icons-material'
 import { Box, Dialog, Grid, IconButton, styled, Typography } from '@mui/material'
+import { useContext } from 'react'
+import { MobileContext } from '../context/mobileContext'
 
 const CloseDialogButton = styled(IconButton)(({ theme }) => ({
   width: 'min-content',
@@ -32,18 +34,34 @@ export function StyledModal({ children, open, onClose, showX }) {
   )
 }
 
-export function StyledHeader({ type, children, size }) {
+export function StyledHeader({ type, children, size, icon: Icon }) {
+  const { isMobile } = useContext(MobileContext)
   return (
     <Grid
       container
-      direction="column"
-      style={{ width: 'fit-content' }}
       alignItems="center"
       justifyContent="center"
-      gap="10px"
+      style={{ width: 'max-content' }}
     >
-      <Typography variant={size}>{children}</Typography>
-      <Box sx={{ border: '2px solid', width: '75%', borderColor: type === 'flat' ? 'white' : 'success.main' }} />
+      {Icon && (
+        <Grid item sx={{ bgcolor: 'success.main', padding: '10px' }}>
+          <Icon sx={{ color: 'background.default', width: isMobile ? '30px' : '40px', height: isMobile ? '30px' : '40px' }} />
+        </Grid>
+      )}
+
+      <Grid item>
+        <Grid container direction="row" alignItems="center" justifyContent="center" gap="10px">
+          <Typography variant={size} sx={{ marginLeft: '10px' }}>{children}</Typography>
+          <Box
+            sx={{
+              border: isMobile ? '3px solid' : '3px solid',
+              marginTop: isMobile ? '-1.5px' : '-5.5px',
+              width: '100%',
+              borderColor: type === 'flat' ? 'white' : 'success.main',
+            }}
+          />
+        </Grid>
+      </Grid>
     </Grid>
   )
 }

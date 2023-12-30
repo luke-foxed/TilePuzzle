@@ -4,7 +4,9 @@ import { Fragment, useContext } from 'react'
 import Grid from '@mui/material/Unstable_Grid2'
 import Image from 'next/image'
 import Link from 'next/link'
+import { ViewModule } from '@mui/icons-material'
 import { MobileContext } from '../src/context/mobileContext'
+import { StyledHeader } from '../src/components/shared'
 
 const StyledBox = styled(Paper)(({ theme }) => ({
   display: 'flex',
@@ -37,7 +39,7 @@ export default function Home() {
       </Head>
       <main>
         <div className="root">
-          <Typography variant="h3">Choose A Game Mode</Typography>
+          <StyledHeader size={isMobile ? 'h4' : 'h3'} icon={ViewModule}>Game Modes</StyledHeader>
 
           <Grid container spacing={10} justifyContent="center" style={{ margin: '0px 20px' }}>
             <Grid xs={12} sm={5}>
