@@ -24,7 +24,7 @@ export default async (req, res) => {
       const docRef = doc(db, 'gradients', query.gradientID)
       const docSnap = await getDoc(docRef)
       const gradient = await docSnap.data()
-      res.status(200).json({ ...gradient, id: query.id })
+      res.status(200).json({ ...gradient, id: query.gradientID })
     } catch (error) {
       res.status(500).json({ msg: 'Error getting gradient', error })
     }

@@ -3,6 +3,7 @@ import { Avatar, Button, Typography, Box, styled, Link } from '@mui/material'
 import Grid from '@mui/material/Unstable_Grid2'
 import { useCallback, useContext, useEffect } from 'react'
 import { enqueueSnackbar } from 'notistack'
+import { useRouter } from 'next/router'
 import { AuthUserContext } from '../../context/userProvider'
 import { StyledModal } from '../shared'
 
@@ -15,6 +16,7 @@ const StyledBox = styled(Box)({
 
 export default function SuccessModal({ open, gameData, id }) {
   const { authUser } = useContext(AuthUserContext)
+  const router = useRouter()
   const { moves, time } = gameData
 
   const postScore = useCallback(() => {
@@ -53,12 +55,21 @@ export default function SuccessModal({ open, gameData, id }) {
           <Typography variant="h6" style={{ textAlign: 'end' }}>{moves}</Typography>
         </StyledBox>
 
-        <Link style={{ textDecoration: 'none' }} href="/gradients">
-          <Button variant="contained" style={{ width: '240px' }} size="large">
-            Continue
+        <Box sx={{ display: 'grid', gap: '10px' }}>
+          <Button
+            variant="contained"
+            style={{ width: '240px' }}
+            size="large"
+            onClick={() => router.reload()}
+          >
+            Replay Level
           </Button>
-        </Link>
-
+          <Link style={{ textDecoration: 'none' }} href="/gradients">
+            <Button variant="contained" style={{ width: '240px' }} size="large">
+              View Levels
+            </Button>
+          </Link>
+        </Box>
       </Grid>
     </StyledModal>
   )

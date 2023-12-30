@@ -1,3 +1,5 @@
+const { createCanvas } = require('canvas')
+
 export const shuffleTiles = (tiles) => {
   const newTiles = [...tiles]
   for (let i = tiles.length - 1; i > 0; i--) {
@@ -19,7 +21,7 @@ export const generateTiles = async (img, tileCount, pattern) => {
   let id = 1
   for (let row = 0; row < tileCount; row++) {
     for (let column = 0; column < tileCount; column++) {
-      const mockCanvas = document.createElement('canvas')
+      const mockCanvas = createCanvas()
       const mockCanvasCtx = mockCanvas.getContext('2d')
       const locked = pattern[row * tileCount + column] === 'x'
 
@@ -51,7 +53,7 @@ export const generateTileShadesV2 = async (width, height, colors, tileCount, pat
   const tileWidth = Math.floor(width / tileCount)
   const tiles = []
 
-  const canvas = document.createElement('canvas')
+  const canvas = createCanvas('canvas')
   const canvasCtx = canvas.getContext('2d')
 
   canvas.width = tileWidth
@@ -75,23 +77,23 @@ export const generateTileShadesV2 = async (width, height, colors, tileCount, pat
 
       const r = Math.round(
         (1 - tY) * (1 - tX) * color1.r
-            + tY * (1 - tX) * color4.r
-            + (1 - tY) * tX * color2.r
-            + tY * tX * color3.r,
+          + tY * (1 - tX) * color4.r
+          + (1 - tY) * tX * color2.r
+          + tY * tX * color3.r,
       )
 
       const g = Math.round(
         (1 - tY) * (1 - tX) * color1.g
-            + tY * (1 - tX) * color4.g
-            + (1 - tY) * tX * color2.g
-            + tY * tX * color3.g,
+          + tY * (1 - tX) * color4.g
+          + (1 - tY) * tX * color2.g
+          + tY * tX * color3.g,
       )
 
       const b = Math.round(
         (1 - tY) * (1 - tX) * color1.b
-            + tY * (1 - tX) * color4.b
-            + (1 - tY) * tX * color2.b
-            + tY * tX * color3.b,
+          + tY * (1 - tX) * color4.b
+          + (1 - tY) * tX * color2.b
+          + tY * tX * color3.b,
       )
 
       const tileColor = `rgb(${r}, ${g}, ${b})`
@@ -114,7 +116,7 @@ export const generateTileShadesV2 = async (width, height, colors, tileCount, pat
 }
 
 export const generateThumbnail = (colors) => {
-  const canvas = document.createElement('canvas')
+  const canvas = createCanvas('canvas')
   const ctx = canvas.getContext('2d')
   const squareSize = 94
   const padding = 6

@@ -1,6 +1,6 @@
 import { Grid, Typography, Button, styled, Box } from '@mui/material'
 import Link from 'next/link'
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useState } from 'react'
 import { getGradients } from '../api/gradients'
 import { generateThumbnail } from '../../src/utils/dndHelper'
 import { MobileContext } from '../../src/context/mobileContext'
@@ -46,8 +46,9 @@ const GradientOverlayBox = styled(Box)({
 function Tile({ gradient }) {
   const [hovered, setHovered] = useState(false)
   const { isMobile } = useContext(MobileContext)
-  const GradientLink = isMobile ? Box : Link
   const { id, image, level, difficulty } = gradient
+
+  const GradientLink = isMobile ? Box : Link
 
   return (
     <Grid container direction="column" item xs={6} sm={3} spacing={2}>
@@ -93,22 +94,17 @@ function Tile({ gradient }) {
 }
 
 function Gradients({ gradientData }) {
-  const [gradientsWithImages, setGradientsWithImages] = useState([])
   const { isMobile } = useContext(MobileContext)
 
-  useEffect(() => {
-    const thumbnails = gradientData.map((gradient) => {
-      const thumbnail = generateThumbnail(gradient.colors)
-      return { ...gradient, image: thumbnail }
-    })
-
-    setGradientsWithImages(thumbnails)
-  }, [gradientData, isMobile])
+  const gradientsWithThumbnails = gradientData.map((gradient) => {
+    const thumbnail = generateThumbnail(gradient.colors)
+    return { ...gradient, image: thumbnail }
+  })
 
   return (
     <div className="root">
       <Grid container rowGap={2} style={{ margin: '20px 0' }}>
-        {gradientsWithImages.map((gradient) => (
+        {gradientsWithThumbnails.map((gradient) => (
           <Tile gradient={gradient} key={gradient.id} />
         ))}
       </Grid>
