@@ -3,6 +3,7 @@ import { Grid, Typography, styled } from '@mui/material'
 import Image from 'next/image'
 import { GitHub, LinkedIn } from '@mui/icons-material'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import theme from '../../../styles/theme'
 import { MobileContext } from '../../context/mobileProvider'
 
@@ -16,15 +17,20 @@ const StyledFooter = styled('footer')({
 export default function Footer() {
   const [marginTop, setMarginTop] = useState('50px') // Default margin top
   const { isMobile } = useContext(MobileContext)
+  const router = useRouter()
 
   useEffect(() => {
     const contentHeight = window.innerHeight
     const pageHeight = document.body.offsetHeight
 
-    if (pageHeight < contentHeight) {
+    // this is hacky and will fix later, but the home page is the only page that doesn't
+    // have scrolling, so only applying it to that page for now
+    if (router.pathname === '/') {
       setMarginTop(contentHeight - (pageHeight - 50))
+    } else {
+      setMarginTop(50)
     }
-  }, [])
+  }, [router.pathname])
 
   return (
     <StyledFooter style={{ marginTop }}>
