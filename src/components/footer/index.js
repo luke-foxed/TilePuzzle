@@ -25,12 +25,12 @@ export default function Footer() {
 
     // this is hacky and will fix later, but the home page is the only page that doesn't
     // have scrolling, so only applying it to that page for now
-    if (router.pathname === '/') {
+    if (router.pathname === '/' && !isMobile) {
       setMarginTop(contentHeight - (pageHeight - 50))
     } else {
       setMarginTop(50)
     }
-  }, [router.pathname])
+  }, [isMobile, router.pathname])
 
   return (
     <StyledFooter style={{ marginTop }}>
