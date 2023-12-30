@@ -1,17 +1,19 @@
 import Head from 'next/head'
-import { Button, Paper, Typography, styled, lighten } from '@mui/material'
-import { Fragment } from 'react'
+import { Paper, Typography, styled, lighten } from '@mui/material'
+import { Fragment, useContext } from 'react'
 import Grid from '@mui/material/Unstable_Grid2'
 import Image from 'next/image'
 import Link from 'next/link'
+import { MobileContext } from '../src/context/mobileContext'
 
 const StyledBox = styled(Paper)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'space-around',
   padding: '20px',
-  display: 'grid',
-  gridTemplateRows: 'auto 50px 50px auto auto',
+  margin: 'auto',
   gap: '20px',
   alignItems: 'center',
-  width: '100%',
   h6: {
     fontWeight: '100',
   },
@@ -24,13 +26,7 @@ const StyledBox = styled(Paper)(({ theme }) => ({
 }))
 
 export default function Home() {
-  // const [image, setImage] = useState(null)
-  // const [gameStarted, setGameStarted] = useState(false)
-
-  // const handleImageSelect = (e) => {
-  //   setImage(e.target.files[0])
-  // }
-
+  const { isMobile } = useContext(MobileContext)
   return (
     <>
       <Head>
@@ -43,61 +39,30 @@ export default function Home() {
         <div className="root">
           <Typography variant="h3">Choose A Game Mode</Typography>
 
-          <Grid container spacing={10} sx={{ marginTop: '10px' }} justifyContent="center">
-            <Grid xs={12} md="auto" p={8}>
-              <Link style={{ textDecoration: 'none' }} href="/gradients">
-                <Button>
-                  <StyledBox>
-                    <Image src="/ordered.png" width={150} height={150} style={{ margin: 'auto' }} />
-                    <Typography variant="h4">Slide</Typography>
-                    <Typography variant="h6">Slide tiles into the correct order</Typography>
-                  </StyledBox>
-                </Button>
+          <Grid container spacing={10} justifyContent="center" style={{ margin: '0px 20px' }}>
+            <Grid xs={12} sm={5}>
+              <Link style={{ textDecoration: 'none', pointerEvents: 'none' }} href="/gradients">
+                <StyledBox>
+                  <Image src="/ordered.png" width={150} height={150} style={{ margin: 'auto' }} />
+                  <Typography variant={isMobile ? 'h5' : 'h4'}>SLIDE</Typography>
+                  {/* <Typography variant="h6">Slide tiles into the correct order</Typography> */}
+                  <Typography variant="h6">Coming Soon (Maybe)</Typography>
+                </StyledBox>
               </Link>
             </Grid>
 
-            <Grid xs={12} md="auto" p={8}>
+            <Grid xs={12} sm={5}>
               <Link style={{ textDecoration: 'none' }} href="/gradients">
-                <Button>
-                  <StyledBox>
-                    <Image
-                      src="/scrambled.png"
-                      width={150}
-                      height={150}
-                      style={{ margin: 'auto' }}
-                    />
-                    <Typography variant="h4">Unscramble</Typography>
-                    <Typography variant="h6">Drag tiles into the correct order</Typography>
-                  </StyledBox>
-                </Button>
+                <StyledBox>
+                  <Image src="/scrambled.png" width={150} height={150} style={{ margin: 'auto' }} />
+                  <Typography variant={isMobile ? 'h5' : 'h4'}>UNSCRAMBLE</Typography>
+                  <Typography variant="h6" sx={{ textAlign: 'center' }}>
+                    Drag tiles into the correct order
+                  </Typography>
+                </StyledBox>
               </Link>
             </Grid>
           </Grid>
-
-          {/* <Grid container justifyContent="center" spacing={4}>
-            <Grid item>
-              <Button component="label" variant="contained" sx={{ width: '240px' }} size="large">
-                Upload Image
-                <input hidden type="file" onChange={handleImageSelect} />
-              </Button>
-            </Grid>
-            <Grid item>
-              <Link sx={{ textDecoration: 'none' }} href="/gradients">
-                <Button variant="contained" sx={{ width: '240px' }} size="large">
-                  Browse Levels
-                </Button>
-              </Link>
-            </Grid>
-          </Grid> */}
-          {/* {image && (
-              <Grid direction="row" container justifyContent="center" alignItems="center">
-                <Canvas
-                  img={image}
-                  gameStarted={gameStarted}
-                  onGameToggle={(toggle) => setGameStarted(toggle)}
-                />
-              </Grid>
-            )} */}
         </div>
       </main>
     </>

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useContext } from 'react'
 import {
   Box,
   Table,
@@ -10,8 +10,11 @@ import {
   TableSortLabel,
   Paper,
   Typography,
+  styled,
 } from '@mui/material'
+import Image from 'next/image'
 import { Gamepad, Person, Timer, CalendarToday } from '@mui/icons-material'
+import { MobileContext } from '../../context/mobileContext'
 
 const descendingComparator = (a, b, orderBy) => {
   if (b[orderBy] < a[orderBy]) return -1
@@ -132,9 +135,19 @@ function EnhancedTableHead({ order, orderBy, onRequestSort }) {
   )
 }
 
+const EmptyScoreBox = styled(Box)(() => ({
+  margin: '40px',
+  width: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+}))
+
 export default function Scoreboards({ scores }) {
   const [order, setOrder] = useState('asc')
   const [orderBy, setOrderBy] = useState('moves')
+  const { isMobile } = useContext(MobileContext)
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc'
@@ -147,7 +160,24 @@ export default function Scoreboards({ scores }) {
     [order, orderBy, scores],
   )
 
-  if (!scores) return null
+  if (!scores || !scores.length) {
+    return (
+      <EmptyScoreBox>
+        <Image
+          src="/empty_scoreboard.png"
+          width={isMobile ? 120 : 180}
+          height={isMobile ? 120 : 180}
+          style={{ border: '4px dashed #202C5A', padding: '10px' }}
+        />
+        <Typography
+          variant={isMobile ? 'h6' : 'h5'}
+          style={{ textAlign: 'center', textTransform: 'uppercase', padding: '20px' }}
+        >
+          No Scores!
+        </Typography>
+      </EmptyScoreBox>
+    )
+  }
 
   return (
     <Box sx={{ width: '100%', padding: '20px', height: '100%' }}>

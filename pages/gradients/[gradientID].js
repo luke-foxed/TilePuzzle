@@ -8,6 +8,7 @@ import Scoreboards from '../../src/components/scoreboards'
 import { StyledHeader } from '../../src/components/shared'
 import Difficulty from '../../src/components/canvas/Difficulty'
 import { MobileContext } from '../../src/context/mobileContext'
+import theme from '../../styles/theme'
 
 const fetcher = (...args) => fetch(...args).then((res) => res.json())
 
@@ -41,7 +42,7 @@ function Gradient() {
         sx={{ flexWrap: 'nowrap' }}
       >
         {isLoading ? (
-          <SquareLoader />
+          <SquareLoader color={theme.palette.error.main} />
         ) : (
           <>
             <Grid
