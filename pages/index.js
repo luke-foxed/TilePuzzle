@@ -5,7 +5,7 @@ import Grid from '@mui/material/Unstable_Grid2'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ViewModule } from '@mui/icons-material'
-import { MobileContext } from '../src/context/mobileContext'
+import { MobileContext } from '../src/context/mobileProvider'
 import { StyledHeader } from '../src/components/shared'
 
 const StyledBox = styled(Paper)(({ theme }) => ({

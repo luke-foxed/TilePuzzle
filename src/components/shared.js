@@ -1,7 +1,7 @@
 import { Close } from '@mui/icons-material'
 import { Box, Dialog, Grid, IconButton, styled, Typography } from '@mui/material'
 import { useContext } from 'react'
-import { MobileContext } from '../context/mobileContext'
+import { MobileContext } from '../context/mobileProvider'
 
 const CloseDialogButton = styled(IconButton)(({ theme }) => ({
   width: 'min-content',

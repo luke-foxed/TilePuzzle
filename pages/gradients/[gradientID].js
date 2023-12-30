@@ -8,7 +8,7 @@ import Canvas from '../../src/components/canvas'
 import Scoreboards from '../../src/components/scoreboards'
 import { StyledHeader } from '../../src/components/shared'
 import Difficulty from '../../src/components/canvas/Difficulty'
-import { MobileContext } from '../../src/context/mobileContext'
+import { MobileContext } from '../../src/context/mobileProvider'
 import theme from '../../styles/theme'
 
 const fetcher = (...args) => fetch(...args).then((res) => res.json())

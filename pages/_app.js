@@ -9,7 +9,8 @@ import theme from '../styles/theme/index'
 import Navbar from '../src/components/navbar'
 import '../styles/globals.css'
 import StyledSnackbar from '../styles/theme/snackbar'
-import { MobileProvider } from '../src/context/mobileContext'
+import { MobileProvider } from '../src/context/mobileProvider'
+import Footer from '../src/components/footer'
 
 const clientSideEmotionCache = createEmotionCache()
 
@@ -32,6 +33,7 @@ export default function MyApp(props) {
               <Navbar />
               {/* eslint-disable-next-line react/jsx-props-no-spreading */}
               <Component {...pageProps} />
+              <Footer />
             </MobileProvider>
           </ThemeProvider>
         </SnackbarProvider>

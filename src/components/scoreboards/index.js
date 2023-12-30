@@ -14,7 +14,7 @@ import {
 } from '@mui/material'
 import Image from 'next/image'
 import { Gamepad, Person, Timer, CalendarToday } from '@mui/icons-material'
-import { MobileContext } from '../../context/mobileContext'
+import { MobileContext } from '../../context/mobileProvider'
 
 const descendingComparator = (a, b, orderBy) => {
   if (b[orderBy] < a[orderBy]) return -1

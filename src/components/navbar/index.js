@@ -8,7 +8,7 @@ import theme from '../../../styles/theme'
 import { AuthUserContext } from '../../context/userProvider'
 import Authenticate from './Authenticate'
 import UserMenu from './UserMenu'
-import { MobileContext } from '../../context/mobileContext'
+import { MobileContext } from '../../context/mobileProvider'
 
 const StyledTopBar = styled(AppBar)(({ theme: t }) => ({
   height: '180px',

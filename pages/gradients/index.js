@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { useContext, useState } from 'react'
 import { getGradients } from '../api/gradients'
 import { generateThumbnail } from '../../src/utils/dndHelper'
-import { MobileContext } from '../../src/context/mobileContext'
+import { MobileContext } from '../../src/context/mobileProvider'
 
 const GradientThumbnail = styled('img', { shouldForwardProp: (props) => props !== 'isMobile' })(
   ({ isMobile }) => ({

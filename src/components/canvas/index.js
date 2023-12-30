@@ -12,7 +12,7 @@ import SuccessModal from './SuccessModal'
 import theme from '../../../styles/theme'
 import Tile from './Tile'
 import { generateTileShadesV2, shuffleTiles } from '../../utils/dndHelper'
-import { MobileContext } from '../../context/mobileContext'
+import { MobileContext } from '../../context/mobileProvider'
 
 const DIFFICULTIES = [
   {
