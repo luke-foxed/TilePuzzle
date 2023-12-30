@@ -46,10 +46,8 @@ export default function Footer() {
           <Image src="/tile_icon.png" width={30} height={30} />
           <Typography variant={isMobile ? 'h7' : 'h4'}>TILED</Typography>
           <Typography variant={isMobile ? 'h7' : 'h6'}>
-            {' '}
-            by Luke Fox,
-            {' '}
-            {!isMobile && new Date().getFullYear()}
+            by Luke Fox
+            {!isMobile && `, ${new Date().getFullYear()}`}
           </Typography>
         </Grid>
         <Grid container item xs={3} sm={6} alignItems="center" justifyContent="flex-end" gap="10px">
