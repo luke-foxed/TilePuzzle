@@ -39,7 +39,9 @@ export default function Home() {
       </Head>
       <main>
         <div className="root">
-          <StyledHeader size={isMobile ? 'h4' : 'h3'} icon={ViewModule}>Game Modes</StyledHeader>
+          <StyledHeader size={isMobile ? 'h4' : 'h3'} icon={ViewModule}>
+            Game Modes
+          </StyledHeader>
 
           <Grid container spacing={10} justifyContent="center" style={{ margin: '0px 20px' }}>
             <Grid xs={12} sm={5}>
@@ -48,7 +50,9 @@ export default function Home() {
                   <Image src="/ordered.png" width={150} height={150} style={{ margin: 'auto' }} />
                   <Typography variant={isMobile ? 'h5' : 'h4'}>SLIDE</Typography>
                   {/* <Typography variant="h6">Slide tiles into the correct order</Typography> */}
-                  <Typography variant="h6">Coming Soon (Maybe)</Typography>
+                  <Typography variant="h6" sx={{ textAlign: 'center' }}>
+                    Disabled - Coming Soon (Maybe)
+                  </Typography>
                 </StyledBox>
               </Link>
             </Grid>

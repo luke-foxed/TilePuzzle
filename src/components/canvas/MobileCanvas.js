@@ -7,7 +7,7 @@ import {
 } from '@mui/icons-material'
 import { Box, IconButton, styled, Typography } from '@mui/material'
 import Grid from '@mui/material/Unstable_Grid2'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { SquareLoader } from 'react-spinners'
 import theme from '../../../styles/theme'
 import { generateThumbnail } from '../../utils/dndHelper'
@@ -63,6 +63,17 @@ export default function MobileCanvasModal({
   // height of window - 10px margin top (set below) - minus the height of the canvas
   const toolbarHeight = `${(window.visualViewport.height - 10) - canvasHeight}px`
   const thumbnail = generateThumbnail(colors)
+
+  // a little hacky but we're hiding the footer when we go fullscreen
+  useEffect(() => {
+    const footer = document.getElementsByTagName('footer')[0]
+    if (fullScreen) {
+      footer.style.display = 'none'
+    }
+    return () => {
+      footer.style.display = 'block'
+    }
+  }, [fullScreen])
 
   const handleCanvasClick = async () => {
     await onClickCanvas()

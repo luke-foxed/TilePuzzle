@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { Grid, Typography, styled } from '@mui/material'
+import { Grid, Typography, darken, styled } from '@mui/material'
 import Image from 'next/image'
 import { GitHub, LinkedIn } from '@mui/icons-material'
 import Link from 'next/link'
@@ -8,7 +8,7 @@ import theme from '../../../styles/theme'
 import { MobileContext } from '../../context/mobileProvider'
 
 const StyledFooter = styled('footer')({
-  backgroundColor: theme.palette.primary.main,
+  backgroundColor: darken(theme.palette.background.default, 0.1),
   color: '#fff',
   height: '50px',
   textAlign: 'center',
@@ -33,7 +33,7 @@ export default function Footer() {
   }, [isMobile, router.pathname])
 
   return (
-    <StyledFooter style={{ marginTop }}>
+    <StyledFooter style={{ marginTop }} className="footer">
       <Grid
         container
         justifyContent="center"
